@@ -1,0 +1,662 @@
+{
+  "workflow_name": "Google Drive M4A議事録自動生成ワークフロー",
+  "target_node_count": "35-45ノード（制約の10-50ノード内）",
+  "decomposition_strategy": "8層フレームワークの各タスクをn8nノードに分解し、AI Agent Nodeはクラスターノード構造（AI Agent + Chat Model + Tools + Memory）で実装",
+
+  "node_breakdown_by_layer": {
+
+    "layer_1_trigger": {
+      "layer_name": "Trigger Layer",
+      "nodes": [
+        {
+          "node_id": "N001",
+          "node_name": "Google Drive Trigger",
+          "node_type": "@n8n/n8n-nodes-base.googleDriveTrigger",
+          "purpose": "指定フォルダ内のM4Aファイル追加を検知",
+          "parameters": {
+            "triggerOn": "fileCreated",
+            "folderId": "={{ $env.GOOGLE_DRIVE_FOLDER_ID }}",
+            "filters": {
+              "fileExtensions": ["m4a"]
+            },
+            "pollInterval": 60
+          },
+          "output": "ファイルメタデータ（id, name, mimeType, createdTime, size）"
+        }
+      ],
+      "node_count": 1
+    },
+
+    "layer_2_fetch": {
+      "layer_name": "Fetch Layer",
+      "nodes": [
+        {
+          "node_id": "N002",
+          "node_name": "Get M4A File from Drive",
+          "node_type": "@n8n/n8n-nodes-base.googleDrive",
+          "purpose": "Google DriveからM4Aファイルのバイナリデータを取得",
+          "parameters": {
+            "operation": "download",
+            "fileId": "={{ $json.id }}",
+            "options": {
+              "binaryPropertyName": "m4aFile"
+            }
+          },
+          "output": "M4Aファイルバイナリデータ"
+        },
+        {
+          "node_id": "N003",
+          "node_name": "Prepare Transcription Request",
+          "node_type": "@n8n/n8n-nodes-base.code",
+          "purpose": "文字起こしAPIリクエストのためのデータ準備",
+          "code": "ファイル名、サイズ、バイナリデータを整形",
+          "output": "文字起こしAPI用リクエストデータ"
+        },
+        {
+          "node_id": "N004",
+          "node_name": "Speech-to-Text API Call",
+          "node_type": "@n8n/n8n-nodes-base.httpRequest",
+          "purpose": "M4Aファイルを文字起こしAPIに送信（OpenAI Whisper/Google/AssemblyAI等）",
+          "parameters": {
+            "method": "POST",
+            "url": "={{ $env.TRANSCRIPTION_API_URL }}",
+            "authentication": "predefinedCredentialType",
+            "credentialType": "whisperApi/googleCloudApi/assemblyAiApi",
+            "sendBinaryData": true,
+            "binaryPropertyName": "m4aFile"
+          },
+          "output": "生の文字起こしテキスト（raw_transcript）"
+        }
+      ],
+      "node_count": 3
+    },
+
+    "layer_3_validate": {
+      "layer_name": "Validate Layer",
+      "nodes": [
+        {
+          "node_id": "N005",
+          "node_name": "Validate Transcript",
+          "node_type": "@n8n/n8n-nodes-base.if",
+          "purpose": "文字起こし結果が有効かチェック（空でない、最小文字数満たす）",
+          "parameters": {
+            "conditions": {
+              "and": [
+                "{{ $json.raw_transcript !== null }}",
+                "{{ $json.raw_transcript.length > 100 }}"
+              ]
+            }
+          },
+          "branches": {
+            "true": "N006",
+            "false": "ERROR_WORKFLOW"
+          }
+        },
+        {
+          "node_id": "N006",
+          "node_name": "Validate Metadata",
+          "node_type": "@n8n/n8n-nodes-base.if",
+          "purpose": "ファイルメタデータが完全かチェック",
+          "parameters": {
+            "conditions": {
+              "and": [
+                "{{ $json.file_name !== null }}",
+                "{{ $json.created_time !== null }}"
+              ]
+            }
+          },
+          "branches": {
+            "true": "N007",
+            "false": "ERROR_WORKFLOW"
+          }
+        }
+      ],
+      "node_count": 2
+    },
+
+    "layer_4_transform": {
+      "layer_name": "Transform Layer - 最重要（AI処理5ステップ）",
+
+      "step1_transcript_formatting": {
+        "step_name": "ステップ1: 文字起こし整形（XAI Grok）",
+        "description": "生の文字起こしテキストからフィラーを除去し、1行ごとに構造化されたJSON配列を生成（ループ処理）",
+        "nodes": [
+          {
+            "node_id": "N007",
+            "node_name": "Prepare Transcript for Loop",
+            "node_type": "@n8n/n8n-nodes-base.code",
+            "purpose": "文字起こしテキストを行単位に分割してループ準備",
+            "code": "raw_transcriptを改行で分割し、各行をアイテムとして配列化",
+            "output": "行配列"
+          },
+          {
+            "node_id": "N008",
+            "node_name": "Split Transcript Lines",
+            "node_type": "@n8n/n8n-nodes-base.splitInBatches",
+            "purpose": "文字起こし行をバッチ処理のために分割（ループ開始）",
+            "parameters": {
+              "batchSize": 10,
+              "options": {
+                "reset": false
+              }
+            },
+            "loop_start": true
+          },
+          {
+            "node_id": "N009",
+            "node_name": "AI Agent: Transcript Formatter",
+            "node_type": "@n8n/n8n-nodes-langchain.agent",
+            "purpose": "フィラー除去、1行ごとJSON化（AI Agent）",
+            "cluster_root": true,
+            "responsibility": "文字起こしテキスト整形（フィラー除去、構造化）",
+            "prompt": "あなたは日本語文字起こしテキスト整形の専門家です。\n\n入力されたテキストからフィラー（'えー'、'あー'、'えっと'、'まあ'等）を除去し、1行ごとに構造化されたJSON形式で出力してください。\n\n出力形式：\n{\n  \"line_number\": 行番号,\n  \"speaker\": \"発言者名（推定）\",\n  \"content\": \"整形済みテキスト\",\n  \"timestamp_estimate\": \"推定タイムスタンプ（optional）\"\n}",
+            "connected_subnodes": ["N010", "N011"]
+          },
+          {
+            "node_id": "N010",
+            "node_name": "Chat Model: XAI Grok",
+            "node_type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "purpose": "XAI Grokモデルに接続",
+            "parent_node": "N009",
+            "parameters": {
+              "model": "grok-beta",
+              "baseURL": "https://api.x.ai/v1",
+              "authentication": "xAiApi",
+              "temperature": 0.3,
+              "maxTokens": 4096
+            }
+          },
+          {
+            "node_id": "N011",
+            "node_name": "Memory: Simple Memory",
+            "node_type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "purpose": "会話履歴管理",
+            "parent_node": "N009",
+            "parameters": {
+              "contextWindowLength": 10,
+              "sessionIdType": "customKey",
+              "sessionKey": "={{ $json.sessionId }}"
+            }
+          },
+          {
+            "node_id": "N012",
+            "node_name": "Loop Back or Continue",
+            "node_type": "@n8n/n8n-nodes-base.splitInBatches",
+            "purpose": "ループ制御（次のバッチまたは終了）",
+            "loop_control": true
+          },
+          {
+            "node_id": "N013",
+            "node_name": "Aggregate Formatted Lines",
+            "node_type": "@n8n/n8n-nodes-base.itemLists",
+            "purpose": "整形済み行JSONを配列に統合",
+            "parameters": {
+              "operation": "aggregateItems",
+              "aggregate": "aggregateAllItemData"
+            },
+            "output": "整形済み箇条書きJSON配列",
+            "loop_end": true
+          }
+        ],
+        "node_count": 7
+      },
+
+      "step2_agenda_extraction": {
+        "step_name": "ステップ2: 議題抽出（XAI Grok）",
+        "description": "整形済みテキストから議題を識別し、議題ごとにJSONオブジェクトを生成",
+        "nodes": [
+          {
+            "node_id": "N014",
+            "node_name": "AI Agent: Agenda Extractor",
+            "node_type": "@n8n/n8n-nodes-langchain.agent",
+            "purpose": "議題抽出と構造化（AI Agent）",
+            "cluster_root": true,
+            "responsibility": "議題の識別、タイトル付与、議論内容グループ化",
+            "prompt": "あなたは会議議題抽出の専門家です。\n\n入力された整形済み文字起こしテキストから議題を識別し、議題ごとにJSONオブジェクトを生成してください。\n\n出力形式：\n[\n  {\n    \"agenda_id\": 議題番号,\n    \"agenda_title\": \"議題タイトル\",\n    \"discussion_lines\": [関連する行番号の配列],\n    \"discussion_content\": \"議論内容のまとめ\"\n  }\n]",
+            "connected_subnodes": ["N015", "N016"]
+          },
+          {
+            "node_id": "N015",
+            "node_name": "Chat Model: XAI Grok",
+            "node_type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "purpose": "XAI Grokモデルに接続",
+            "parent_node": "N014",
+            "parameters": {
+              "model": "grok-beta",
+              "baseURL": "https://api.x.ai/v1",
+              "authentication": "xAiApi",
+              "temperature": 0.3,
+              "maxTokens": 4096
+            }
+          },
+          {
+            "node_id": "N016",
+            "node_name": "Memory: Simple Memory",
+            "node_type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "purpose": "会話履歴管理",
+            "parent_node": "N014",
+            "parameters": {
+              "contextWindowLength": 10,
+              "sessionIdType": "customKey",
+              "sessionKey": "={{ $json.sessionId }}"
+            }
+          },
+          {
+            "node_id": "N017",
+            "node_name": "Parse Agenda JSON",
+            "node_type": "@n8n/n8n-nodes-base.code",
+            "purpose": "議題JSONをパースして配列化",
+            "output": "議題JSON配列"
+          }
+        ],
+        "node_count": 4
+      },
+
+      "step3_agenda_analysis": {
+        "step_name": "ステップ3: 議題分析（XAI Grok）",
+        "description": "各議題から決定事項、宿題、保留事項を抽出（ループ処理）",
+        "nodes": [
+          {
+            "node_id": "N018",
+            "node_name": "Split Agendas for Analysis",
+            "node_type": "@n8n/n8n-nodes-base.splitInBatches",
+            "purpose": "議題配列をループ処理のために分割（ループ開始）",
+            "parameters": {
+              "batchSize": 1,
+              "options": {
+                "reset": false
+              }
+            },
+            "loop_start": true
+          },
+          {
+            "node_id": "N019",
+            "node_name": "AI Agent: Agenda Analyzer",
+            "node_type": "@n8n/n8n-nodes-langchain.agent",
+            "purpose": "議題ごとに決定事項、宿題、保留事項を抽出（AI Agent）",
+            "cluster_root": true,
+            "responsibility": "議題分析（決定事項、宿題、保留事項の抽出）",
+            "prompt": "あなたは会議議題分析の専門家です。\n\n入力された議題の議論内容から以下を抽出してください：\n1. 決定事項（合意された内容）\n2. 宿題（担当者、期限、タスク内容）\n3. 保留事項（未解決、次回持ち越し）\n\n既存のJSONオブジェクトに追記する形で出力してください。\n\n出力形式：\n{\n  \"agenda_id\": 議題番号,\n  \"agenda_title\": \"議題タイトル\",\n  \"discussion_content\": \"議論内容\",\n  \"decisions\": [\"決定事項1\", \"決定事項2\"],\n  \"tasks\": [{\"assignee\": \"担当者\", \"deadline\": \"期限\", \"description\": \"タスク内容\"}],\n  \"pending_items\": [{\"item\": \"保留事項\", \"reason\": \"理由\"}]\n}",
+            "connected_subnodes": ["N020", "N021"]
+          },
+          {
+            "node_id": "N020",
+            "node_name": "Chat Model: XAI Grok",
+            "node_type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "purpose": "XAI Grokモデルに接続",
+            "parent_node": "N019",
+            "parameters": {
+              "model": "grok-beta",
+              "baseURL": "https://api.x.ai/v1",
+              "authentication": "xAiApi",
+              "temperature": 0.3,
+              "maxTokens": 4096
+            }
+          },
+          {
+            "node_id": "N021",
+            "node_name": "Memory: Simple Memory",
+            "node_type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "purpose": "会話履歴管理",
+            "parent_node": "N019",
+            "parameters": {
+              "contextWindowLength": 10,
+              "sessionIdType": "customKey",
+              "sessionKey": "={{ $json.sessionId }}"
+            }
+          },
+          {
+            "node_id": "N022",
+            "node_name": "Loop Back or Continue",
+            "node_type": "@n8n/n8n-nodes-base.splitInBatches",
+            "purpose": "ループ制御（次の議題または終了）",
+            "loop_control": true
+          },
+          {
+            "node_id": "N023",
+            "node_name": "Aggregate Analyzed Agendas",
+            "node_type": "@n8n/n8n-nodes-base.itemLists",
+            "purpose": "分析済み議題JSONを配列に統合",
+            "parameters": {
+              "operation": "aggregateItems",
+              "aggregate": "aggregateAllItemData"
+            },
+            "output": "分析結果JSON配列",
+            "loop_end": true
+          }
+        ],
+        "node_count": 6
+      },
+
+      "step_merge": {
+        "step_name": "データマージ",
+        "description": "ステップ1,2,3のJSONを統合",
+        "nodes": [
+          {
+            "node_id": "N024",
+            "node_name": "Merge All Step Data",
+            "node_type": "@n8n/n8n-nodes-base.code",
+            "purpose": "整形済み箇条書き、議題、分析結果を統合",
+            "code": "全ステップのJSON出力を1つのオブジェクトに統合",
+            "output": "統合JSON（formatted_lines, agendas, metadata）"
+          }
+        ],
+        "node_count": 1
+      },
+
+      "step4_format_conversion": {
+        "step_name": "ステップ4: フォーマット変換（Claude Sonnet 4.5）",
+        "description": "統合JSONを指定の議事録フォーマットに変換",
+        "nodes": [
+          {
+            "node_id": "N025",
+            "node_name": "AI Agent: Format Converter",
+            "node_type": "@n8n/n8n-nodes-langchain.agent",
+            "purpose": "議事録フォーマット変換（AI Agent）",
+            "cluster_root": true,
+            "responsibility": "統合JSONを指定フォーマットの議事録に変換",
+            "prompt": "あなたは議事録作成の専門家です。\n\n入力された統合JSON（整形済みテキスト、議題、分析結果）とファイルメタデータから、以下のフォーマットで議事録を生成してください：\n\n# [タイトル]（ファイル名から生成）\n日時: [作成日時]\n参加者: [発言者から推定]\n\n## 議題1: [議題タイトル]\n### 議論内容\n- [箇条書き]\n\n### 決定事項\n- [箇条書き]\n\n### 宿題\n- [担当者] [期限] [タスク内容]\n\n### 保留事項\n- [理由付き箇条書き]\n\n---\n\n## 全体サマリー\n[全議題を踏まえた総括]",
+            "connected_subnodes": ["N026", "N027"]
+          },
+          {
+            "node_id": "N026",
+            "node_name": "Chat Model: Claude Sonnet 4.5",
+            "node_type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+            "purpose": "Claude Sonnet 4.5モデルに接続",
+            "parent_node": "N025",
+            "parameters": {
+              "model": "claude-sonnet-4-5-20250514",
+              "authentication": "anthropicApi",
+              "temperature": 0.5,
+              "maxTokens": 8192
+            }
+          },
+          {
+            "node_id": "N027",
+            "node_name": "Memory: Simple Memory",
+            "node_type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "purpose": "会話履歴管理",
+            "parent_node": "N025",
+            "parameters": {
+              "contextWindowLength": 10,
+              "sessionIdType": "customKey",
+              "sessionKey": "={{ $json.sessionId }}"
+            }
+          }
+        ],
+        "node_count": 3
+      },
+
+      "step5_quality_assurance": {
+        "step_name": "ステップ5: 品質保証（Claude Sonnet 4.5）",
+        "description": "全ステップ検証、議事録完全性確認",
+        "nodes": [
+          {
+            "node_id": "N028",
+            "node_name": "AI Agent: Quality Assurance",
+            "node_type": "@n8n/n8n-nodes-langchain.agent",
+            "purpose": "品質保証検証（AI Agent）",
+            "cluster_root": true,
+            "responsibility": "全ステップ成果物の検証と議事録完全性確認",
+            "prompt": "あなたは議事録品質保証の専門家です。\n\n入力された全ステップの成果物（整形済みテキスト、議題、分析結果、最終議事録）を検証し、以下を確認してください：\n\n1. 必須項目の存在（タイトル、日時、議題、決定事項）\n2. データ整合性（JSONと議事録の一致）\n3. フォーマット準拠\n4. 文法・表現の適切性\n\n検証結果と改善提案を含む品質レポートを生成してください。\n\n出力形式：\n{\n  \"validated_minutes\": \"検証済み議事録（修正済み）\",\n  \"quality_report\": {\n    \"overall_score\": 0-100,\n    \"issues_found\": [\"問題点リスト\"],\n    \"improvements_applied\": [\"適用した改善\"],\n    \"recommendations\": [\"推奨事項\"]\n  }\n}",
+            "connected_subnodes": ["N029", "N030"]
+          },
+          {
+            "node_id": "N029",
+            "node_name": "Chat Model: Claude Sonnet 4.5",
+            "node_type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+            "purpose": "Claude Sonnet 4.5モデルに接続",
+            "parent_node": "N028",
+            "parameters": {
+              "model": "claude-sonnet-4-5-20250514",
+              "authentication": "anthropicApi",
+              "temperature": 0.5,
+              "maxTokens": 8192
+            }
+          },
+          {
+            "node_id": "N030",
+            "node_name": "Memory: Simple Memory",
+            "node_type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "purpose": "会話履歴管理",
+            "parent_node": "N028",
+            "parameters": {
+              "contextWindowLength": 10,
+              "sessionIdType": "customKey",
+              "sessionKey": "={{ $json.sessionId }}"
+            }
+          },
+          {
+            "node_id": "N031",
+            "node_name": "Parse QA Result",
+            "node_type": "@n8n/n8n-nodes-base.code",
+            "purpose": "品質保証結果JSONをパース",
+            "output": "検証済み議事録 + 品質レポート"
+          }
+        ],
+        "node_count": 4
+      },
+
+      "total_transform_nodes": 25
+    },
+
+    "layer_5_conditional": {
+      "layer_name": "Conditional Layer",
+      "nodes": [
+        {
+          "node_id": "N032",
+          "node_name": "Check QA Pass",
+          "node_type": "@n8n/n8n-nodes-base.if",
+          "purpose": "品質保証の結果が合格か確認",
+          "parameters": {
+            "conditions": {
+              "number": [
+                {
+                  "value1": "={{ $json.quality_report.overall_score }}",
+                  "operation": "larger",
+                  "value2": 70
+                }
+              ]
+            }
+          },
+          "branches": {
+            "true": "N033 (Notion出力へ)",
+            "false": "ERROR_WORKFLOW (再処理または通知)"
+          }
+        }
+      ],
+      "node_count": 1
+    },
+
+    "layer_6_execute": {
+      "layer_name": "Execute Layer",
+      "nodes": [
+        {
+          "node_id": "N033",
+          "node_name": "Prepare Agendas for Notion",
+          "node_type": "@n8n/n8n-nodes-base.code",
+          "purpose": "Notion出力のために議題を分割準備",
+          "code": "議題配列を個別アイテムに分割、Notion用プロパティを追加",
+          "output": "Notion出力用議題配列"
+        },
+        {
+          "node_id": "N034",
+          "node_name": "Split Agendas for Notion",
+          "node_type": "@n8n/n8n-nodes-base.splitInBatches",
+          "purpose": "議題をループ処理のために分割（ループ開始、API制限回避）",
+          "parameters": {
+            "batchSize": 1,
+            "options": {
+              "reset": false
+            }
+          },
+          "loop_start": true
+        },
+        {
+          "node_id": "N035",
+          "node_name": "Create Notion Page per Agenda",
+          "node_type": "@n8n/n8n-nodes-base.notion",
+          "purpose": "議題ごとにNotionページを作成",
+          "parameters": {
+            "resource": "page",
+            "operation": "create",
+            "databaseId": "={{ $env.NOTION_DATABASE_ID }}",
+            "title": "={{ $json.agenda_title }}",
+            "properties": {
+              "date": "={{ $json.meeting_date }}",
+              "participants": "={{ $json.participants }}",
+              "status": "完了"
+            },
+            "blockContent": "={{ $json.agenda_content_markdown }}"
+          }
+        },
+        {
+          "node_id": "N036",
+          "node_name": "Wait for Rate Limit",
+          "node_type": "@n8n/n8n-nodes-base.wait",
+          "purpose": "Notion API制限を考慮して遅延（0.5秒）",
+          "parameters": {
+            "amount": 500,
+            "unit": "ms"
+          }
+        },
+        {
+          "node_id": "N037",
+          "node_name": "Loop Back or Continue",
+          "node_type": "@n8n/n8n-nodes-base.splitInBatches",
+          "purpose": "ループ制御（次の議題または終了）",
+          "loop_control": true,
+          "loop_end": true
+        },
+        {
+          "node_id": "N038",
+          "node_name": "Send Completion Notification (Optional)",
+          "node_type": "@n8n/n8n-nodes-base.slack",
+          "purpose": "処理完了を通知（オプション）",
+          "optional": true,
+          "parameters": {
+            "operation": "sendMessage",
+            "channel": "={{ $env.SLACK_CHANNEL }}",
+            "text": "議事録生成完了: {{ $json.file_name }}"
+          }
+        }
+      ],
+      "node_count": 6
+    },
+
+    "layer_7_integrate": {
+      "layer_name": "Integrate Layer",
+      "nodes": [
+        {
+          "node_id": "N039",
+          "node_name": "Aggregate Execution Logs",
+          "node_type": "@n8n/n8n-nodes-base.code",
+          "purpose": "全処理ログを統合",
+          "code": "各ステップの実行時間、データサイズ、エラー、品質スコアを集約",
+          "output": "統合ログJSON"
+        }
+      ],
+      "node_count": 1
+    },
+
+    "layer_8_output": {
+      "layer_name": "Output Layer",
+      "nodes": [
+        {
+          "node_id": "N040",
+          "node_name": "Update Workflow Status",
+          "node_type": "@n8n/n8n-nodes-base.code",
+          "purpose": "ワークフロー完了ステータスを更新",
+          "code": "完了フラグを立て、実行サマリーを記録",
+          "output": "完了ステータス"
+        }
+      ],
+      "node_count": 1
+    }
+  },
+
+  "total_node_summary": {
+    "layer_1_trigger": 1,
+    "layer_2_fetch": 3,
+    "layer_3_validate": 2,
+    "layer_4_transform": {
+      "step1_formatting": 7,
+      "step2_extraction": 4,
+      "step3_analysis": 6,
+      "step_merge": 1,
+      "step4_conversion": 3,
+      "step5_qa": 4,
+      "subtotal": 25
+    },
+    "layer_5_conditional": 1,
+    "layer_6_execute": 6,
+    "layer_7_integrate": 1,
+    "layer_8_output": 1,
+    "total_nodes": 41
+  },
+
+  "ai_agent_cluster_summary": {
+    "total_ai_agents": 5,
+    "clusters": [
+      {
+        "cluster_id": "C1",
+        "root_node": "N009",
+        "agent_name": "Transcript Formatter",
+        "subnodes": ["N010 (Chat Model: Grok)", "N011 (Memory)"],
+        "responsibility": "文字起こし整形"
+      },
+      {
+        "cluster_id": "C2",
+        "root_node": "N014",
+        "agent_name": "Agenda Extractor",
+        "subnodes": ["N015 (Chat Model: Grok)", "N016 (Memory)"],
+        "responsibility": "議題抽出"
+      },
+      {
+        "cluster_id": "C3",
+        "root_node": "N019",
+        "agent_name": "Agenda Analyzer",
+        "subnodes": ["N020 (Chat Model: Grok)", "N021 (Memory)"],
+        "responsibility": "議題分析"
+      },
+      {
+        "cluster_id": "C4",
+        "root_node": "N025",
+        "agent_name": "Format Converter",
+        "subnodes": ["N026 (Chat Model: Claude)", "N027 (Memory)"],
+        "responsibility": "フォーマット変換"
+      },
+      {
+        "cluster_id": "C5",
+        "root_node": "N028",
+        "agent_name": "Quality Assurance",
+        "subnodes": ["N029 (Chat Model: Claude)", "N030 (Memory)"],
+        "responsibility": "品質保証"
+      }
+    ]
+  },
+
+  "loop_processing_implementation": {
+    "loop_1": {
+      "name": "文字起こし整形ループ",
+      "start_node": "N008 (Split Transcript Lines)",
+      "processing_node": "N009 (AI Agent)",
+      "control_node": "N012 (Loop Back or Continue)",
+      "end_node": "N013 (Aggregate Formatted Lines)"
+    },
+    "loop_2": {
+      "name": "議題分析ループ",
+      "start_node": "N018 (Split Agendas for Analysis)",
+      "processing_node": "N019 (AI Agent)",
+      "control_node": "N022 (Loop Back or Continue)",
+      "end_node": "N023 (Aggregate Analyzed Agendas)"
+    },
+    "loop_3": {
+      "name": "Notion出力ループ",
+      "start_node": "N034 (Split Agendas for Notion)",
+      "processing_node": "N035 (Create Notion Page)",
+      "delay_node": "N036 (Wait for Rate Limit)",
+      "control_node": "N037 (Loop Back or Continue)"
+    }
+  }
+}

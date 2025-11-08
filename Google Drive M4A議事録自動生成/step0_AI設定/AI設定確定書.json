@@ -1,0 +1,125 @@
+{
+  "workflow_name": "Google Drive M4A議事録自動生成ワークフロー",
+  "ai_agent_config": {
+    "chat_models": [
+      {
+        "purpose": "ステップ1,2,3用（文字起こし整形、議題抽出、議題分析）",
+        "node_type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "display_name": "XAI Grok Chat Model",
+        "model": "grok-beta",
+        "base_url": "https://api.x.ai/v1",
+        "authentication": "API Key",
+        "parameters": {
+          "temperature": 0.3,
+          "maxTokens": 4096,
+          "topP": 1,
+          "frequencyPenalty": 0,
+          "presencePenalty": 0
+        },
+        "use_cases": [
+          "文字起こしテキスト整形（フィラー除去、1行ごと生成）",
+          "議題抽出（JSON構造化）",
+          "議題分析（決定事項、宿題、保留事項抽出）"
+        ]
+      },
+      {
+        "purpose": "ステップ4,5用（フォーマット変換、品質保証）",
+        "node_type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+        "display_name": "Claude Sonnet 4.5 Chat Model",
+        "model": "claude-sonnet-4-5-20250514",
+        "authentication": "API Key",
+        "parameters": {
+          "temperature": 0.5,
+          "maxTokens": 8192,
+          "topP": 1
+        },
+        "use_cases": [
+          "議事録フォーマット変換（指定フォーマット適用）",
+          "品質保証（全ステップ検証、議事録完全性確認）"
+        ]
+      }
+    ],
+    "memory": {
+      "node_type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "display_name": "Simple Memory",
+      "parameters": {
+        "contextWindowLength": 10,
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.sessionId }}"
+      },
+      "purpose": "各AIエージェントの会話履歴管理"
+    },
+    "credential_setup": [
+      {
+        "type": "XAI API (OpenAI互換)",
+        "credential_name": "xAiApi",
+        "api_key_variable": "XAI_API_KEY",
+        "base_url": "https://api.x.ai/v1",
+        "instructions": "1. https://console.x.ai/ にアクセス\n2. APIキーを生成\n3. n8nの認証情報設定で「OpenAI」を選択\n4. Base URLに「https://api.x.ai/v1」を設定\n5. APIキーを入力"
+      },
+      {
+        "type": "Anthropic API",
+        "credential_name": "anthropicApi",
+        "api_key_variable": "ANTHROPIC_API_KEY",
+        "instructions": "1. https://console.anthropic.com/ にアクセス\n2. APIキーを生成\n3. n8nの認証情報設定で「Anthropic」を選択\n4. APIキーを入力"
+      },
+      {
+        "type": "Google Drive",
+        "credential_name": "googleDriveOAuth2Api",
+        "instructions": "1. Google Cloud Consoleでプロジェクト作成\n2. Google Drive APIを有効化\n3. OAuth 2.0クライアントIDを作成\n4. n8nの認証情報設定で「Google Drive OAuth2 API」を選択\n5. クライアントIDとシークレットを入力\n6. 認証フローを完了"
+      },
+      {
+        "type": "Notion API",
+        "credential_name": "notionApi",
+        "api_key_variable": "NOTION_API_KEY",
+        "database_id_variable": "NOTION_DATABASE_ID",
+        "instructions": "1. https://www.notion.so/my-integrations にアクセス\n2. 新しいインテグレーションを作成\n3. Internal Integration Tokenを取得\n4. 議事録用データベースを作成\n5. データベースをインテグレーションに共有\n6. データベースIDを取得（URLの最後の32文字）\n7. n8nの認証情報設定で「Notion API」を選択\n8. APIキーを入力"
+      }
+    ]
+  },
+  "minutes_format": {
+    "default_format": {
+      "title": "議事録タイトル（ファイル名から自動生成）",
+      "date": "日時（ファイル作成日時から取得）",
+      "participants": "参加者（音声から推定または手動入力）",
+      "agenda_sections": [
+        {
+          "agenda_title": "議題1",
+          "discussion": "議論内容（箇条書き）",
+          "decisions": "決定事項（箇条書き）",
+          "tasks": "宿題（担当者、期限付き）",
+          "pending": "保留事項（理由付き）"
+        }
+      ],
+      "summary": "全体サマリー（品質保証AIが生成）"
+    },
+    "notion_database_schema": {
+      "title": "Text（議事録タイトル）",
+      "date": "Date（日時）",
+      "participants": "Multi-select（参加者）",
+      "status": "Select（ステータス: 下書き/レビュー中/完了）",
+      "content": "Rich Text（議事録本文）"
+    }
+  },
+  "workflow_overview": {
+    "trigger": "Google Driveの指定フォルダにM4Aファイルが保存された時",
+    "processing_steps": [
+      "ステップ1: 文字起こし整形（XAI Grok）- フィラー除去、1行ごとJSON化、全データループ処理",
+      "ステップ2: 議題抽出（XAI Grok）- 議題ごとにJSONオブジェクト生成",
+      "ステップ3: 議題分析（XAI Grok）- 決定事項、宿題、保留事項を抽出してJSONに追記",
+      "ステップ4: フォーマット変換（Claude Sonnet 4.5）- 指定フォーマットに変換、全ステップ情報統合",
+      "ステップ5: 品質保証（Claude Sonnet 4.5）- 全ステップ読込、議事録完全性検証"
+    ],
+    "output": "Notionデータベースに議題ごとにページ作成（ループ処理でAPI制限回避）"
+  },
+  "technical_constraints": {
+    "loop_processing": [
+      "ステップ1: 文字起こしテキストを1行ずつループ処理",
+      "ステップ3: 議題ごとにループ処理",
+      "Notion出力: 議題ごとにループ処理してAPI送信"
+    ],
+    "data_structure": "全ステップでJSON形式を維持し、次ステップに引き継ぎ",
+    "error_handling": "各ステップでエラーハンドリングを実装",
+    "rate_limiting": "Notion API制限を考慮し、議題ごとに分割送信"
+  }
+}

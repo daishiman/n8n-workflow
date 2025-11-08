@@ -1,0 +1,286 @@
+{
+  "workflow_name": "Google Drive M4A議事録自動生成ワークフロー",
+  "layered_structure": {
+    "trigger_layer": [
+      {
+        "task": "Google Driveファイル監視",
+        "type": "Google Drive Trigger (Polling)",
+        "description": "指定フォルダ内のM4Aファイル追加を検知",
+        "trigger_conditions": {
+          "folder_id": "{{USER_DEFINED_FOLDER_ID}}",
+          "file_extension": ".m4a",
+          "event": "file.created"
+        }
+      }
+    ],
+    "fetch_layer": [
+      {
+        "task": "M4Aファイル取得",
+        "source": "Google Drive",
+        "description": "トリガーされたM4Aファイルの本体とメタデータを取得",
+        "output_data": {
+          "file_binary": "M4Aファイルバイナリデータ",
+          "file_name": "ファイル名",
+          "file_id": "Google Drive File ID",
+          "created_time": "作成日時",
+          "size": "ファイルサイズ"
+        }
+      },
+      {
+        "task": "音声文字起こし実行",
+        "source": "Speech-to-Text API (OpenAI Whisper/Google/AssemblyAI)",
+        "description": "M4Aファイルを文字起こしAPIに送信し、テキスト変換",
+        "input": "M4Aファイルバイナリ",
+        "output_data": {
+          "raw_transcript": "生の文字起こしテキスト（フィラー含む、未整形）",
+          "language": "検出言語",
+          "duration": "音声の長さ（秒）"
+        }
+      }
+    ],
+    "validate_layer": [
+      {
+        "task": "文字起こし結果検証",
+        "rule": "文字起こしテキストが空でないこと、最小文字数を満たすこと",
+        "validation_checks": [
+          "transcript != null",
+          "transcript.length > 100",
+          "language == 'ja' || language == 'en'"
+        ],
+        "error_handling": "検証失敗時はエラーワークフローに分岐"
+      },
+      {
+        "task": "ファイルメタデータ検証",
+        "rule": "ファイル名、作成日時が取得できていること",
+        "validation_checks": [
+          "file_name != null",
+          "created_time != null"
+        ]
+      }
+    ],
+    "transform_layer": [
+      {
+        "task": "ステップ1: 文字起こし整形（XAI Grok）",
+        "logic": "生の文字起こしテキストからフィラーを除去し、1行ごとに構造化されたJSON配列を生成",
+        "ai_agent": "XAI Grok",
+        "processing": {
+          "input": "raw_transcript（生テキスト）",
+          "operations": [
+            "フィラー除去（'えー'、'あー'、'えっと'、'まあ'等）",
+            "1文ごとに分割",
+            "各文を構造化（発言者推定、タイムスタンプ推定、内容）",
+            "JSON配列形式で出力"
+          ],
+          "loop": "全テキストを1行ずつループ処理",
+          "output_format": {
+            "type": "array",
+            "items": {
+              "line_number": "number",
+              "speaker": "string (推定)",
+              "content": "string (整形済みテキスト)",
+              "timestamp_estimate": "string (optional)"
+            }
+          }
+        }
+      },
+      {
+        "task": "ステップ2: 議題抽出（XAI Grok）",
+        "logic": "整形済みテキストから議題を識別し、議題ごとにJSONオブジェクトを生成",
+        "ai_agent": "XAI Grok",
+        "processing": {
+          "input": "整形済み箇条書きJSON配列",
+          "operations": [
+            "テキスト全体を分析し、議題の切り替わりを識別",
+            "各議題にタイトルを付与",
+            "議題ごとに関連する発言をグループ化",
+            "議題JSONオブジェクト配列を生成"
+          ],
+          "output_format": {
+            "type": "array",
+            "items": {
+              "agenda_id": "number",
+              "agenda_title": "string",
+              "discussion_lines": "array (line_number参照)",
+              "discussion_content": "string (まとめた議論内容)"
+            }
+          }
+        }
+      },
+      {
+        "task": "ステップ3: 議題分析（XAI Grok）",
+        "logic": "各議題から決定事項、宿題、保留事項を抽出し、既存JSONに追記",
+        "ai_agent": "XAI Grok",
+        "processing": {
+          "input": "議題JSONオブジェクト配列",
+          "operations": [
+            "各議題の議論内容を分析",
+            "決定事項を抽出（合意された内容）",
+            "宿題を抽出（担当者、期限、タスク内容）",
+            "保留事項を抽出（未解決、次回持ち越し）",
+            "既存JSONオブジェクトに追記"
+          ],
+          "loop": "議題ごとにループ処理",
+          "output_format": {
+            "type": "array",
+            "items": {
+              "agenda_id": "number",
+              "agenda_title": "string",
+              "discussion_content": "string",
+              "decisions": "array of strings",
+              "tasks": "array of objects (assignee, deadline, description)",
+              "pending_items": "array of objects (item, reason)"
+            }
+          }
+        }
+      },
+      {
+        "task": "全ステップデータマージ",
+        "logic": "ステップ1,2,3の出力JSONを統合し、1つの完全なデータ構造を作成",
+        "processing": {
+          "input": [
+            "整形済み箇条書きJSON",
+            "議題JSON",
+            "分析結果JSON"
+          ],
+          "output": "統合JSON（全情報を含む）"
+        }
+      },
+      {
+        "task": "ステップ4: フォーマット変換（Claude Sonnet 4.5）",
+        "logic": "統合JSONを指定の議事録フォーマットに変換",
+        "ai_agent": "Claude Sonnet 4.5",
+        "processing": {
+          "input": "統合JSON + ファイルメタデータ",
+          "operations": [
+            "タイトル生成（ファイル名から）",
+            "日時設定（ファイル作成日時）",
+            "参加者推定（発言者から）",
+            "議題セクション構造化",
+            "全体サマリー生成",
+            "指定フォーマットに整形"
+          ],
+          "output_format": "Markdown形式の議事録"
+        }
+      },
+      {
+        "task": "ステップ5: 品質保証（Claude Sonnet 4.5）",
+        "logic": "全ステップの成果物を検証し、議事録の完全性を確認",
+        "ai_agent": "Claude Sonnet 4.5",
+        "processing": {
+          "input": [
+            "全ステップの出力JSON",
+            "最終議事録Markdown"
+          ],
+          "validation_checks": [
+            "必須項目存在確認（タイトル、日時、議題、決定事項）",
+            "データ整合性確認（JSONと議事録の一致）",
+            "フォーマット準拠確認",
+            "文法・表現チェック"
+          ],
+          "output": {
+            "validated_minutes": "検証済み議事録",
+            "quality_report": "品質レポート（検証結果、改善提案）"
+          }
+        }
+      }
+    ],
+    "conditional_layer": [
+      {
+        "task": "文字起こし検証分岐",
+        "condition": "文字起こし結果が有効か",
+        "branches": {
+          "success": "transform_layerに進む",
+          "failure": "エラーハンドリングに分岐"
+        }
+      },
+      {
+        "task": "品質検証分岐",
+        "condition": "品質保証の結果が合格か",
+        "branches": {
+          "pass": "Notion出力に進む",
+          "fail": "再処理または手動レビュー通知"
+        }
+      }
+    ],
+    "execute_layer": [
+      {
+        "task": "Notion議事録ページ作成",
+        "action": "Notion API - Create Page",
+        "description": "議題ごとにループ処理でNotionページを作成（API制限回避）",
+        "loop": "議題配列をループ",
+        "processing": {
+          "input": "検証済み議事録 + 統合JSON",
+          "operations": [
+            "議題ごとに分割",
+            "各議題をNotionページとして作成",
+            "プロパティ設定（タイトル、日時、参加者、ステータス）",
+            "リッチテキストとして議事録本文を挿入",
+            "API制限を考慮して遅延挿入（0.5秒間隔）"
+          ],
+          "rate_limiting": "3リクエスト/秒を遵守"
+        }
+      },
+      {
+        "task": "Google Driveバックアップ（オプション）",
+        "action": "Google Drive - Upload File",
+        "description": "議事録PDFをGoogle Driveに保存",
+        "optional": true
+      },
+      {
+        "task": "完了通知（オプション）",
+        "action": "Slack/Email - Send Message",
+        "description": "処理完了を通知",
+        "optional": true
+      }
+    ],
+    "integrate_layer": [
+      {
+        "task": "全処理ログ統合",
+        "description": "各ステップの実行結果をログとして統合",
+        "log_items": [
+          "各ステップの実行時間",
+          "生成されたJSONデータサイズ",
+          "エラー有無",
+          "品質スコア"
+        ]
+      }
+    ],
+    "output_layer": [
+      {
+        "task": "Notionデータベース出力",
+        "destination": "Notion",
+        "description": "議題ごとにNotionページを作成",
+        "output_format": "Notion Page（Rich Text）"
+      },
+      {
+        "task": "処理完了ステータス更新",
+        "destination": "内部ワークフローステータス",
+        "description": "ワークフロー完了フラグを立てる"
+      }
+    ]
+  },
+  "data_flow_summary": {
+    "input": "Google Drive M4Aファイル",
+    "stages": [
+      "1. トリガー検知",
+      "2. ファイル取得 → 文字起こし",
+      "3. 検証（文字起こし結果、メタデータ）",
+      "4. 変換（5ステップAI処理）",
+      "   - ステップ1: 整形（Grok）",
+      "   - ステップ2: 議題抽出（Grok）",
+      "   - ステップ3: 分析（Grok）",
+      "   - ステップ4: フォーマット変換（Claude）",
+      "   - ステップ5: 品質保証（Claude）",
+      "5. 条件分岐（品質検証）",
+      "6. 実行（Notion出力ループ）",
+      "7. 統合（ログ集約）",
+      "8. 出力（Notionページ、ステータス更新）"
+    ],
+    "output": "Notion議事録ページ（議題ごと）"
+  },
+  "loop_processing_points": [
+    "ステップ1: 文字起こしテキストを1行ずつループ処理",
+    "ステップ3: 議題配列をループして分析",
+    "Notion出力: 議題配列をループしてページ作成"
+  ]
+}
