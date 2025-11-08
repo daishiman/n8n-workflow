@@ -5,17 +5,17 @@
   "graphRenderingMode": "normal",
   "linkDisplayMode": "all",
   "graphStats": {
-    "totalNodes": 106,
-    "folders": 20,
-    "files": 86,
+    "totalNodes": 93,
+    "folders": 11,
+    "files": 82,
     "images": 0,
     "videos": 0,
     "audio": 0,
     "code": 1,
-    "text": 59,
+    "text": 60,
     "html": 0,
     "yaml": 0,
-    "json": 25,
+    "json": 20,
     "other": 1,
     "totalLines": 0,
     "maxLines": 0
@@ -33,7 +33,62 @@
             "type": "directory",
             "children": [
               {
-                "name": "プロンプト - n8nワークフロー自動設計v12(Sticky Noteにノード名を記述).md",
+                "name": "n8nワークフロー自動設計-step010-業務理解.md",
+                "type": "file",
+                "lines": 0
+              },
+              {
+                "name": "n8nワークフロー自動設計-step020-構造化.md",
+                "type": "file",
+                "lines": 0
+              },
+              {
+                "name": "n8nワークフロー自動設計-step030-タスク分解.md",
+                "type": "file",
+                "lines": 0
+              },
+              {
+                "name": "n8nワークフロー自動設計-step040-パターン適用.md",
+                "type": "file",
+                "lines": 0
+              },
+              {
+                "name": "n8nワークフロー自動設計-step050-n8n設計変換.md",
+                "type": "file",
+                "lines": 0
+              },
+              {
+                "name": "n8nワークフロー自動設計-step060-AIエージェント配置.md",
+                "type": "file",
+                "lines": 0
+              },
+              {
+                "name": "n8nワークフロー自動設計-step070-完全n8n JSON生成.md",
+                "type": "file",
+                "lines": 0
+              },
+              {
+                "name": "n8nワークフロー自動設計-step071-ワークフロー接続検証.md",
+                "type": "file",
+                "lines": 0
+              },
+              {
+                "name": "n8nワークフロー自動設計-step080-エラーワークフロー生成.md",
+                "type": "file",
+                "lines": 0
+              },
+              {
+                "name": "n8nワークフロー自動設計-step081-エラーワークフロー接続検証.md",
+                "type": "file",
+                "lines": 0
+              },
+              {
+                "name": "n8nワークフロー自動設計-step090-実装手順書生成.md",
+                "type": "file",
+                "lines": 0
+              },
+              {
+                "name": "n8nワークフロー自動設計-step100-最終成果物出力.md",
                 "type": "file",
                 "lines": 0
               }
@@ -70,125 +125,6 @@
             "name": "system-graph-state.json",
             "type": "file",
             "lines": 0
-          }
-        ]
-      },
-      {
-        "name": "Google Drive M4A議事録自動生成",
-        "type": "directory",
-        "children": [
-          {
-            "name": "step0_AI設定",
-            "type": "directory",
-            "children": [
-              {
-                "name": "AI設定確定書.json",
-                "type": "file",
-                "lines": 0
-              },
-              {
-                "name": "README.md",
-                "type": "file",
-                "lines": 0
-              }
-            ]
-          },
-          {
-            "name": "step1_業務理解",
-            "type": "directory",
-            "children": [
-              {
-                "name": "業務要件サマリー.md",
-                "type": "file",
-                "lines": 0
-              }
-            ]
-          },
-          {
-            "name": "step2_構造化",
-            "type": "directory",
-            "children": [
-              {
-                "name": "8層フレームワーク構造.json",
-                "type": "file",
-                "lines": 0
-              },
-              {
-                "name": "README.md",
-                "type": "file",
-                "lines": 0
-              }
-            ]
-          },
-          {
-            "name": "step3_タスク分解",
-            "type": "directory",
-            "children": [
-              {
-                "name": "README.md",
-                "type": "file",
-                "lines": 0
-              },
-              {
-                "name": "ノード分解計画.json",
-                "type": "file",
-                "lines": 0
-              }
-            ]
-          },
-          {
-            "name": "step4_パターン適用",
-            "type": "directory",
-            "children": [
-              {
-                "name": "README.md",
-                "type": "file",
-                "lines": 0
-              },
-              {
-                "name": "ワークフローパターン設計.json",
-                "type": "file",
-                "lines": 0
-              }
-            ]
-          },
-          {
-            "name": "step5_n8n設計変換",
-            "type": "directory",
-            "children": [
-              {
-                "name": "ノード選定とExpression設計.md",
-                "type": "file",
-                "lines": 0
-              }
-            ]
-          },
-          {
-            "name": "step6_AIエージェント配置",
-            "type": "directory",
-            "children": [
-              {
-                "name": "AIエージェント配置設計.md",
-                "type": "file",
-                "lines": 0
-              }
-            ]
-          },
-          {
-            "name": "step7_完全JSON生成",
-            "type": "directory",
-            "children": [
-              {
-                "name": "README.md",
-                "type": "file",
-                "lines": 0
-              },
-              {
-                "name": "メインワークフロー.json",
-                "type": "file",
-                "lines": 0
-              }
-            ]
           }
         ]
       },
@@ -451,29 +387,34 @@
         "type": "directory",
         "children": [
           {
-            "name": "CHANGELOG_v11.md",
-            "type": "file",
-            "lines": 0
-          },
-          {
-            "name": "CHANGELOG_v12.md",
-            "type": "file",
-            "lines": 0
-          },
-          {
-            "name": "CHANGELOG_v12_abstraction.md",
-            "type": "file",
-            "lines": 0
-          },
-          {
-            "name": "CHANGELOG_v12_spacing_adjustment.md",
-            "type": "file",
-            "lines": 0
-          },
-          {
             "name": "old",
             "type": "directory",
             "children": [
+              {
+                "name": "CHANGELOG_v11.md",
+                "type": "file",
+                "lines": 0
+              },
+              {
+                "name": "CHANGELOG_v12.md",
+                "type": "file",
+                "lines": 0
+              },
+              {
+                "name": "CHANGELOG_v12_abstraction.md",
+                "type": "file",
+                "lines": 0
+              },
+              {
+                "name": "CHANGELOG_v12_spacing_adjustment.md",
+                "type": "file",
+                "lines": 0
+              },
+              {
+                "name": "validation_report.md",
+                "type": "file",
+                "lines": 0
+              },
               {
                 "name": "プロンプト - n8nワークフロー自動設計.md",
                 "type": "file",
@@ -532,11 +473,6 @@
             ]
           },
           {
-            "name": "validation_report.md",
-            "type": "file",
-            "lines": 0
-          },
-          {
             "name": "ナレッジ - n8nワークフロー自動設計.md",
             "type": "file",
             "lines": 0
@@ -553,16 +489,6 @@
           },
           {
             "name": "プロンプト - n8nワークフロー自動設計v12(Sticky Noteにノード名を記述).md",
-            "type": "file",
-            "lines": 0
-          },
-          {
-            "name": "作成シート - n8nワークフロー自動設計.md",
-            "type": "file",
-            "lines": 0
-          },
-          {
-            "name": "説明 - n8nワークフロー自動設計.md",
             "type": "file",
             "lines": 0
           }
@@ -587,12 +513,12 @@
         "highlighted": false,
         "parentPath": null,
         "childFileCount": 5,
-        "x": -26.13520954099886,
-        "y": -40.90439987648235,
-        "z": -71.31051481901412,
-        "vx": 0.0594629413342467,
-        "vy": -0.19989961349723154,
-        "vz": 0.30527793284033444
+        "x": -5.695253791014569,
+        "y": 38.85678932964393,
+        "z": -1.595682874154336,
+        "vx": 0.0000034757540924973686,
+        "vy": -0.0000012899214134773062,
+        "vz": -0.000002565812784562631
       },
       {
         "id": "n8n/.claude",
@@ -609,12 +535,12 @@
         "highlighted": false,
         "parentPath": "n8n",
         "childFileCount": 0,
-        "x": -80.1116618877173,
-        "y": -82.09421439698758,
-        "z": -66.32433152308305,
-        "vx": -0.16728967724455465,
-        "vy": -0.2081393888827081,
-        "vz": 0.05524609766392609
+        "x": -28.85357725392234,
+        "y": 39.06940392239717,
+        "z": 90.58554908384959,
+        "vx": 0.000002724876151659635,
+        "vy": -0.0000020759857055862855,
+        "vz": -0.000002339279596512198
       },
       {
         "id": "n8n/.claude/agents",
@@ -630,18 +556,18 @@
         "glowIntensity": 0.18,
         "highlighted": false,
         "parentPath": "n8n/.claude",
-        "childFileCount": 1,
-        "x": -75.16827053173563,
-        "y": -77.13098425870012,
-        "z": -67.48359013916962,
-        "vx": -0.16728967724455465,
-        "vy": -0.2081393888827081,
-        "vz": 0.05524609766392609
+        "childFileCount": 12,
+        "x": -49.22710802495546,
+        "y": 37.28236120975907,
+        "z": 175.719961656382,
+        "vx": 0.0000012596647045682275,
+        "vy": -0.000003726684537691198,
+        "vz": 2.3596321251423337e-7
       },
       {
-        "id": "n8n/.claude/agents/プロンプト - n8nワークフロー自動設計v12(Sticky Noteにノード名を記述).md",
-        "name": "プロンプト - n8nワークフロー自動設計v12(Sticky Noteにノード名を記述).md",
-        "path": "n8n/.claude/agents/プロンプト - n8nワークフロー自動設計v12(Sticky Noteにノード名を記述).md",
+        "id": "n8n/.claude/agents/n8nワークフロー自動設計-step010-業務理解.md",
+        "name": "n8nワークフロー自動設計-step010-業務理解.md",
+        "path": "n8n/.claude/agents/n8nワークフロー自動設計-step010-業務理解.md",
         "type": "file",
         "lines": 0,
         "val": 6,
@@ -653,12 +579,254 @@
         "highlighted": false,
         "parentPath": "n8n/.claude/agents",
         "childFileCount": 0,
-        "x": -75.89178754658909,
-        "y": -81.41770964280944,
-        "z": -63.44757654147172,
-        "vx": -0.16728967724455465,
-        "vy": -0.2081393888827081,
-        "vz": 0.05524609766392609
+        "x": -57.169634894730436,
+        "y": 75.03522848378802,
+        "z": 192.06380122584216,
+        "vx": -3.029247939198854e-7,
+        "vy": -0.000004382391818375839,
+        "vz": 0.000002319201428647527
+      },
+      {
+        "id": "n8n/.claude/agents/n8nワークフロー自動設計-step020-構造化.md",
+        "name": "n8nワークフロー自動設計-step020-構造化.md",
+        "path": "n8n/.claude/agents/n8nワークフロー自動設計-step020-構造化.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/.claude/agents",
+        "childFileCount": 0,
+        "x": -87.65425568436305,
+        "y": 35.83328950703513,
+        "z": 196.807597076115,
+        "vx": 0.000001706862944719167,
+        "vy": -0.000007843911862513697,
+        "vz": 0.0000014237703632360952
+      },
+      {
+        "id": "n8n/.claude/agents/n8nワークフロー自動設計-step030-タスク分解.md",
+        "name": "n8nワークフロー自動設計-step030-タスク分解.md",
+        "path": "n8n/.claude/agents/n8nワークフロー自動設計-step030-タスク分解.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/.claude/agents",
+        "childFileCount": 0,
+        "x": -21.68322720417882,
+        "y": 65.38844121126101,
+        "z": 181.12921516331193,
+        "vx": 9.99931717972075e-7,
+        "vy": -0.000003819712643018414,
+        "vz": 6.698666389249788e-7
+      },
+      {
+        "id": "n8n/.claude/agents/n8nワークフロー自動設計-step040-パターン適用.md",
+        "name": "n8nワークフロー自動設計-step040-パターン適用.md",
+        "path": "n8n/.claude/agents/n8nワークフロー自動設計-step040-パターン適用.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/.claude/agents",
+        "childFileCount": 0,
+        "x": -28.690330459221066,
+        "y": 55.91983208811435,
+        "z": 209.76627305244955,
+        "vx": 0.0000016972841964423268,
+        "vy": -0.000004179234452452273,
+        "vz": 3.2932634080078416e-7
+      },
+      {
+        "id": "n8n/.claude/agents/n8nワークフロー自動設計-step050-n8n設計変換.md",
+        "name": "n8nワークフロー自動設計-step050-n8n設計変換.md",
+        "path": "n8n/.claude/agents/n8nワークフロー自動設計-step050-n8n設計変換.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/.claude/agents",
+        "childFileCount": 0,
+        "x": -47.379115321862095,
+        "y": -2.6308624762005532,
+        "z": 182.23369711146992,
+        "vx": 0.0000026659654224513137,
+        "vy": -0.000003860391994468629,
+        "vz": 8.939079335254571e-7
+      },
+      {
+        "id": "n8n/.claude/agents/n8nワークフロー自動設計-step060-AIエージェント配置.md",
+        "name": "n8nワークフロー自動設計-step060-AIエージェント配置.md",
+        "path": "n8n/.claude/agents/n8nワークフロー自動設計-step060-AIエージェント配置.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/.claude/agents",
+        "childFileCount": 0,
+        "x": -82.52171420775666,
+        "y": 14.565311607117899,
+        "z": 170.06295644947974,
+        "vx": 9.073730492481571e-7,
+        "vy": -0.0000028356128058426345,
+        "vz": -8.727789402110516e-7
+      },
+      {
+        "id": "n8n/.claude/agents/n8nワークフロー自動設計-step070-完全n8n JSON生成.md",
+        "name": "n8nワークフロー自動設計-step070-完全n8n JSON生成.md",
+        "path": "n8n/.claude/agents/n8nワークフロー自動設計-step070-完全n8n JSON生成.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/.claude/agents",
+        "childFileCount": 0,
+        "x": -12.510416679582022,
+        "y": 27.24800053361525,
+        "z": 190.63510574447528,
+        "vx": 8.522813810631812e-7,
+        "vy": -0.000005430284932778453,
+        "vz": -1.5559586093638184e-8
+      },
+      {
+        "id": "n8n/.claude/agents/n8nワークフロー自動設計-step071-ワークフロー接続検証.md",
+        "name": "n8nワークフロー自動設計-step071-ワークフロー接続検証.md",
+        "path": "n8n/.claude/agents/n8nワークフロー自動設計-step071-ワークフロー接続検証.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/.claude/agents",
+        "childFileCount": 0,
+        "x": -51.513933267432755,
+        "y": 35.414634934916116,
+        "z": 220.64166171632488,
+        "vx": -0.0000016341826946919858,
+        "vy": -0.000004468598964611041,
+        "vz": 3.439831948648052e-7
+      },
+      {
+        "id": "n8n/.claude/agents/n8nワークフロー自動設計-step080-エラーワークフロー生成.md",
+        "name": "n8nワークフロー自動設計-step080-エラーワークフロー生成.md",
+        "path": "n8n/.claude/agents/n8nワークフロー自動設計-step080-エラーワークフロー生成.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/.claude/agents",
+        "childFileCount": 0,
+        "x": -84.12399250144219,
+        "y": 57.61177896835376,
+        "z": 172.74516055736865,
+        "vx": 0.0000011882275140908894,
+        "vy": -0.0000033729871804416267,
+        "vz": 0.0000021078659372441515
+      },
+      {
+        "id": "n8n/.claude/agents/n8nワークフロー自動設計-step081-エラーワークフロー接続検証.md",
+        "name": "n8nワークフロー自動設計-step081-エラーワークフロー接続検証.md",
+        "path": "n8n/.claude/agents/n8nワークフロー自動設計-step081-エラーワークフロー接続検証.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/.claude/agents",
+        "childFileCount": 0,
+        "x": -70.6860967447151,
+        "y": 13.179824914436457,
+        "z": 205.95774349743368,
+        "vx": 0.0000025128819683203524,
+        "vy": -0.000005957141246471081,
+        "vz": -6.774661015380321e-7
+      },
+      {
+        "id": "n8n/.claude/agents/n8nワークフロー自動設計-step090-実装手順書生成.md",
+        "name": "n8nワークフロー自動設計-step090-実装手順書生成.md",
+        "path": "n8n/.claude/agents/n8nワークフロー自動設計-step090-実装手順書生成.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/.claude/agents",
+        "childFileCount": 0,
+        "x": -35.2295551445845,
+        "y": 15.732893088772126,
+        "z": 210.94152885287372,
+        "vx": 0.0000012427210209819649,
+        "vy": -0.0000011296293332501555,
+        "vz": 0.000002261370766704699
+      },
+      {
+        "id": "n8n/.claude/agents/n8nワークフロー自動設計-step100-最終成果物出力.md",
+        "name": "n8nワークフロー自動設計-step100-最終成果物出力.md",
+        "path": "n8n/.claude/agents/n8nワークフロー自動設計-step100-最終成果物出力.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/.claude/agents",
+        "childFileCount": 0,
+        "x": -69.37547194713667,
+        "y": 56.19161075936819,
+        "z": 210.7706808135082,
+        "vx": 7.574218273846382e-7,
+        "vy": -0.000004718841735755959,
+        "vz": 2.899306349375826e-7
       },
       {
         "id": "n8n/.gitignore",
@@ -675,12 +843,12 @@
         "highlighted": false,
         "parentPath": "n8n",
         "childFileCount": 0,
-        "x": -57.085039679696294,
-        "y": -20.315787165108695,
-        "z": -67.7017626849093,
-        "vx": 0.010863029128920369,
-        "vy": -0.2769230507980101,
-        "vz": 0.3350126356634296
+        "x": -35.94987252135571,
+        "y": 21.192053445065433,
+        "z": 10.646637917327228,
+        "vx": 0.000003754985277595198,
+        "vy": 2.5800171701397434e-7,
+        "vz": -0.0000017781665975779755
       },
       {
         "id": "n8n/.kamui",
@@ -697,12 +865,12 @@
         "highlighted": false,
         "parentPath": "n8n",
         "childFileCount": 2,
-        "x": -89.64318077127872,
-        "y": -73.02691275011533,
-        "z": -162.5551722654559,
-        "vx": 0.13805505351711506,
-        "vy": -0.20712448121190793,
-        "vz": 0.2940780382146655
+        "x": -33.524457640588636,
+        "y": 88.90189189731319,
+        "z": -77.05038775128372,
+        "vx": 0.0000034930150333206533,
+        "vy": -0.0000022749564871907942,
+        "vz": -0.0000021786124568026807
       },
       {
         "id": "n8n/.kamui/model-versions-cache.json",
@@ -719,12 +887,12 @@
         "highlighted": false,
         "parentPath": "n8n/.kamui",
         "childFileCount": 0,
-        "x": -93.68675280678373,
-        "y": -77.19026033398623,
-        "z": -163.50231460736063,
-        "vx": 0.13805505351711506,
-        "vy": -0.20712448121190793,
-        "vz": 0.2940780382146655
+        "x": -19.219764017949313,
+        "y": 106.30528163423236,
+        "z": -107.27503461942865,
+        "vx": 0.0000034180219331821044,
+        "vy": -0.000002708698602504045,
+        "vz": -0.0000036312891979887915
       },
       {
         "id": "n8n/.kamui/prompt",
@@ -741,12 +909,12 @@
         "highlighted": false,
         "parentPath": "n8n/.kamui",
         "childFileCount": 1,
-        "x": -90.86743863341339,
-        "y": -75.44821999063069,
-        "z": -157.7440333379604,
-        "vx": 0.13805505351711506,
-        "vy": -0.20712448121190793,
-        "vz": 0.2940780382146655
+        "x": -47.51136462592236,
+        "y": 125.05527069985678,
+        "z": -125.82166144578139,
+        "vx": 0.000001751951346715852,
+        "vy": -0.000003515292143131225,
+        "vz": -0.0000025050093910260365
       },
       {
         "id": "n8n/.kamui/prompt/merge-prompt.txt",
@@ -763,12 +931,12 @@
         "highlighted": false,
         "parentPath": "n8n/.kamui/prompt",
         "childFileCount": 0,
-        "x": -88.76148488064773,
-        "y": -77.11649068874709,
-        "z": -162.1134019631573,
-        "vx": 0.13805505351711506,
-        "vy": -0.20712448121190793,
-        "vz": 0.2940780382146655
+        "x": -55.22920726890742,
+        "y": 149.04152617174563,
+        "z": -159.54299656939443,
+        "vx": 5.505399039331888e-7,
+        "vy": -0.000004018737416141638,
+        "vz": -0.000003362641448408158
       },
       {
         "id": "n8n/.kamui/system-graph-state.json",
@@ -785,496 +953,12 @@
         "highlighted": true,
         "parentPath": "n8n/.kamui",
         "childFileCount": 0,
-        "x": -89.36003157768293,
-        "y": -71.69151335150882,
-        "z": -165.83555795580256,
-        "vx": 0.13805505351711506,
-        "vy": -0.20712448121190793,
-        "vz": 0.2940780382146655
-      },
-      {
-        "id": "n8n/Google Drive M4A議事録自動生成",
-        "name": "Google Drive M4A議事録自動生成",
-        "path": "n8n/Google Drive M4A議事録自動生成",
-        "type": "directory",
-        "lines": 0,
-        "val": 14,
-        "color": "#4d515a",
-        "baseColor": "#4ec9b0",
-        "originalColor": "#4ec9b0",
-        "defaultGlow": 0.18,
-        "glowIntensity": 0.18,
-        "highlighted": false,
-        "parentPath": "n8n",
-        "childFileCount": 0,
-        "x": -29.271810236547132,
-        "y": -42.76875409599579,
-        "z": -73.4451678942716,
-        "vx": 0.0594629413342467,
-        "vy": -0.19989961349723154,
-        "vz": 0.30527793284033444
-      },
-      {
-        "id": "n8n/Google Drive M4A議事録自動生成/step0_AI設定",
-        "name": "step0_AI設定",
-        "path": "n8n/Google Drive M4A議事録自動生成/step0_AI設定",
-        "type": "directory",
-        "lines": 0,
-        "val": 14,
-        "color": "#4d515a",
-        "baseColor": "#4ec9b0",
-        "originalColor": "#4ec9b0",
-        "defaultGlow": 0.18,
-        "glowIntensity": 0.18,
-        "highlighted": false,
-        "parentPath": "n8n/Google Drive M4A議事録自動生成",
-        "childFileCount": 2,
-        "x": -28.615489738111894,
-        "y": -41.54641270536049,
-        "z": -72.8022905243923,
-        "vx": 0.0594629413342467,
-        "vy": -0.19989961349723154,
-        "vz": 0.30527793284033444
-      },
-      {
-        "id": "n8n/Google Drive M4A議事録自動生成/step0_AI設定/AI設定確定書.json",
-        "name": "AI設定確定書.json",
-        "path": "n8n/Google Drive M4A議事録自動生成/step0_AI設定/AI設定確定書.json",
-        "type": "file",
-        "lines": 0,
-        "val": 6,
-        "color": "#8e44ad",
-        "baseColor": "#8e44ad",
-        "originalColor": "#8e44ad",
-        "defaultGlow": 0.18,
-        "glowIntensity": 0.18,
-        "highlighted": false,
-        "parentPath": "n8n/Google Drive M4A議事録自動生成/step0_AI設定",
-        "childFileCount": 0,
-        "x": -28.38994511512723,
-        "y": -45.39199944370279,
-        "z": -77.49918943396898,
-        "vx": 0.0594629413342467,
-        "vy": -0.19989961349723154,
-        "vz": 0.30527793284033444
-      },
-      {
-        "id": "n8n/Google Drive M4A議事録自動生成/step0_AI設定/README.md",
-        "name": "README.md",
-        "path": "n8n/Google Drive M4A議事録自動生成/step0_AI設定/README.md",
-        "type": "file",
-        "lines": 0,
-        "val": 6,
-        "color": "#3498db",
-        "baseColor": "#3498db",
-        "originalColor": "#3498db",
-        "defaultGlow": 0.18,
-        "glowIntensity": 0.18,
-        "highlighted": false,
-        "parentPath": "n8n/Google Drive M4A議事録自動生成/step0_AI設定",
-        "childFileCount": 0,
-        "x": -31.88888359220831,
-        "y": -40.92300219351475,
-        "z": -69.9235394660028,
-        "vx": 0.0594629413342467,
-        "vy": -0.19989961349723154,
-        "vz": 0.30527793284033444
-      },
-      {
-        "id": "n8n/Google Drive M4A議事録自動生成/step1_業務理解",
-        "name": "step1_業務理解",
-        "path": "n8n/Google Drive M4A議事録自動生成/step1_業務理解",
-        "type": "directory",
-        "lines": 0,
-        "val": 14,
-        "color": "#4d515a",
-        "baseColor": "#4ec9b0",
-        "originalColor": "#4ec9b0",
-        "defaultGlow": 0.18,
-        "glowIntensity": 0.18,
-        "highlighted": false,
-        "parentPath": "n8n/Google Drive M4A議事録自動生成",
-        "childFileCount": 1,
-        "x": -27.636685629484177,
-        "y": -39.784872059739705,
-        "z": -74.55547842004376,
-        "vx": 0.0594629413342467,
-        "vy": -0.19989961349723154,
-        "vz": 0.30527793284033444
-      },
-      {
-        "id": "n8n/Google Drive M4A議事録自動生成/step1_業務理解/業務要件サマリー.md",
-        "name": "業務要件サマリー.md",
-        "path": "n8n/Google Drive M4A議事録自動生成/step1_業務理解/業務要件サマリー.md",
-        "type": "file",
-        "lines": 0,
-        "val": 6,
-        "color": "#3498db",
-        "baseColor": "#3498db",
-        "originalColor": "#3498db",
-        "defaultGlow": 0.18,
-        "glowIntensity": 0.18,
-        "highlighted": false,
-        "parentPath": "n8n/Google Drive M4A議事録自動生成/step1_業務理解",
-        "childFileCount": 0,
-        "x": -23.05491788635301,
-        "y": -40.12739505953696,
-        "z": -79.08961383612339,
-        "vx": 0.0594629413342467,
-        "vy": -0.19989961349723154,
-        "vz": 0.30527793284033444
-      },
-      {
-        "id": "n8n/Google Drive M4A議事録自動生成/step2_構造化",
-        "name": "step2_構造化",
-        "path": "n8n/Google Drive M4A議事録自動生成/step2_構造化",
-        "type": "directory",
-        "lines": 0,
-        "val": 14,
-        "color": "#4d515a",
-        "baseColor": "#4ec9b0",
-        "originalColor": "#4ec9b0",
-        "defaultGlow": 0.18,
-        "glowIntensity": 0.18,
-        "highlighted": false,
-        "parentPath": "n8n/Google Drive M4A議事録自動生成",
-        "childFileCount": 2,
-        "x": -26.56883171360537,
-        "y": -47.74390753432078,
-        "z": -70.31102682504255,
-        "vx": 0.0594629413342467,
-        "vy": -0.19989961349723154,
-        "vz": 0.30527793284033444
-      },
-      {
-        "id": "n8n/Google Drive M4A議事録自動生成/step2_構造化/8層フレームワーク構造.json",
-        "name": "8層フレームワーク構造.json",
-        "path": "n8n/Google Drive M4A議事録自動生成/step2_構造化/8層フレームワーク構造.json",
-        "type": "file",
-        "lines": 0,
-        "val": 6,
-        "color": "#8e44ad",
-        "baseColor": "#8e44ad",
-        "originalColor": "#8e44ad",
-        "defaultGlow": 0.18,
-        "glowIntensity": 0.18,
-        "highlighted": false,
-        "parentPath": "n8n/Google Drive M4A議事録自動生成/step2_構造化",
-        "childFileCount": 0,
-        "x": -31.417444467864478,
-        "y": -44.207276622007214,
-        "z": -71.25844064120497,
-        "vx": 0.0594629413342467,
-        "vy": -0.19989961349723154,
-        "vz": 0.30527793284033444
-      },
-      {
-        "id": "n8n/Google Drive M4A議事録自動生成/step2_構造化/README.md",
-        "name": "README.md",
-        "path": "n8n/Google Drive M4A議事録自動生成/step2_構造化/README.md",
-        "type": "file",
-        "lines": 0,
-        "val": 6,
-        "color": "#3498db",
-        "baseColor": "#3498db",
-        "originalColor": "#3498db",
-        "defaultGlow": 0.18,
-        "glowIntensity": 0.18,
-        "highlighted": false,
-        "parentPath": "n8n/Google Drive M4A議事録自動生成/step2_構造化",
-        "childFileCount": 0,
-        "x": -24.253969205856095,
-        "y": -52.584950473318095,
-        "z": -66.27155526475474,
-        "vx": 0.0594629413342467,
-        "vy": -0.19989961349723154,
-        "vz": 0.30527793284033444
-      },
-      {
-        "id": "n8n/Google Drive M4A議事録自動生成/step3_タスク分解",
-        "name": "step3_タスク分解",
-        "path": "n8n/Google Drive M4A議事録自動生成/step3_タスク分解",
-        "type": "directory",
-        "lines": 0,
-        "val": 14,
-        "color": "#4d515a",
-        "baseColor": "#4ec9b0",
-        "originalColor": "#4ec9b0",
-        "defaultGlow": 0.18,
-        "glowIntensity": 0.18,
-        "highlighted": false,
-        "parentPath": "n8n/Google Drive M4A議事録自動生成",
-        "childFileCount": 2,
-        "x": -29.37057678137397,
-        "y": -39.108756776007944,
-        "z": -76.89280243725584,
-        "vx": 0.0594629413342467,
-        "vy": -0.19989961349723154,
-        "vz": 0.30527793284033444
-      },
-      {
-        "id": "n8n/Google Drive M4A議事録自動生成/step3_タスク分解/README.md",
-        "name": "README.md",
-        "path": "n8n/Google Drive M4A議事録自動生成/step3_タスク分解/README.md",
-        "type": "file",
-        "lines": 0,
-        "val": 6,
-        "color": "#3498db",
-        "baseColor": "#3498db",
-        "originalColor": "#3498db",
-        "defaultGlow": 0.18,
-        "glowIntensity": 0.18,
-        "highlighted": false,
-        "parentPath": "n8n/Google Drive M4A議事録自動生成/step3_タスク分解",
-        "childFileCount": 0,
-        "x": -30.447648664228304,
-        "y": -36.98565249086109,
-        "z": -77.32278122332875,
-        "vx": 0.0594629413342467,
-        "vy": -0.19989961349723154,
-        "vz": 0.30527793284033444
-      },
-      {
-        "id": "n8n/Google Drive M4A議事録自動生成/step3_タスク分解/ノード分解計画.json",
-        "name": "ノード分解計画.json",
-        "path": "n8n/Google Drive M4A議事録自動生成/step3_タスク分解/ノード分解計画.json",
-        "type": "file",
-        "lines": 0,
-        "val": 6,
-        "color": "#8e44ad",
-        "baseColor": "#8e44ad",
-        "originalColor": "#8e44ad",
-        "defaultGlow": 0.18,
-        "glowIntensity": 0.18,
-        "highlighted": false,
-        "parentPath": "n8n/Google Drive M4A議事録自動生成/step3_タスク分解",
-        "childFileCount": 0,
-        "x": -33.77247182245314,
-        "y": -35.35454438693997,
-        "z": -79.90434157935883,
-        "vx": 0.0594629413342467,
-        "vy": -0.19989961349723154,
-        "vz": 0.30527793284033444
-      },
-      {
-        "id": "n8n/Google Drive M4A議事録自動生成/step4_パターン適用",
-        "name": "step4_パターン適用",
-        "path": "n8n/Google Drive M4A議事録自動生成/step4_パターン適用",
-        "type": "directory",
-        "lines": 0,
-        "val": 14,
-        "color": "#4d515a",
-        "baseColor": "#4ec9b0",
-        "originalColor": "#4ec9b0",
-        "defaultGlow": 0.18,
-        "glowIntensity": 0.18,
-        "highlighted": false,
-        "parentPath": "n8n/Google Drive M4A議事録自動生成",
-        "childFileCount": 2,
-        "x": -28.07466131953411,
-        "y": -44.67009709952894,
-        "z": -71.35060775721531,
-        "vx": 0.0594629413342467,
-        "vy": -0.19989961349723154,
-        "vz": 0.30527793284033444
-      },
-      {
-        "id": "n8n/Google Drive M4A議事録自動生成/step4_パターン適用/README.md",
-        "name": "README.md",
-        "path": "n8n/Google Drive M4A議事録自動生成/step4_パターン適用/README.md",
-        "type": "file",
-        "lines": 0,
-        "val": 6,
-        "color": "#3498db",
-        "baseColor": "#3498db",
-        "originalColor": "#3498db",
-        "defaultGlow": 0.18,
-        "glowIntensity": 0.18,
-        "highlighted": false,
-        "parentPath": "n8n/Google Drive M4A議事録自動生成/step4_パターン適用",
-        "childFileCount": 0,
-        "x": -31.028262432673802,
-        "y": -42.62967369436969,
-        "z": -75.1959565725903,
-        "vx": 0.0594629413342467,
-        "vy": -0.19989961349723154,
-        "vz": 0.30527793284033444
-      },
-      {
-        "id": "n8n/Google Drive M4A議事録自動生成/step4_パターン適用/ワークフローパターン設計.json",
-        "name": "ワークフローパターン設計.json",
-        "path": "n8n/Google Drive M4A議事録自動生成/step4_パターン適用/ワークフローパターン設計.json",
-        "type": "file",
-        "lines": 0,
-        "val": 6,
-        "color": "#8e44ad",
-        "baseColor": "#8e44ad",
-        "originalColor": "#8e44ad",
-        "defaultGlow": 0.18,
-        "glowIntensity": 0.18,
-        "highlighted": false,
-        "parentPath": "n8n/Google Drive M4A議事録自動生成/step4_パターン適用",
-        "childFileCount": 0,
-        "x": -25.52829199503915,
-        "y": -42.81428687481942,
-        "z": -73.16821295541256,
-        "vx": 0.0594629413342467,
-        "vy": -0.19989961349723154,
-        "vz": 0.30527793284033444
-      },
-      {
-        "id": "n8n/Google Drive M4A議事録自動生成/step5_n8n設計変換",
-        "name": "step5_n8n設計変換",
-        "path": "n8n/Google Drive M4A議事録自動生成/step5_n8n設計変換",
-        "type": "directory",
-        "lines": 0,
-        "val": 14,
-        "color": "#4d515a",
-        "baseColor": "#4ec9b0",
-        "originalColor": "#4ec9b0",
-        "defaultGlow": 0.18,
-        "glowIntensity": 0.18,
-        "highlighted": false,
-        "parentPath": "n8n/Google Drive M4A議事録自動生成",
-        "childFileCount": 1,
-        "x": -29.363174008712132,
-        "y": -45.02873523015364,
-        "z": -69.417317431369,
-        "vx": 0.0594629413342467,
-        "vy": -0.19989961349723154,
-        "vz": 0.30527793284033444
-      },
-      {
-        "id": "n8n/Google Drive M4A議事録自動生成/step5_n8n設計変換/ノード選定とExpression設計.md",
-        "name": "ノード選定とExpression設計.md",
-        "path": "n8n/Google Drive M4A議事録自動生成/step5_n8n設計変換/ノード選定とExpression設計.md",
-        "type": "file",
-        "lines": 0,
-        "val": 6,
-        "color": "#3498db",
-        "baseColor": "#3498db",
-        "originalColor": "#3498db",
-        "defaultGlow": 0.18,
-        "glowIntensity": 0.18,
-        "highlighted": false,
-        "parentPath": "n8n/Google Drive M4A議事録自動生成/step5_n8n設計変換",
-        "childFileCount": 0,
-        "x": -25.27753037410605,
-        "y": -46.240761784073186,
-        "z": -68.18124096557654,
-        "vx": 0.0594629413342467,
-        "vy": -0.19989961349723154,
-        "vz": 0.30527793284033444
-      },
-      {
-        "id": "n8n/Google Drive M4A議事録自動生成/step6_AIエージェント配置",
-        "name": "step6_AIエージェント配置",
-        "path": "n8n/Google Drive M4A議事録自動生成/step6_AIエージェント配置",
-        "type": "directory",
-        "lines": 0,
-        "val": 14,
-        "color": "#4d515a",
-        "baseColor": "#4ec9b0",
-        "originalColor": "#4ec9b0",
-        "defaultGlow": 0.18,
-        "glowIntensity": 0.18,
-        "highlighted": false,
-        "parentPath": "n8n/Google Drive M4A議事録自動生成",
-        "childFileCount": 1,
-        "x": -29.596433183685342,
-        "y": -42.43733751686218,
-        "z": -74.2573746608746,
-        "vx": 0.0594629413342467,
-        "vy": -0.19989961349723154,
-        "vz": 0.30527793284033444
-      },
-      {
-        "id": "n8n/Google Drive M4A議事録自動生成/step6_AIエージェント配置/AIエージェント配置設計.md",
-        "name": "AIエージェント配置設計.md",
-        "path": "n8n/Google Drive M4A議事録自動生成/step6_AIエージェント配置/AIエージェント配置設計.md",
-        "type": "file",
-        "lines": 0,
-        "val": 6,
-        "color": "#3498db",
-        "baseColor": "#3498db",
-        "originalColor": "#3498db",
-        "defaultGlow": 0.18,
-        "glowIntensity": 0.18,
-        "highlighted": false,
-        "parentPath": "n8n/Google Drive M4A議事録自動生成/step6_AIエージェント配置",
-        "childFileCount": 0,
-        "x": -26.931111172998342,
-        "y": -45.51845822549791,
-        "z": -74.75994609639656,
-        "vx": 0.0594629413342467,
-        "vy": -0.19989961349723154,
-        "vz": 0.30527793284033444
-      },
-      {
-        "id": "n8n/Google Drive M4A議事録自動生成/step7_完全JSON生成",
-        "name": "step7_完全JSON生成",
-        "path": "n8n/Google Drive M4A議事録自動生成/step7_完全JSON生成",
-        "type": "directory",
-        "lines": 0,
-        "val": 14,
-        "color": "#4d515a",
-        "baseColor": "#4ec9b0",
-        "originalColor": "#4ec9b0",
-        "defaultGlow": 0.18,
-        "glowIntensity": 0.18,
-        "highlighted": false,
-        "parentPath": "n8n/Google Drive M4A議事録自動生成",
-        "childFileCount": 2,
-        "x": -28.671869456932317,
-        "y": -38.00742894898213,
-        "z": -75.63007956881403,
-        "vx": 0.0594629413342467,
-        "vy": -0.19989961349723154,
-        "vz": 0.30527793284033444
-      },
-      {
-        "id": "n8n/Google Drive M4A議事録自動生成/step7_完全JSON生成/README.md",
-        "name": "README.md",
-        "path": "n8n/Google Drive M4A議事録自動生成/step7_完全JSON生成/README.md",
-        "type": "file",
-        "lines": 0,
-        "val": 6,
-        "color": "#3498db",
-        "baseColor": "#3498db",
-        "originalColor": "#3498db",
-        "defaultGlow": 0.18,
-        "glowIntensity": 0.18,
-        "highlighted": false,
-        "parentPath": "n8n/Google Drive M4A議事録自動生成/step7_完全JSON生成",
-        "childFileCount": 0,
-        "x": -32.21802207113896,
-        "y": -41.53649565085328,
-        "z": -78.26461412468078,
-        "vx": 0.0594629413342467,
-        "vy": -0.19989961349723154,
-        "vz": 0.30527793284033444
-      },
-      {
-        "id": "n8n/Google Drive M4A議事録自動生成/step7_完全JSON生成/メインワークフロー.json",
-        "name": "メインワークフロー.json",
-        "path": "n8n/Google Drive M4A議事録自動生成/step7_完全JSON生成/メインワークフロー.json",
-        "type": "file",
-        "lines": 0,
-        "val": 6,
-        "color": "#8e44ad",
-        "baseColor": "#8e44ad",
-        "originalColor": "#8e44ad",
-        "defaultGlow": 0.18,
-        "glowIntensity": 0.18,
-        "highlighted": false,
-        "parentPath": "n8n/Google Drive M4A議事録自動生成/step7_完全JSON生成",
-        "childFileCount": 0,
-        "x": -33.038447278160795,
-        "y": -36.030414863013355,
-        "z": -79.02839005658338,
-        "vx": 0.0594629413342467,
-        "vy": -0.19989961349723154,
-        "vz": 0.30527793284033444
+        "x": -63.808200249122514,
+        "y": 92.00000014526353,
+        "z": -100.93574267474182,
+        "vx": 0.000002431044871472545,
+        "vy": -0.0000036280273041807418,
+        "vz": -0.0000014917057847514098
       },
       {
         "id": "n8n/Google Meet議事録自動化",
@@ -1291,12 +975,12 @@
         "highlighted": false,
         "parentPath": "n8n",
         "childFileCount": 2,
-        "x": -15.80168739981994,
-        "y": -96.97731675961697,
-        "z": -125.3194585774701,
-        "vx": 0.3144517317057306,
-        "vy": 0.010320147953803009,
-        "vz": 0.16682642013664198
+        "x": 44.32469922064054,
+        "y": 87.42658488879002,
+        "z": -0.36249597241452935,
+        "vx": 0.000003380776250763039,
+        "vy": -5.10700676419508e-7,
+        "vz": -0.0000017969530072912368
       },
       {
         "id": "n8n/Google Meet議事録自動化/Google Meet議事録自動化.json",
@@ -1313,12 +997,12 @@
         "highlighted": false,
         "parentPath": "n8n/Google Meet議事録自動化",
         "childFileCount": 0,
-        "x": -11.449206454628865,
-        "y": -97.25736991420658,
-        "z": -128.762582050375,
-        "vx": 0.3144517317057306,
-        "vy": 0.010320147953803009,
-        "vz": 0.16682642013664198
+        "x": 75.50843582670853,
+        "y": 109.82453515580862,
+        "z": 13.761215821400091,
+        "vx": 0.000004570116106427241,
+        "vy": -5.786087729285259e-7,
+        "vz": -0.0000011286226918342569
       },
       {
         "id": "n8n/Google Meet議事録自動化/議事録自動化エラー通知.json",
@@ -1335,12 +1019,12 @@
         "highlighted": false,
         "parentPath": "n8n/Google Meet議事録自動化",
         "childFileCount": 0,
-        "x": -15.833686599785949,
-        "y": -99.47390368176723,
-        "z": -129.15040271495863,
-        "vx": 0.3144517317057306,
-        "vy": 0.010320147953803009,
-        "vz": 0.16682642013664198
+        "x": 71.34301113490238,
+        "y": 114.05125008350095,
+        "z": -16.037772728350497,
+        "vx": 0.000004277128395154789,
+        "vy": -4.9452912481631e-7,
+        "vz": -0.0000015870248758032944
       },
       {
         "id": "n8n/README.md",
@@ -1357,12 +1041,12 @@
         "highlighted": false,
         "parentPath": "n8n",
         "childFileCount": 0,
-        "x": 4.702116974764828,
-        "y": -54.96733150433859,
-        "z": -89.82513653630454,
-        "vx": 0.10323008828901395,
-        "vy": -0.2071289048996162,
-        "vz": 0.3757740155895234
+        "x": 17.914024492243435,
+        "y": 41.07065056445775,
+        "z": 26.157629219133433,
+        "vx": 0.000004933977460931786,
+        "vy": -4.509005181003614e-7,
+        "vz": -0.000003869670116091878
       },
       {
         "id": "n8n/arxiv.json",
@@ -1379,12 +1063,12 @@
         "highlighted": false,
         "parentPath": "n8n",
         "childFileCount": 0,
-        "x": -40.65468594590613,
-        "y": -70.8012466199626,
-        "z": -91.52483628007613,
-        "vx": 0.026364219679062106,
-        "vy": -0.2741442880531096,
-        "vz": 0.4108736754809181
+        "x": 19.70142606811425,
+        "y": 42.10382396023353,
+        "z": -27.163211212262926,
+        "vx": 0.0000034653163488941505,
+        "vy": 9.61877435907266e-7,
+        "vz": -0.000002467528191324416
       },
       {
         "id": "n8n/calendar-gpt.json",
@@ -1401,12 +1085,12 @@
         "highlighted": false,
         "parentPath": "n8n",
         "childFileCount": 0,
-        "x": -48.69622074049429,
-        "y": -34.184838779927816,
-        "z": -103.60935445726713,
-        "vx": 0.17831018055024858,
-        "vy": -0.13056769856469333,
-        "vz": 0.27409765451704826
+        "x": -28.989508572925338,
+        "y": 65.537589701882,
+        "z": 9.296288963027546,
+        "vx": 0.0000036198741592446826,
+        "vy": -0.0000012207231683504703,
+        "vz": -0.000002615753358861703
       },
       {
         "id": "n8n/calendar.json",
@@ -1423,12 +1107,12 @@
         "highlighted": false,
         "parentPath": "n8n",
         "childFileCount": 0,
-        "x": -12.094394184490364,
-        "y": -34.46916764427284,
-        "z": -108.28800868892685,
-        "vx": 0.17054127106679762,
-        "vy": -0.08950238083384125,
-        "vz": 0.3804388414347816
+        "x": -31.957540731301695,
+        "y": 32.94619352238049,
+        "z": -26.645921574311934,
+        "vx": 0.000003836486685945028,
+        "vy": -0.0000012593478880091933,
+        "vz": -0.00000230037001163154
       },
       {
         "id": "n8n/google calendar登録",
@@ -1445,12 +1129,12 @@
         "highlighted": false,
         "parentPath": "n8n",
         "childFileCount": 28,
-        "x": 48.69586744659814,
-        "y": -61.25260418931705,
-        "z": 98.68448094121203,
-        "vx": 0.18207425041507155,
-        "vy": -0.16346911568185693,
-        "vz": 0.12035058442564812
+        "x": 64.8964436256017,
+        "y": -155.01313055844903,
+        "z": -60.70403321508323,
+        "vx": 0.0000031503421784100614,
+        "vy": -0.000005005830613758649,
+        "vz": -0.000003092352101472828
       },
       {
         "id": "n8n/google calendar登録/CORRECTION_REPORT.md",
@@ -1467,12 +1151,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録",
         "childFileCount": 0,
-        "x": 49.738571121180634,
-        "y": -59.59267966739883,
-        "z": 95.86538750851024,
-        "vx": 0.18207425041507155,
-        "vy": -0.16346911568185693,
-        "vz": 0.12035058442564812
+        "x": 67.12921018779836,
+        "y": -138.83176465480426,
+        "z": -104.6155813743158,
+        "vx": 0.000008055959917767422,
+        "vy": -0.000006748809103611037,
+        "vz": -0.000003739505832423684
       },
       {
         "id": "n8n/google calendar登録/DIRECTORY_STRUCTURE.md",
@@ -1489,12 +1173,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録",
         "childFileCount": 0,
-        "x": 51.29836403710126,
-        "y": -57.066861907826066,
-        "z": 101.93987680689384,
-        "vx": 0.18207425041507155,
-        "vy": -0.16346911568185693,
-        "vz": 0.12035058442564812
+        "x": 93.83924905172564,
+        "y": -147.06807541662997,
+        "z": -24.71095731458046,
+        "vx": 0.000005242065441823909,
+        "vy": -0.0000058174492925388214,
+        "vz": -0.000005010299066969596
       },
       {
         "id": "n8n/google calendar登録/Discord設定ガイド.md",
@@ -1511,12 +1195,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録",
         "childFileCount": 0,
-        "x": 46.52446003057714,
-        "y": -57.23080999965887,
-        "z": 99.5783613331388,
-        "vx": 0.18207425041507155,
-        "vy": -0.16346911568185693,
-        "vz": 0.12035058442564812
+        "x": 97.1324910807631,
+        "y": -131.76296012551816,
+        "z": -86.14774215041582,
+        "vx": 0.0000016705990760530458,
+        "vy": -0.000004454952563129739,
+        "vz": -0.0000029636910106254363
       },
       {
         "id": "n8n/google calendar登録/IMPROVEMENTS_v2.md",
@@ -1533,12 +1217,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録",
         "childFileCount": 0,
-        "x": 44.40486396135431,
-        "y": -58.90213886504453,
-        "z": 101.9068004085235,
-        "vx": 0.18207425041507155,
-        "vy": -0.16346911568185693,
-        "vz": 0.12035058442564812
+        "x": 35.152256230366774,
+        "y": -165.29611629038178,
+        "z": -25.723418354789274,
+        "vx": 0.000004748401883868152,
+        "vy": -0.000004969745063754553,
+        "vz": -0.0000021401095742911424
       },
       {
         "id": "n8n/google calendar登録/MANUAL_UPDATE_GUIDE.md",
@@ -1555,12 +1239,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録",
         "childFileCount": 0,
-        "x": 46.307732459273296,
-        "y": -61.80638154945663,
-        "z": 98.2833861185597,
-        "vx": 0.18207425041507155,
-        "vy": -0.16346911568185693,
-        "vz": 0.12035058442564812
+        "x": 20.523143604558154,
+        "y": -170.06845816188186,
+        "z": -62.12396945145481,
+        "vx": 0.0000041514931882887606,
+        "vy": -0.000006504944426051193,
+        "vz": -0.0000020935431164948587
       },
       {
         "id": "n8n/google calendar登録/NATIVE_NODES_CORRECTION.md",
@@ -1577,12 +1261,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録",
         "childFileCount": 0,
-        "x": 49.262568790381394,
-        "y": -59.609395546060696,
-        "z": 103.00907542652224,
-        "vx": 0.18207425041507155,
-        "vy": -0.16346911568185693,
-        "vz": 0.12035058442564812
+        "x": 70.92476858528335,
+        "y": -142.98823511388284,
+        "z": -15.180662121993743,
+        "vx": 0.000005665111461997508,
+        "vy": -0.0000032610323090342036,
+        "vz": -0.0000040603211678939596
       },
       {
         "id": "n8n/google calendar登録/README_FINAL.md",
@@ -1599,12 +1283,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録",
         "childFileCount": 0,
-        "x": 53.10197833509295,
-        "y": -65.13173525494042,
-        "z": 102.99534873754403,
-        "vx": 0.18207425041507155,
-        "vy": -0.16346911568185693,
-        "vz": 0.12035058442564812
+        "x": 45.992455994918124,
+        "y": -130.7990402203548,
+        "z": -28.17905028081664,
+        "vx": 0.000004485838441046961,
+        "vy": -0.000004197779709243314,
+        "vz": -0.0000036523580307179184
       },
       {
         "id": "n8n/google calendar登録/STICKY_NOTE_NODE_LIST_GUIDE.md",
@@ -1621,12 +1305,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録",
         "childFileCount": 0,
-        "x": 47.03126435201195,
-        "y": -61.50369464677443,
-        "z": 93.6968288472311,
-        "vx": 0.18207425041507155,
-        "vy": -0.16346911568185693,
-        "vz": 0.12035058442564812
+        "x": 44.4154358539859,
+        "y": -115.53620245575134,
+        "z": -63.72302735560823,
+        "vx": 0.000002201167049173313,
+        "vy": -0.000006292514394570512,
+        "vz": -0.0000052393883188359524
       },
       {
         "id": "n8n/google calendar登録/UPDATE_REPORT_v3.md",
@@ -1643,12 +1327,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録",
         "childFileCount": 0,
-        "x": 44.56258387594777,
-        "y": -56.73657852881645,
-        "z": 97.317954720549,
-        "vx": 0.18207425041507155,
-        "vy": -0.16346911568185693,
-        "vz": 0.12035058442564812
+        "x": 22.32399342603623,
+        "y": -143.22510016481243,
+        "z": -48.12864315141015,
+        "vx": 0.0000043630515408676546,
+        "vy": -0.000003971392637919691,
+        "vz": -0.0000023077664181694177
       },
       {
         "id": "n8n/google calendar登録/old",
@@ -1665,12 +1349,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録",
         "childFileCount": 10,
-        "x": 25.119998788775263,
-        "y": -93.42134887325702,
-        "z": 232.03246466692568,
-        "vx": -0.04197462489337169,
-        "vy": 0.007768746146314173,
-        "vz": 0.5696106225913412
+        "x": 140.51297417007981,
+        "y": -250.84926050374168,
+        "z": -134.71099171685546,
+        "vx": 0.000002134668687369127,
+        "vy": -0.000004530807287913241,
+        "vz": -0.0000014575614476804587
       },
       {
         "id": "n8n/google calendar登録/old/Discord連携Googleカレンダー自動予定管理.json",
@@ -1687,12 +1371,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録/old",
         "childFileCount": 0,
-        "x": 29.970088615040662,
-        "y": -97.7000751413218,
-        "z": 235.63989058957492,
-        "vx": -0.04197462489337169,
-        "vy": 0.007768746146314173,
-        "vz": 0.5696106225913412
+        "x": 175.87462169654822,
+        "y": -259.0444254190583,
+        "z": -114.12495466624779,
+        "vx": 0.0000030846513805034197,
+        "vy": -0.000005278806312294329,
+        "vz": -0.000002038645022639363
       },
       {
         "id": "n8n/google calendar登録/old/Discord連携Googleカレンダー自動予定管理_ErrorHandling.json",
@@ -1709,12 +1393,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録/old",
         "childFileCount": 0,
-        "x": 23.035552354269186,
-        "y": -94.21633605695267,
-        "z": 233.78521262473265,
-        "vx": -0.04197462489337169,
-        "vy": 0.007768746146314173,
-        "vz": 0.5696106225913412
+        "x": 128.36572118324943,
+        "y": -291.3435204215074,
+        "z": -135.23206382996034,
+        "vx": 0.0000036505211487712753,
+        "vy": -0.000005092895551287338,
+        "vz": 3.1237790432397037e-7
       },
       {
         "id": "n8n/google calendar登録/old/step7_complete_n8n_workflow.json",
@@ -1731,12 +1415,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録/old",
         "childFileCount": 0,
-        "x": 29.83243078380559,
-        "y": -96.48027083927742,
-        "z": 231.60333355797948,
-        "vx": -0.04197462489337169,
-        "vy": 0.007768746146314173,
-        "vz": 0.5696106225913412
+        "x": 150.54886335949664,
+        "y": -287.578331328095,
+        "z": -116.0377397406338,
+        "vx": 0.0000025006261187811257,
+        "vy": -0.000004705164903246442,
+        "vz": -0.000001919857568600367
       },
       {
         "id": "n8n/google calendar登録/old/step7_complete_n8n_workflow_CORRECTED.json",
@@ -1753,12 +1437,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録/old",
         "childFileCount": 0,
-        "x": 20.77887553074246,
-        "y": -97.1951539816837,
-        "z": 231.6930298911565,
-        "vx": -0.04197462489337169,
-        "vy": 0.007768746146314173,
-        "vz": 0.5696106225913412
+        "x": 135.91564438922072,
+        "y": -250.411661755472,
+        "z": -176.5859042758427,
+        "vx": 0.000002598203795529169,
+        "vy": -0.000005124157528217085,
+        "vz": -0.000001817846607690745
       },
       {
         "id": "n8n/google calendar登録/old/step7_complete_n8n_workflow_NATIVE_NODES.json",
@@ -1775,12 +1459,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録/old",
         "childFileCount": 0,
-        "x": 29.537448397594254,
-        "y": -97.90750836739574,
-        "z": 232.52766773266558,
-        "vx": -0.04197462489337169,
-        "vy": 0.007768746146314173,
-        "vz": 0.5696106225913412
+        "x": 181.02403599523115,
+        "y": -243.4998168514433,
+        "z": -145.17662857814005,
+        "vx": 0.000002803113213852295,
+        "vy": -0.000007424704512646481,
+        "vz": -0.000002297630644139322
       },
       {
         "id": "n8n/google calendar登録/old/step7_complete_n8n_workflow_NATIVE_NODES_v2.json",
@@ -1797,12 +1481,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録/old",
         "childFileCount": 0,
-        "x": 23.579042518038193,
-        "y": -94.33994552221466,
-        "z": 235.6559179534237,
-        "vx": -0.04197462489337169,
-        "vy": 0.007768746146314173,
-        "vz": 0.5696106225913412
+        "x": 163.98219328852562,
+        "y": -240.868722606108,
+        "z": -168.9162894219629,
+        "vx": 0.0000026667420130528253,
+        "vy": -0.000005811209817345766,
+        "vz": -0.0000017088383633552037
       },
       {
         "id": "n8n/google calendar登録/old/step7_complete_n8n_workflow_NATIVE_NODES_v3.json",
@@ -1819,12 +1503,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録/old",
         "childFileCount": 0,
-        "x": 24.99824769805669,
-        "y": -88.83793725857697,
-        "z": 230.3270230331176,
-        "vx": -0.04197462489337169,
-        "vy": 0.007768746146314173,
-        "vz": 0.5696106225913412
+        "x": 121.95406091789684,
+        "y": -276.0104256862143,
+        "z": -163.44493900394963,
+        "vx": 0.000002073712243096326,
+        "vy": -0.000005036063686673464,
+        "vz": -9.615889063264383e-7
       },
       {
         "id": "n8n/google calendar登録/old/step8_error_workflow.json",
@@ -1841,12 +1525,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録/old",
         "childFileCount": 0,
-        "x": 27.77541574205943,
-        "y": -93.47092381438293,
-        "z": 236.123789873556,
-        "vx": -0.04197462489337169,
-        "vy": 0.007768746146314173,
-        "vz": 0.5696106225913412
+        "x": 176.87258415451257,
+        "y": -276.5461846169193,
+        "z": -136.81335329614825,
+        "vx": 0.0000021911916025246295,
+        "vy": -0.00000485929927197587,
+        "vz": -0.000001754474705313451
       },
       {
         "id": "n8n/google calendar登録/old/step8_error_workflow_CORRECTED.json",
@@ -1863,12 +1547,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録/old",
         "childFileCount": 0,
-        "x": 27.604508213898676,
-        "y": -90.59508833841383,
-        "z": 229.34518484721087,
-        "vx": -0.04197462489337169,
-        "vy": 0.007768746146314173,
-        "vz": 0.5696106225913412
+        "x": 150.7863867711007,
+        "y": -290.3606013150239,
+        "z": -153.34078208780355,
+        "vx": 9.491187496931534e-7,
+        "vy": -0.0000042507819291086015,
+        "vz": -0.0000032683256748524682
       },
       {
         "id": "n8n/google calendar登録/old/step8_error_workflow_CORRECTED_v2.json",
@@ -1885,12 +1569,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録/old",
         "childFileCount": 0,
-        "x": 22.84368553819632,
-        "y": -93.87523172102021,
-        "z": 230.6108216661968,
-        "vx": -0.04197462489337169,
-        "vy": 0.007768746146314173,
-        "vz": 0.5696106225913412
+        "x": 165.50750993096716,
+        "y": -269.31309898171963,
+        "z": -166.9338498499008,
+        "vx": 0.000003773893332375684,
+        "vy": -0.000005029421196825171,
+        "vz": 1.6568622013185534e-7
       },
       {
         "id": "n8n/google calendar登録/relative_date_converter.js",
@@ -1907,12 +1591,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録",
         "childFileCount": 0,
-        "x": 50.55960856394322,
-        "y": -64.36827314823374,
-        "z": 99.46986636531358,
-        "vx": 0.18207425041507155,
-        "vy": -0.16346911568185693,
-        "vz": 0.12035058442564812
+        "x": 40.1651652699703,
+        "y": -163.247914351917,
+        "z": -100.21135873469888,
+        "vx": 6.197267947772151e-7,
+        "vy": -0.0000015808652558302215,
+        "vz": -0.000002548325735856129
       },
       {
         "id": "n8n/google calendar登録/step0_ai_config.json",
@@ -1929,12 +1613,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録",
         "childFileCount": 0,
-        "x": 50.64765501996583,
-        "y": -56.25943386532008,
-        "z": 97.07787719667792,
-        "vx": 0.18207425041507155,
-        "vy": -0.16346911568185693,
-        "vz": 0.12035058442564812
+        "x": 70.27208045914281,
+        "y": -166.82315435323298,
+        "z": -15.782460028199859,
+        "vx": 0.000003242475211174127,
+        "vy": -0.0000025456392371811056,
+        "vz": -0.0000026822864383977864
       },
       {
         "id": "n8n/google calendar登録/step10_final_package.md",
@@ -1951,12 +1635,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録",
         "childFileCount": 0,
-        "x": 49.53234717885361,
-        "y": -57.51275545885909,
-        "z": 103.52949898748167,
-        "vx": 0.18207425041507155,
-        "vy": -0.16346911568185693,
-        "vz": 0.12035058442564812
+        "x": 40.088133795175686,
+        "y": -193.70661209049433,
+        "z": -60.35857623008841,
+        "vx": 0.000007436553254763281,
+        "vy": -0.0000075158804895964986,
+        "vz": -0.0000048565711395620435
       },
       {
         "id": "n8n/google calendar登録/step1_business_requirements.md",
@@ -1973,12 +1657,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録",
         "childFileCount": 0,
-        "x": 48.37133072973635,
-        "y": -59.43699716736831,
-        "z": 95.77978676962738,
-        "vx": 0.18207425041507155,
-        "vy": -0.16346911568185693,
-        "vz": 0.12035058442564812
+        "x": 97.59759050810608,
+        "y": -174.52240932385686,
+        "z": -30.76971719231911,
+        "vx": 0.0000019934296441768658,
+        "vy": -0.000004828911041311449,
+        "vz": 3.2549628714578075e-7
       },
       {
         "id": "n8n/google calendar登録/step2_layered_structure.md",
@@ -1995,12 +1679,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録",
         "childFileCount": 0,
-        "x": 52.545204255344665,
-        "y": -59.74663476152226,
-        "z": 102.60637194680805,
-        "vx": 0.18207425041507155,
-        "vy": -0.16346911568185693,
-        "vz": 0.12035058442564812
+        "x": 103.83373065645738,
+        "y": -128.3165960944019,
+        "z": -59.20185087642137,
+        "vx": 0.000002209983860307638,
+        "vy": -0.000003614478516859943,
+        "vz": -0.000002982988290078158
       },
       {
         "id": "n8n/google calendar登録/step3_task_breakdown.md",
@@ -2017,12 +1701,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録",
         "childFileCount": 0,
-        "x": 52.3412739597251,
-        "y": -61.73287899650546,
-        "z": 103.62765663158513,
-        "vx": 0.18207425041507155,
-        "vy": -0.16346911568185693,
-        "vz": 0.12035058442564812
+        "x": 108.95647235843798,
+        "y": -152.51973156131498,
+        "z": -43.55665514547694,
+        "vx": 0.0000030356884812639897,
+        "vy": -0.000005735728747006752,
+        "vz": -0.000005987559591513978
       },
       {
         "id": "n8n/google calendar登録/step4_pattern_application.md",
@@ -2039,12 +1723,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録",
         "childFileCount": 0,
-        "x": 52.83586468287358,
-        "y": -59.36180341198932,
-        "z": 103.0926421775102,
-        "vx": 0.18207425041507155,
-        "vy": -0.16346911568185693,
-        "vz": 0.12035058442564812
+        "x": 88.12902431405298,
+        "y": -192.7264196871078,
+        "z": -44.06250556085196,
+        "vx": 0.0000013030474179588695,
+        "vy": -0.000005674154141822273,
+        "vz": -0.000002992343047273535
       },
       {
         "id": "n8n/google calendar登録/step5_n8n_design.md",
@@ -2061,12 +1745,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録",
         "childFileCount": 0,
-        "x": 53.652136405221796,
-        "y": -57.83412659384976,
-        "z": 102.99377370841039,
-        "vx": 0.18207425041507155,
-        "vy": -0.16346911568185693,
-        "vz": 0.12035058442564812
+        "x": 80.18967834059097,
+        "y": -115.91587429509735,
+        "z": -41.52403686169118,
+        "vx": 0.000002534083067614955,
+        "vy": -0.000004680487913723462,
+        "vz": -0.0000035018760723112117
       },
       {
         "id": "n8n/google calendar登録/step6_ai_agent_deployment.md",
@@ -2083,12 +1767,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録",
         "childFileCount": 0,
-        "x": 44.67954331851408,
-        "y": -62.53217088589744,
-        "z": 103.01287208744064,
-        "vx": 0.18207425041507155,
-        "vy": -0.16346911568185693,
-        "vz": 0.12035058442564812
+        "x": 21.690591840663014,
+        "y": -145.66260710065205,
+        "z": -76.96789579833822,
+        "vx": 0.0000029358492691784366,
+        "vy": -0.000004129266340900248,
+        "vz": -0.000001881473084320982
       },
       {
         "id": "n8n/google calendar登録/step7.5_connection_verification.md",
@@ -2105,12 +1789,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録",
         "childFileCount": 0,
-        "x": 51.028152803002264,
-        "y": -58.754636190142456,
-        "z": 95.86086730102471,
-        "vx": 0.18207425041507155,
-        "vy": -0.16346911568185693,
-        "vz": 0.12035058442564812
+        "x": 73.33112616930107,
+        "y": -115.62729415033188,
+        "z": -82.1561395392716,
+        "vx": -0.0000012871090302587597,
+        "vy": -0.00000459995534419009,
+        "vz": -0.0000038386584926698955
       },
       {
         "id": "n8n/google calendar登録/step7.5_validation_report.md",
@@ -2127,12 +1811,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録",
         "childFileCount": 0,
-        "x": 53.40223522353104,
-        "y": -62.980439594778225,
-        "z": 99.42471605987123,
-        "vx": 0.18207425041507155,
-        "vy": -0.16346911568185693,
-        "vz": 0.12035058442564812
+        "x": 113.0020741033558,
+        "y": -159.271587339859,
+        "z": -64.68931344570841,
+        "vx": 0.000003137466455743742,
+        "vy": -0.000003675750341337067,
+        "vz": -0.000006105883049574001
       },
       {
         "id": "n8n/google calendar登録/step7_complete_n8n_workflow_NATIVE_NODES_v4.json",
@@ -2149,12 +1833,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録",
         "childFileCount": 0,
-        "x": 43.946795511460536,
-        "y": -58.178533905323036,
-        "z": 101.03314796972823,
-        "vx": 0.18207425041507155,
-        "vy": -0.16346911568185693,
-        "vz": 0.12035058442564812
+        "x": 58.37654711291665,
+        "y": -188.79198679997162,
+        "z": -30.515750848175607,
+        "vx": 0.0000013694462142525034,
+        "vy": -0.000004093372487412723,
+        "vz": -0.0000026986534551299653
       },
       {
         "id": "n8n/google calendar登録/step7_workflow_implementation_guide.md",
@@ -2171,12 +1855,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録",
         "childFileCount": 0,
-        "x": 45.23979145919191,
-        "y": -65.53496362373446,
-        "z": 97.87929773326067,
-        "vx": 0.18207425041507155,
-        "vy": -0.16346911568185693,
-        "vz": 0.12035058442564812
+        "x": 35.3763164013282,
+        "y": -182.02614895801563,
+        "z": -86.0631034767245,
+        "vx": 0.0000028483490256713043,
+        "vy": -0.0000031125103389535675,
+        "vz": -0.000004135840280200543
       },
       {
         "id": "n8n/google calendar登録/step8_connection_verification_report.md",
@@ -2193,12 +1877,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録",
         "childFileCount": 0,
-        "x": 51.63777513931365,
-        "y": -65.2097943906229,
-        "z": 95.84769789023335,
-        "vx": 0.18207425041507155,
-        "vy": -0.16346911568185693,
-        "vz": 0.12035058442564812
+        "x": 95.50094502557467,
+        "y": -153.66578277095627,
+        "z": -95.91700128232735,
+        "vx": 1.1268542602011541e-7,
+        "vy": -0.000004406755008587843,
+        "vz": -0.000005891549417806058
       },
       {
         "id": "n8n/google calendar登録/step8_correction_report.md",
@@ -2215,12 +1899,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録",
         "childFileCount": 0,
-        "x": 47.55679801893673,
-        "y": -64.41302189028328,
-        "z": 94.10601485663844,
-        "vx": 0.18207425041507155,
-        "vy": -0.16346911568185693,
-        "vz": 0.12035058442564812
+        "x": 39.920245229867724,
+        "y": -136.3571588553369,
+        "z": -96.36778909770533,
+        "vx": 0.000005416488537860892,
+        "vy": 8.022770828801981e-7,
+        "vz": -0.0000018818364246355129
       },
       {
         "id": "n8n/google calendar登録/step8_error_workflow_CORRECTED_v3.json",
@@ -2237,12 +1921,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録",
         "childFileCount": 0,
-        "x": 45.947959940656126,
-        "y": -64.54142028818843,
-        "z": 94.69776949315195,
-        "vx": 0.18207425041507155,
-        "vy": -0.16346911568185693,
-        "vz": 0.12035058442564812
+        "x": 64.79742889424281,
+        "y": -201.04054283210183,
+        "z": -55.668320153048654,
+        "vx": 0.000004373959641012037,
+        "vy": -0.000006359739963715901,
+        "vz": -0.000005400294080183469
       },
       {
         "id": "n8n/google calendar登録/step8_error_workflow_documentation.md",
@@ -2259,12 +1943,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録",
         "childFileCount": 0,
-        "x": 46.74868083917019,
-        "y": -56.639412546470425,
-        "z": 100.83332382375738,
-        "vx": 0.18207425041507155,
-        "vy": -0.16346911568185693,
-        "vz": 0.12035058442564812
+        "x": 63.61760217358636,
+        "y": -195.24089269481482,
+        "z": -83.79812646451572,
+        "vx": 0.0000016845014985068985,
+        "vy": -0.000003892174342375544,
+        "vz": -0.000005268710160379909
       },
       {
         "id": "n8n/google calendar登録/step9_implementation_guide.md",
@@ -2281,12 +1965,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録",
         "childFileCount": 0,
-        "x": 47.91214643804678,
-        "y": -58.74533705710009,
-        "z": 95.01879354552871,
-        "vx": 0.18207425041507155,
-        "vy": -0.16346911568185693,
-        "vz": 0.12035058442564812
+        "x": 98.43146477521645,
+        "y": -184.1856772956374,
+        "z": -72.6897256459065,
+        "vx": 0.000002126664364911518,
+        "vy": -0.000005603590228858527,
+        "vz": -0.0000012477875675654185
       },
       {
         "id": "n8n/google calendar登録/workflow_update_instructions.md",
@@ -2303,12 +1987,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録",
         "childFileCount": 0,
-        "x": 46.67648697975198,
-        "y": -58.860123012836354,
-        "z": 103.11803535238877,
-        "vx": 0.18207425041507155,
-        "vy": -0.16346911568185693,
-        "vz": 0.12035058442564812
+        "x": 70.17766346330937,
+        "y": -167.43973416181737,
+        "z": -104.99861226735047,
+        "vx": -6.028925406167569e-7,
+        "vy": -0.000006082309094438132,
+        "vz": -0.000003165458945962435
       },
       {
         "id": "n8n/google calendar登録/プロンプト",
@@ -2325,12 +2009,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録",
         "childFileCount": 2,
-        "x": 132.6715570585721,
-        "y": -47.30125498386199,
-        "z": 141.823024941607,
-        "vx": 0.2790726859679615,
-        "vy": -0.09186104009230413,
-        "vz": -0.1210928941286527
+        "x": 6.930464566690627,
+        "y": -220.51992141125712,
+        "z": -32.886881699550784,
+        "vx": 0.0000013320147061346258,
+        "vy": -0.000005132690188885427,
+        "vz": -0.0000017890100239818962
       },
       {
         "id": "n8n/google calendar登録/プロンプト/【AI Agent 1】Discord予定抽出-プロンプト.md",
@@ -2347,12 +2031,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録/プロンプト",
         "childFileCount": 0,
-        "x": 136.53789394902893,
-        "y": -44.140791586083225,
-        "z": 145.8113229146473,
-        "vx": 0.2790726859679615,
-        "vy": -0.09186104009230413,
-        "vz": -0.1210928941286527
+        "x": -27.302499039783637,
+        "y": -248.34086096598298,
+        "z": -31.47717514574139,
+        "vx": -3.4226510439692624e-7,
+        "vy": -0.0000054791918286698264,
+        "vz": -0.0000023511284776262226
       },
       {
         "id": "n8n/google calendar登録/プロンプト/【AI Agent 1】Discord予定抽出-プロンプトシート.md",
@@ -2369,12 +2053,12 @@
         "highlighted": false,
         "parentPath": "n8n/google calendar登録/プロンプト",
         "childFileCount": 0,
-        "x": 135.9962420245889,
-        "y": -51.8450741475138,
-        "z": 143.54344202173968,
-        "vx": 0.2790726859679615,
-        "vy": -0.09186104009230413,
-        "vz": -0.1210928941286527
+        "x": -10.819958080872174,
+        "y": -253.01454735859906,
+        "z": -8.810538019344873,
+        "vx": 9.32776579076892e-8,
+        "vy": -0.000005938667236312822,
+        "vz": -0.0000017332980188658286
       },
       {
         "id": "n8n/prompt - n8nワークフロー自動設計",
@@ -2390,101 +2074,13 @@
         "glowIntensity": 0.18,
         "highlighted": false,
         "parentPath": "n8n",
-        "childFileCount": 11,
-        "x": -29.537765318758172,
-        "y": 111.09816188519035,
-        "z": -131.252379552859,
-        "vx": 0.04744511180542965,
-        "vy": -0.08646133198416107,
-        "vz": 0.3221702954272518
-      },
-      {
-        "id": "n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v11.md",
-        "name": "CHANGELOG_v11.md",
-        "path": "n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v11.md",
-        "type": "file",
-        "lines": 0,
-        "val": 6,
-        "color": "#3498db",
-        "baseColor": "#3498db",
-        "originalColor": "#3498db",
-        "defaultGlow": 0.18,
-        "glowIntensity": 0.18,
-        "highlighted": false,
-        "parentPath": "n8n/prompt - n8nワークフロー自動設計",
-        "childFileCount": 0,
-        "x": -28.56252637059775,
-        "y": 107.53616515563274,
-        "z": -133.2932354751346,
-        "vx": 0.04744511180542965,
-        "vy": -0.08646133198416107,
-        "vz": 0.3221702954272518
-      },
-      {
-        "id": "n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v12.md",
-        "name": "CHANGELOG_v12.md",
-        "path": "n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v12.md",
-        "type": "file",
-        "lines": 0,
-        "val": 6,
-        "color": "#3498db",
-        "baseColor": "#3498db",
-        "originalColor": "#3498db",
-        "defaultGlow": 0.18,
-        "glowIntensity": 0.18,
-        "highlighted": false,
-        "parentPath": "n8n/prompt - n8nワークフロー自動設計",
-        "childFileCount": 0,
-        "x": -25.62845823631786,
-        "y": 110.42734607885019,
-        "z": -130.10645272915752,
-        "vx": 0.04744511180542965,
-        "vy": -0.08646133198416107,
-        "vz": 0.3221702954272518
-      },
-      {
-        "id": "n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v12_abstraction.md",
-        "name": "CHANGELOG_v12_abstraction.md",
-        "path": "n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v12_abstraction.md",
-        "type": "file",
-        "lines": 0,
-        "val": 6,
-        "color": "#3498db",
-        "baseColor": "#3498db",
-        "originalColor": "#3498db",
-        "defaultGlow": 0.18,
-        "glowIntensity": 0.18,
-        "highlighted": false,
-        "parentPath": "n8n/prompt - n8nワークフロー自動設計",
-        "childFileCount": 0,
-        "x": -32.80255577791977,
-        "y": 106.2589256132343,
-        "z": -126.37365136532883,
-        "vx": 0.04744511180542965,
-        "vy": -0.08646133198416107,
-        "vz": 0.3221702954272518
-      },
-      {
-        "id": "n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v12_spacing_adjustment.md",
-        "name": "CHANGELOG_v12_spacing_adjustment.md",
-        "path": "n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v12_spacing_adjustment.md",
-        "type": "file",
-        "lines": 0,
-        "val": 6,
-        "color": "#3498db",
-        "baseColor": "#3498db",
-        "originalColor": "#3498db",
-        "defaultGlow": 0.18,
-        "glowIntensity": 0.18,
-        "highlighted": false,
-        "parentPath": "n8n/prompt - n8nワークフロー自動設計",
-        "childFileCount": 0,
-        "x": -28.026892038600295,
-        "y": 115.59623553678715,
-        "z": -132.49165046626536,
-        "vx": 0.04744511180542965,
-        "vy": -0.08646133198416107,
-        "vz": 0.3221702954272518
+        "childFileCount": 4,
+        "x": -78.20832115220234,
+        "y": 191.1034138782962,
+        "z": 35.317510496212634,
+        "vx": 0.000004629500812503991,
+        "vy": -0.0000035048127629273162,
+        "vz": -0.0000030281962712278957
       },
       {
         "id": "n8n/prompt - n8nワークフロー自動設計/old",
@@ -2500,13 +2096,123 @@
         "glowIntensity": 0.18,
         "highlighted": false,
         "parentPath": "n8n/prompt - n8nワークフロー自動設計",
-        "childFileCount": 11,
-        "x": -47.822881958871726,
-        "y": 233.4720511461375,
-        "z": -178.3683693072578,
-        "vx": 0.08860526040652694,
-        "vy": 0.006638738288510816,
-        "vz": -0.1658164924688207
+        "childFileCount": 16,
+        "x": -130.1752326945045,
+        "y": 309.98688515853587,
+        "z": 68.17376276633527,
+        "vx": 0.000003184766353103583,
+        "vy": -0.0000023881486303017344,
+        "vz": -0.000003700074217103417
+      },
+      {
+        "id": "n8n/prompt - n8nワークフロー自動設計/old/CHANGELOG_v11.md",
+        "name": "CHANGELOG_v11.md",
+        "path": "n8n/prompt - n8nワークフロー自動設計/old/CHANGELOG_v11.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/prompt - n8nワークフロー自動設計/old",
+        "childFileCount": 0,
+        "x": -129.7733820405087,
+        "y": 323.9968682671314,
+        "z": 29.374693387027143,
+        "vx": 0.0000035428703444346397,
+        "vy": -0.0000028877006828764496,
+        "vz": -0.000004940291215301059
+      },
+      {
+        "id": "n8n/prompt - n8nワークフロー自動設計/old/CHANGELOG_v12.md",
+        "name": "CHANGELOG_v12.md",
+        "path": "n8n/prompt - n8nワークフロー自動設計/old/CHANGELOG_v12.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/prompt - n8nワークフロー自動設計/old",
+        "childFileCount": 0,
+        "x": -97.15011373066886,
+        "y": 333.3382350295533,
+        "z": 55.99647681647903,
+        "vx": 0.000002270293394016348,
+        "vy": -2.3340341382815336e-7,
+        "vz": -0.000003496830186938643
+      },
+      {
+        "id": "n8n/prompt - n8nワークフロー自動設計/old/CHANGELOG_v12_abstraction.md",
+        "name": "CHANGELOG_v12_abstraction.md",
+        "path": "n8n/prompt - n8nワークフロー自動設計/old/CHANGELOG_v12_abstraction.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/prompt - n8nワークフロー自動設計/old",
+        "childFileCount": 0,
+        "x": -110.91904305825861,
+        "y": 313.0094764756551,
+        "z": 105.8421442459464,
+        "vx": 0.000002944115726823041,
+        "vy": -0.0000013666509041896108,
+        "vz": -0.0000033867637931742463
+      },
+      {
+        "id": "n8n/prompt - n8nワークフロー自動設計/old/CHANGELOG_v12_spacing_adjustment.md",
+        "name": "CHANGELOG_v12_spacing_adjustment.md",
+        "path": "n8n/prompt - n8nワークフロー自動設計/old/CHANGELOG_v12_spacing_adjustment.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/prompt - n8nワークフロー自動設計/old",
+        "childFileCount": 0,
+        "x": -163.5438656244766,
+        "y": 313.29934598614074,
+        "z": 98.63381120657978,
+        "vx": 0.0000024522793663746407,
+        "vy": 8.20027133424784e-7,
+        "vz": -0.0000033493876445584735
+      },
+      {
+        "id": "n8n/prompt - n8nワークフロー自動設計/old/validation_report.md",
+        "name": "validation_report.md",
+        "path": "n8n/prompt - n8nワークフロー自動設計/old/validation_report.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/prompt - n8nワークフロー自動設計/old",
+        "childFileCount": 0,
+        "x": -164.62259409514957,
+        "y": 288.747686099571,
+        "z": 73.02301691832875,
+        "vx": 0.0000027992324451211423,
+        "vy": -0.0000016449237290847826,
+        "vz": -0.0000022747484138133437
       },
       {
         "id": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計.md",
@@ -2523,12 +2229,12 @@
         "highlighted": false,
         "parentPath": "n8n/prompt - n8nワークフロー自動設計/old",
         "childFileCount": 0,
-        "x": -45.109837558723726,
-        "y": 230.19684142842107,
-        "z": -178.7844471481329,
-        "vx": 0.08860526040652694,
-        "vy": 0.006638738288510816,
-        "vz": -0.1658164924688207
+        "x": -174.06264660076798,
+        "y": 315.90526398717924,
+        "z": 63.11643606484223,
+        "vx": 0.0000031762153072011317,
+        "vy": -0.0000023249852371690977,
+        "vz": -0.000004115022270923647
       },
       {
         "id": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v10（Add sticky noteを追加）.md",
@@ -2545,12 +2251,12 @@
         "highlighted": false,
         "parentPath": "n8n/prompt - n8nワークフロー自動設計/old",
         "childFileCount": 0,
-        "x": -44.80273060738172,
-        "y": 233.98460484679512,
-        "z": -177.47555152603888,
-        "vx": 0.08860526040652694,
-        "vy": 0.006638738288510816,
-        "vz": -0.1658164924688207
+        "x": -100.09203435221521,
+        "y": 334.6966691537733,
+        "z": 87.63928457444301,
+        "vx": 0.0000027833294280124363,
+        "vy": -1.2296360863647797e-7,
+        "vz": -0.000004710881022079697
       },
       {
         "id": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v11(Sticky Note詳細化).md",
@@ -2567,12 +2273,12 @@
         "highlighted": false,
         "parentPath": "n8n/prompt - n8nワークフロー自動設計/old",
         "childFileCount": 0,
-        "x": -43.78930214870092,
-        "y": 238.45073003816086,
-        "z": -182.9808126711729,
-        "vx": 0.08860526040652694,
-        "vy": 0.006638738288510816,
-        "vz": -0.1658164924688207
+        "x": -123.5897460031463,
+        "y": 346.607682125771,
+        "z": 42.58258435518373,
+        "vx": 0.0000023763914426742114,
+        "vy": -0.0000024458102383998127,
+        "vz": -0.000004586111033427737
       },
       {
         "id": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v2.md",
@@ -2589,12 +2295,12 @@
         "highlighted": false,
         "parentPath": "n8n/prompt - n8nワークフロー自動設計/old",
         "childFileCount": 0,
-        "x": -49.22901672343545,
-        "y": 237.5451485431594,
-        "z": -176.6286121307789,
-        "vx": 0.08860526040652694,
-        "vy": 0.006638738288510816,
-        "vz": -0.1658164924688207
+        "x": -142.04754949666125,
+        "y": 297.74392142354895,
+        "z": 106.96211520061033,
+        "vx": 0.00000329320866120056,
+        "vy": -0.0000029858678651883347,
+        "vz": -0.000003842534698509367
       },
       {
         "id": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v3.md",
@@ -2611,12 +2317,12 @@
         "highlighted": false,
         "parentPath": "n8n/prompt - n8nワークフロー自動設計/old",
         "childFileCount": 0,
-        "x": -47.69914178546749,
-        "y": 235.34805205549364,
-        "z": -174.0265203860296,
-        "vx": 0.08860526040652694,
-        "vy": 0.006638738288510816,
-        "vz": -0.1658164924688207
+        "x": -139.0312279590278,
+        "y": 328.10761930834235,
+        "z": 109.3899451388217,
+        "vx": 0.00000219467235465206,
+        "vy": -0.0000024791547959534253,
+        "vz": -0.0000036062177105086674
       },
       {
         "id": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v4（AIエージェント分離）.md",
@@ -2633,12 +2339,12 @@
         "highlighted": false,
         "parentPath": "n8n/prompt - n8nワークフロー自動設計/old",
         "childFileCount": 0,
-        "x": -49.04764863276186,
-        "y": 231.4050297379575,
-        "z": -174.67294694674166,
-        "vx": 0.08860526040652694,
-        "vy": 0.006638738288510816,
-        "vz": -0.1658164924688207
+        "x": -157.76455437346388,
+        "y": 315.47583303554995,
+        "z": 36.2791227822319,
+        "vx": 0.0000023731784442430927,
+        "vy": -0.0000014430555977903526,
+        "vz": -0.000002953554640593401
       },
       {
         "id": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v5（LLMの選択を自由にする）.md",
@@ -2655,12 +2361,12 @@
         "highlighted": false,
         "parentPath": "n8n/prompt - n8nワークフロー自動設計/old",
         "childFileCount": 0,
-        "x": -47.76514999443157,
-        "y": 230.84875105578956,
-        "z": -180.08143312876143,
-        "vx": 0.08860526040652694,
-        "vy": 0.006638738288510816,
-        "vz": -0.1658164924688207
+        "x": -115.46466062482267,
+        "y": 353.2566166451603,
+        "z": 73.17353126594544,
+        "vx": 0.000002210921162656473,
+        "vy": -0.0000014662370779514833,
+        "vz": -0.000003891137945777102
       },
       {
         "id": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v6（ノード情報参照追加）.md",
@@ -2677,12 +2383,12 @@
         "highlighted": false,
         "parentPath": "n8n/prompt - n8nワークフロー自動設計/old",
         "childFileCount": 0,
-        "x": -49.39525100117127,
-        "y": 236.0542611574673,
-        "z": -175.68121868810184,
-        "vx": 0.08860526040652694,
-        "vy": 0.006638738288510816,
-        "vz": -0.1658164924688207
+        "x": -158.00320228006672,
+        "y": 343.43938416828064,
+        "z": 53.04151577801301,
+        "vx": 0.000002996813481104389,
+        "vy": -0.0000016458827891244678,
+        "vz": -0.000003640459445000706
       },
       {
         "id": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v7（ai-agentツールの変更）.md",
@@ -2699,12 +2405,12 @@
         "highlighted": false,
         "parentPath": "n8n/prompt - n8nワークフロー自動設計/old",
         "childFileCount": 0,
-        "x": -51.07311827403303,
-        "y": 238.2785662132093,
-        "z": -180.5160741229079,
-        "vx": 0.08860526040652694,
-        "vy": 0.006638738288510816,
-        "vz": -0.1658164924688207
+        "x": -134.02627656820806,
+        "y": 347.0731059022967,
+        "z": 95.5078405716845,
+        "vx": 0.000002939731735117961,
+        "vy": -0.0000022916362231402056,
+        "vz": -0.0000030824990806296887
       },
       {
         "id": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v8（n8n-mcpは指定があるときのみ使用） copy.md",
@@ -2721,12 +2427,12 @@
         "highlighted": false,
         "parentPath": "n8n/prompt - n8nワークフロー自動設計/old",
         "childFileCount": 0,
-        "x": -47.24752757689452,
-        "y": 234.95755551317382,
-        "z": -177.96543280523497,
-        "vx": 0.08860526040652694,
-        "vy": 0.006638738288510816,
-        "vz": -0.1658164924688207
+        "x": -140.9050906201698,
+        "y": 354.8457910121902,
+        "z": 68.23668230525277,
+        "vx": 0.000003071133365895425,
+        "vy": -0.0000024883040352540966,
+        "vz": -0.0000031780042941268796
       },
       {
         "id": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v9（jsonに説明を追加）.md",
@@ -2743,34 +2449,12 @@
         "highlighted": false,
         "parentPath": "n8n/prompt - n8nワークフロー自動設計/old",
         "childFileCount": 0,
-        "x": -51.71650747149283,
-        "y": 229.07261634012826,
-        "z": -181.54212085051364,
-        "vx": 0.08860526040652694,
-        "vy": 0.006638738288510816,
-        "vz": -0.1658164924688207
-      },
-      {
-        "id": "n8n/prompt - n8nワークフロー自動設計/validation_report.md",
-        "name": "validation_report.md",
-        "path": "n8n/prompt - n8nワークフロー自動設計/validation_report.md",
-        "type": "file",
-        "lines": 0,
-        "val": 6,
-        "color": "#3498db",
-        "baseColor": "#3498db",
-        "originalColor": "#3498db",
-        "defaultGlow": 0.18,
-        "glowIntensity": 0.18,
-        "highlighted": false,
-        "parentPath": "n8n/prompt - n8nワークフロー自動設計",
-        "childFileCount": 0,
-        "x": -29.338345506399506,
-        "y": 106.14480025426127,
-        "z": -128.70242219260874,
-        "vx": 0.04744511180542965,
-        "vy": -0.08646133198416107,
-        "vz": 0.3221702954272518
+        "x": -164.82524409176742,
+        "y": 337.69179234308695,
+        "z": 79.68404514021455,
+        "vx": 0.000002696748892652817,
+        "vy": -0.0000023989766769293225,
+        "vz": -0.000004785809219907805
       },
       {
         "id": "n8n/prompt - n8nワークフロー自動設計/ナレッジ - n8nワークフロー自動設計.md",
@@ -2787,12 +2471,12 @@
         "highlighted": false,
         "parentPath": "n8n/prompt - n8nワークフロー自動設計",
         "childFileCount": 0,
-        "x": -28.403501545218095,
-        "y": 113.46080320979151,
-        "z": -135.67913285091592,
-        "vx": 0.04744511180542965,
-        "vy": -0.08646133198416107,
-        "vz": 0.3221702954272518
+        "x": -63.05410828627754,
+        "y": 208.06940779609516,
+        "z": 64.21420489639274,
+        "vx": 0.000003038629181306948,
+        "vy": -0.0000027047425501436908,
+        "vz": -0.0000026271743412555566
       },
       {
         "id": "n8n/prompt - n8nワークフロー自動設計/ナレッジ - n8nワークフロー自動設計（AI-agent）.md",
@@ -2809,12 +2493,12 @@
         "highlighted": false,
         "parentPath": "n8n/prompt - n8nワークフロー自動設計",
         "childFileCount": 0,
-        "x": -30.129975900254717,
-        "y": 108.48299768099697,
-        "z": -128.17273807727614,
-        "vx": 0.04744511180542965,
-        "vy": -0.08646133198416107,
-        "vz": 0.3221702954272518
+        "x": -62.025093430804866,
+        "y": 221.8766725185492,
+        "z": 20.86896377641728,
+        "vx": 0.000003263018178450378,
+        "vy": -0.000002647070344282998,
+        "vz": -0.0000024678546678471906
       },
       {
         "id": "n8n/prompt - n8nワークフロー自動設計/ナレッジ - n8nワークフロー自動設計（n8n-MCP）.md",
@@ -2831,12 +2515,12 @@
         "highlighted": false,
         "parentPath": "n8n/prompt - n8nワークフロー自動設計",
         "childFileCount": 0,
-        "x": -28.844983650578325,
-        "y": 109.6054684918855,
-        "z": -129.14890721166333,
-        "vx": 0.04744511180542965,
-        "vy": -0.08646133198416107,
-        "vz": 0.3221702954272518
+        "x": -114.96478866018938,
+        "y": 191.05216170979455,
+        "z": 44.90918491839025,
+        "vx": 0.000005015139022749325,
+        "vy": -0.0000020878088886690504,
+        "vz": -0.0000014930499327870082
       },
       {
         "id": "n8n/prompt - n8nワークフロー自動設計/プロンプト - n8nワークフロー自動設計v12(Sticky Noteにノード名を記述).md",
@@ -2853,56 +2537,12 @@
         "highlighted": false,
         "parentPath": "n8n/prompt - n8nワークフロー自動設計",
         "childFileCount": 0,
-        "x": -26.929636314593026,
-        "y": 111.19282235658724,
-        "z": -134.13186031488345,
-        "vx": 0.04744511180542965,
-        "vy": -0.08646133198416107,
-        "vz": 0.3221702954272518
-      },
-      {
-        "id": "n8n/prompt - n8nワークフロー自動設計/作成シート - n8nワークフロー自動設計.md",
-        "name": "作成シート - n8nワークフロー自動設計.md",
-        "path": "n8n/prompt - n8nワークフロー自動設計/作成シート - n8nワークフロー自動設計.md",
-        "type": "file",
-        "lines": 0,
-        "val": 6,
-        "color": "#3498db",
-        "baseColor": "#3498db",
-        "originalColor": "#3498db",
-        "defaultGlow": 0.18,
-        "glowIntensity": 0.18,
-        "highlighted": false,
-        "parentPath": "n8n/prompt - n8nワークフロー自動設計",
-        "childFileCount": 0,
-        "x": -30.85251275264491,
-        "y": 111.56353217128832,
-        "z": -126.70530674622937,
-        "vx": 0.04744511180542965,
-        "vy": -0.08646133198416107,
-        "vz": 0.3221702954272518
-      },
-      {
-        "id": "n8n/prompt - n8nワークフロー自動設計/説明 - n8nワークフロー自動設計.md",
-        "name": "説明 - n8nワークフロー自動設計.md",
-        "path": "n8n/prompt - n8nワークフロー自動設計/説明 - n8nワークフロー自動設計.md",
-        "type": "file",
-        "lines": 0,
-        "val": 6,
-        "color": "#3498db",
-        "baseColor": "#3498db",
-        "originalColor": "#3498db",
-        "defaultGlow": 0.18,
-        "glowIntensity": 0.18,
-        "highlighted": false,
-        "parentPath": "n8n/prompt - n8nワークフロー自動設計",
-        "childFileCount": 0,
-        "x": -29.03279840323395,
-        "y": 115.83329494497498,
-        "z": -132.8127526456437,
-        "vx": 0.04744511180542965,
-        "vy": -0.08646133198416107,
-        "vz": 0.3221702954272518
+        "x": -101.97490583759341,
+        "y": 205.89923647297613,
+        "z": 9.569220714226468,
+        "vx": 0.000003718426730573672,
+        "vy": -0.000003132455603888965,
+        "vz": -0.000001804408058405101
       }
     ],
     "links": [
@@ -2918,7 +2558,62 @@
       },
       {
         "source": "n8n/.claude/agents",
-        "target": "n8n/.claude/agents/プロンプト - n8nワークフロー自動設計v12(Sticky Noteにノード名を記述).md",
+        "target": "n8n/.claude/agents/n8nワークフロー自動設計-step010-業務理解.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/.claude/agents",
+        "target": "n8n/.claude/agents/n8nワークフロー自動設計-step020-構造化.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/.claude/agents",
+        "target": "n8n/.claude/agents/n8nワークフロー自動設計-step030-タスク分解.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/.claude/agents",
+        "target": "n8n/.claude/agents/n8nワークフロー自動設計-step040-パターン適用.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/.claude/agents",
+        "target": "n8n/.claude/agents/n8nワークフロー自動設計-step050-n8n設計変換.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/.claude/agents",
+        "target": "n8n/.claude/agents/n8nワークフロー自動設計-step060-AIエージェント配置.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/.claude/agents",
+        "target": "n8n/.claude/agents/n8nワークフロー自動設計-step070-完全n8n JSON生成.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/.claude/agents",
+        "target": "n8n/.claude/agents/n8nワークフロー自動設計-step071-ワークフロー接続検証.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/.claude/agents",
+        "target": "n8n/.claude/agents/n8nワークフロー自動設計-step080-エラーワークフロー生成.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/.claude/agents",
+        "target": "n8n/.claude/agents/n8nワークフロー自動設計-step081-エラーワークフロー接続検証.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/.claude/agents",
+        "target": "n8n/.claude/agents/n8nワークフロー自動設計-step090-実装手順書生成.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/.claude/agents",
+        "target": "n8n/.claude/agents/n8nワークフロー自動設計-step100-最終成果物出力.md",
         "type": "tree"
       },
       {
@@ -2949,116 +2644,6 @@
       {
         "source": "n8n/.kamui",
         "target": "n8n/.kamui/system-graph-state.json",
-        "type": "tree"
-      },
-      {
-        "source": "n8n",
-        "target": "n8n/Google Drive M4A議事録自動生成",
-        "type": "tree"
-      },
-      {
-        "source": "n8n/Google Drive M4A議事録自動生成",
-        "target": "n8n/Google Drive M4A議事録自動生成/step0_AI設定",
-        "type": "tree"
-      },
-      {
-        "source": "n8n/Google Drive M4A議事録自動生成/step0_AI設定",
-        "target": "n8n/Google Drive M4A議事録自動生成/step0_AI設定/AI設定確定書.json",
-        "type": "tree"
-      },
-      {
-        "source": "n8n/Google Drive M4A議事録自動生成/step0_AI設定",
-        "target": "n8n/Google Drive M4A議事録自動生成/step0_AI設定/README.md",
-        "type": "tree"
-      },
-      {
-        "source": "n8n/Google Drive M4A議事録自動生成",
-        "target": "n8n/Google Drive M4A議事録自動生成/step1_業務理解",
-        "type": "tree"
-      },
-      {
-        "source": "n8n/Google Drive M4A議事録自動生成/step1_業務理解",
-        "target": "n8n/Google Drive M4A議事録自動生成/step1_業務理解/業務要件サマリー.md",
-        "type": "tree"
-      },
-      {
-        "source": "n8n/Google Drive M4A議事録自動生成",
-        "target": "n8n/Google Drive M4A議事録自動生成/step2_構造化",
-        "type": "tree"
-      },
-      {
-        "source": "n8n/Google Drive M4A議事録自動生成/step2_構造化",
-        "target": "n8n/Google Drive M4A議事録自動生成/step2_構造化/8層フレームワーク構造.json",
-        "type": "tree"
-      },
-      {
-        "source": "n8n/Google Drive M4A議事録自動生成/step2_構造化",
-        "target": "n8n/Google Drive M4A議事録自動生成/step2_構造化/README.md",
-        "type": "tree"
-      },
-      {
-        "source": "n8n/Google Drive M4A議事録自動生成",
-        "target": "n8n/Google Drive M4A議事録自動生成/step3_タスク分解",
-        "type": "tree"
-      },
-      {
-        "source": "n8n/Google Drive M4A議事録自動生成/step3_タスク分解",
-        "target": "n8n/Google Drive M4A議事録自動生成/step3_タスク分解/README.md",
-        "type": "tree"
-      },
-      {
-        "source": "n8n/Google Drive M4A議事録自動生成/step3_タスク分解",
-        "target": "n8n/Google Drive M4A議事録自動生成/step3_タスク分解/ノード分解計画.json",
-        "type": "tree"
-      },
-      {
-        "source": "n8n/Google Drive M4A議事録自動生成",
-        "target": "n8n/Google Drive M4A議事録自動生成/step4_パターン適用",
-        "type": "tree"
-      },
-      {
-        "source": "n8n/Google Drive M4A議事録自動生成/step4_パターン適用",
-        "target": "n8n/Google Drive M4A議事録自動生成/step4_パターン適用/README.md",
-        "type": "tree"
-      },
-      {
-        "source": "n8n/Google Drive M4A議事録自動生成/step4_パターン適用",
-        "target": "n8n/Google Drive M4A議事録自動生成/step4_パターン適用/ワークフローパターン設計.json",
-        "type": "tree"
-      },
-      {
-        "source": "n8n/Google Drive M4A議事録自動生成",
-        "target": "n8n/Google Drive M4A議事録自動生成/step5_n8n設計変換",
-        "type": "tree"
-      },
-      {
-        "source": "n8n/Google Drive M4A議事録自動生成/step5_n8n設計変換",
-        "target": "n8n/Google Drive M4A議事録自動生成/step5_n8n設計変換/ノード選定とExpression設計.md",
-        "type": "tree"
-      },
-      {
-        "source": "n8n/Google Drive M4A議事録自動生成",
-        "target": "n8n/Google Drive M4A議事録自動生成/step6_AIエージェント配置",
-        "type": "tree"
-      },
-      {
-        "source": "n8n/Google Drive M4A議事録自動生成/step6_AIエージェント配置",
-        "target": "n8n/Google Drive M4A議事録自動生成/step6_AIエージェント配置/AIエージェント配置設計.md",
-        "type": "tree"
-      },
-      {
-        "source": "n8n/Google Drive M4A議事録自動生成",
-        "target": "n8n/Google Drive M4A議事録自動生成/step7_完全JSON生成",
-        "type": "tree"
-      },
-      {
-        "source": "n8n/Google Drive M4A議事録自動生成/step7_完全JSON生成",
-        "target": "n8n/Google Drive M4A議事録自動生成/step7_完全JSON生成/README.md",
-        "type": "tree"
-      },
-      {
-        "source": "n8n/Google Drive M4A議事録自動生成/step7_完全JSON生成",
-        "target": "n8n/Google Drive M4A議事録自動生成/step7_完全JSON生成/メインワークフロー.json",
         "type": "tree"
       },
       {
@@ -3318,27 +2903,32 @@
       },
       {
         "source": "n8n/prompt - n8nワークフロー自動設計",
-        "target": "n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v11.md",
-        "type": "tree"
-      },
-      {
-        "source": "n8n/prompt - n8nワークフロー自動設計",
-        "target": "n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v12.md",
-        "type": "tree"
-      },
-      {
-        "source": "n8n/prompt - n8nワークフロー自動設計",
-        "target": "n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v12_abstraction.md",
-        "type": "tree"
-      },
-      {
-        "source": "n8n/prompt - n8nワークフロー自動設計",
-        "target": "n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v12_spacing_adjustment.md",
-        "type": "tree"
-      },
-      {
-        "source": "n8n/prompt - n8nワークフロー自動設計",
         "target": "n8n/prompt - n8nワークフロー自動設計/old",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/prompt - n8nワークフロー自動設計/old",
+        "target": "n8n/prompt - n8nワークフロー自動設計/old/CHANGELOG_v11.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/prompt - n8nワークフロー自動設計/old",
+        "target": "n8n/prompt - n8nワークフロー自動設計/old/CHANGELOG_v12.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/prompt - n8nワークフロー自動設計/old",
+        "target": "n8n/prompt - n8nワークフロー自動設計/old/CHANGELOG_v12_abstraction.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/prompt - n8nワークフロー自動設計/old",
+        "target": "n8n/prompt - n8nワークフロー自動設計/old/CHANGELOG_v12_spacing_adjustment.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/prompt - n8nワークフロー自動設計/old",
+        "target": "n8n/prompt - n8nワークフロー自動設計/old/validation_report.md",
         "type": "tree"
       },
       {
@@ -3398,11 +2988,6 @@
       },
       {
         "source": "n8n/prompt - n8nワークフロー自動設計",
-        "target": "n8n/prompt - n8nワークフロー自動設計/validation_report.md",
-        "type": "tree"
-      },
-      {
-        "source": "n8n/prompt - n8nワークフロー自動設計",
         "target": "n8n/prompt - n8nワークフロー自動設計/ナレッジ - n8nワークフロー自動設計.md",
         "type": "tree"
       },
@@ -3420,21 +3005,22 @@
         "source": "n8n/prompt - n8nワークフロー自動設計",
         "target": "n8n/prompt - n8nワークフロー自動設計/プロンプト - n8nワークフロー自動設計v12(Sticky Noteにノード名を記述).md",
         "type": "tree"
-      },
-      {
-        "source": "n8n/prompt - n8nワークフロー自動設計",
-        "target": "n8n/prompt - n8nワークフロー自動設計/作成シート - n8nワークフロー自動設計.md",
-        "type": "tree"
-      },
-      {
-        "source": "n8n/prompt - n8nワークフロー自動設計",
-        "target": "n8n/prompt - n8nワークフロー自動設計/説明 - n8nワークフロー自動設計.md",
-        "type": "tree"
       }
     ]
   },
   "trackedFiles": [
-    ".claude/agents/プロンプト - n8nワークフロー自動設計v12(Sticky Noteにノード名を記述).md",
+    ".claude/agents/n8nワークフロー自動設計-step010-業務理解.md",
+    ".claude/agents/n8nワークフロー自動設計-step020-構造化.md",
+    ".claude/agents/n8nワークフロー自動設計-step030-タスク分解.md",
+    ".claude/agents/n8nワークフロー自動設計-step040-パターン適用.md",
+    ".claude/agents/n8nワークフロー自動設計-step050-n8n設計変換.md",
+    ".claude/agents/n8nワークフロー自動設計-step060-AIエージェント配置.md",
+    ".claude/agents/n8nワークフロー自動設計-step070-完全n8n JSON生成.md",
+    ".claude/agents/n8nワークフロー自動設計-step071-ワークフロー接続検証.md",
+    ".claude/agents/n8nワークフロー自動設計-step080-エラーワークフロー生成.md",
+    ".claude/agents/n8nワークフロー自動設計-step081-エラーワークフロー接続検証.md",
+    ".claude/agents/n8nワークフロー自動設計-step090-実装手順書生成.md",
+    ".claude/agents/n8nワークフロー自動設計-step100-最終成果物出力.md",
     ".gitignore",
     ".kamui/model-versions-cache.json",
     ".kamui/prompt/merge-prompt.txt",
@@ -3485,10 +3071,11 @@
     "google calendar登録/workflow_update_instructions.md",
     "google calendar登録/プロンプト/【AI Agent 1】Discord予定抽出-プロンプト.md",
     "google calendar登録/プロンプト/【AI Agent 1】Discord予定抽出-プロンプトシート.md",
-    "prompt - n8nワークフロー自動設計/CHANGELOG_v11.md",
-    "prompt - n8nワークフロー自動設計/CHANGELOG_v12.md",
-    "prompt - n8nワークフロー自動設計/CHANGELOG_v12_abstraction.md",
-    "prompt - n8nワークフロー自動設計/CHANGELOG_v12_spacing_adjustment.md",
+    "prompt - n8nワークフロー自動設計/old/CHANGELOG_v11.md",
+    "prompt - n8nワークフロー自動設計/old/CHANGELOG_v12.md",
+    "prompt - n8nワークフロー自動設計/old/CHANGELOG_v12_abstraction.md",
+    "prompt - n8nワークフロー自動設計/old/CHANGELOG_v12_spacing_adjustment.md",
+    "prompt - n8nワークフロー自動設計/old/validation_report.md",
     "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計.md",
     "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v10（Add sticky noteを追加）.md",
     "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v11(Sticky Note詳細化).md",
@@ -3500,13 +3087,10 @@
     "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v7（ai-agentツールの変更）.md",
     "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v8（n8n-mcpは指定があるときのみ使用） copy.md",
     "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v9（jsonに説明を追加）.md",
-    "prompt - n8nワークフロー自動設計/validation_report.md",
     "prompt - n8nワークフロー自動設計/ナレッジ - n8nワークフロー自動設計.md",
     "prompt - n8nワークフロー自動設計/ナレッジ - n8nワークフロー自動設計（AI-agent）.md",
     "prompt - n8nワークフロー自動設計/ナレッジ - n8nワークフロー自動設計（n8n-MCP）.md",
-    "prompt - n8nワークフロー自動設計/プロンプト - n8nワークフロー自動設計v12(Sticky Noteにノード名を記述).md",
-    "prompt - n8nワークフロー自動設計/作成シート - n8nワークフロー自動設計.md",
-    "prompt - n8nワークフロー自動設計/説明 - n8nワークフロー自動設計.md"
+    "prompt - n8nワークフロー自動設計/プロンプト - n8nワークフロー自動設計v12(Sticky Noteにノード名を記述).md"
   ],
   "uiState": {
     "expandedDirs": [
@@ -3534,7 +3118,32 @@
       "n8n/Google Drive M4A議事録自動生成/step7_完全JSON生成",
       "n8n/n8n/Google Drive M4A議事録自動生成/step7_完全JSON生成",
       "n8n/kamui",
-      "n8n/n8n/kamui"
+      "n8n/n8n/kamui",
+      "n8n/.claude",
+      "n8n/n8n/.claude",
+      "n8n/.claude/agents",
+      "n8n/n8n/.claude/agents",
+      "n8n/n8n/prompt - n8nワークフロー自動設計",
+      "n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v11.md\tprompt - n8nワークフロー自動設計",
+      "n8n/n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v11.md\tprompt - n8nワークフロー自動設計",
+      "n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v11.md\tprompt - n8nワークフロー自動設計/old",
+      "n8n/n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v11.md\tprompt - n8nワークフロー自動設計/old",
+      "n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v12.md\tprompt - n8nワークフロー自動設計",
+      "n8n/n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v12.md\tprompt - n8nワークフロー自動設計",
+      "n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v12.md\tprompt - n8nワークフロー自動設計/old",
+      "n8n/n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v12.md\tprompt - n8nワークフロー自動設計/old",
+      "n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v12_abstraction.md\tprompt - n8nワークフロー自動設計",
+      "n8n/n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v12_abstraction.md\tprompt - n8nワークフロー自動設計",
+      "n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v12_abstraction.md\tprompt - n8nワークフロー自動設計/old",
+      "n8n/n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v12_abstraction.md\tprompt - n8nワークフロー自動設計/old",
+      "n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v12_spacing_adjustment.md\tprompt - n8nワークフロー自動設計",
+      "n8n/n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v12_spacing_adjustment.md\tprompt - n8nワークフロー自動設計",
+      "n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v12_spacing_adjustment.md\tprompt - n8nワークフロー自動設計/old",
+      "n8n/n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v12_spacing_adjustment.md\tprompt - n8nワークフロー自動設計/old",
+      "n8n/prompt - n8nワークフロー自動設計/validation_report.md\tprompt - n8nワークフロー自動設計",
+      "n8n/n8n/prompt - n8nワークフロー自動設計/validation_report.md\tprompt - n8nワークフロー自動設計",
+      "n8n/prompt - n8nワークフロー自動設計/validation_report.md\tprompt - n8nワークフロー自動設計/old",
+      "n8n/n8n/prompt - n8nワークフロー自動設計/validation_report.md\tprompt - n8nワークフロー自動設計/old"
     ],
     "selectedPath": null
   },
@@ -3548,7 +3157,7 @@
     "mode": "full",
     "isPartial": false,
     "branchPulse": {
-      "generatedAt": 1762584997116,
+      "generatedAt": 1762587816458,
       "targets": [
         "main",
         "master"
@@ -3556,10 +3165,10 @@
       "statsByBranch": {
         "main": {
           "branch": "main",
-          "head": "f222ca4b3208f6c630c749d696491e394f4effa1",
+          "head": "bee6b63d19462b24671c10459db598c59bfc808a",
           "baseRef": "origin/main",
-          "baseHead": "f222ca4b3208f6c630c749d696491e394f4effa1",
-          "mergeBase": "f222ca4b3208f6c630c749d696491e394f4effa1",
+          "baseHead": "bee6b63d19462b24671c10459db598c59bfc808a",
+          "mergeBase": "bee6b63d19462b24671c10459db598c59bfc808a",
           "divergence": {
             "aheadCount": 0,
             "fileCount": 0
@@ -3576,16 +3185,16 @@
   },
   "gitHistoryState": {
     "selectedTimelineIndex": 1,
-    "activeCommitHash": "a6a0f11af6f34ceb77c6ff1ea55287a870141911",
+    "activeCommitHash": "62c81aa3430d32518559040bb18a31fe8e86bc06",
     "entries": [
       {
         "type": "live",
         "label": "現在のコードベース",
         "files": [],
         "branch": "main",
-        "targetCommitHash": "f222ca4b3208f6c630c749d696491e394f4effa1",
+        "targetCommitHash": "bee6b63d19462b24671c10459db598c59bfc808a",
         "worktreePath": "/Users/dm/dev/dev/n8n",
-        "timestamp": 1762584997336,
+        "timestamp": 1762587816483,
         "lane": 0,
         "branchLabel": "main",
         "branchTags": [
@@ -3594,6 +3203,163 @@
         "isDefaultWorktree": true,
         "branchColor": "#4f85e8",
         "index": 0
+      },
+      {
+        "type": "commit",
+        "label": "chore: kamuiシステムグラフ状態を更新",
+        "commit": {
+          "hash": "62c81aa3430d32518559040bb18a31fe8e86bc06",
+          "subject": "chore: kamuiシステムグラフ状態を更新",
+          "author": "daishiman",
+          "timestamp": 1762587677,
+          "parents": [
+            "5576d7df6558f93a52816965e9e0ea7ca6ea0eab"
+          ],
+          "parent": "5576d7df6558f93a52816965e9e0ea7ca6ea0eab",
+          "refs": "origin/feature/n8n-workflow-design-agents-restructure",
+          "branches": [
+            "origin/feature/n8n-workflow-design-agents-restructure"
+          ]
+        },
+        "commitHash": "62c81aa3430d32518559040bb18a31fe8e86bc06",
+        "lane": 1,
+        "parentLinks": [
+          {
+            "hash": "5576d7df6558f93a52816965e9e0ea7ca6ea0eab",
+            "lane": 0
+          }
+        ],
+        "primaryBranchName": "feature/n8n-workflow-design-agents-restructure",
+        "branchColor": "#b84fe8",
+        "branchTags": [
+          "feature/n8n-workflow-design-agents-restructure"
+        ],
+        "index": 1
+      },
+      {
+        "type": "unstaged",
+        "label": "未ステージ (1)",
+        "files": [
+          ".kamui/system-graph-state.json"
+        ],
+        "branch": "main",
+        "targetCommitHash": "bee6b63d19462b24671c10459db598c59bfc808a",
+        "worktreePath": "/Users/dm/dev/dev/n8n",
+        "timestamp": 1762587816483,
+        "sortOrder": 0,
+        "lane": 0,
+        "branchColor": "#4f85e8",
+        "index": 2
+      },
+      {
+        "type": "staged",
+        "label": "ステージ済み (1)",
+        "files": [
+          "kamui/model-versions-cache.json"
+        ],
+        "branch": "main",
+        "targetCommitHash": "bee6b63d19462b24671c10459db598c59bfc808a",
+        "worktreePath": "/Users/dm/dev/dev/n8n",
+        "timestamp": 1762587816483,
+        "sortOrder": 1,
+        "lane": 0,
+        "branchColor": "#4f85e8",
+        "index": 3
+      },
+      {
+        "type": "commit",
+        "label": "feat: n8nワークフローエージェント構造を12ステップに再編成 (#2)",
+        "commit": {
+          "hash": "bee6b63d19462b24671c10459db598c59bfc808a",
+          "subject": "feat: n8nワークフローエージェント構造を12ステップに再編成 (#2)",
+          "author": "daishiman",
+          "timestamp": 1762587668,
+          "parents": [
+            "f222ca4b3208f6c630c749d696491e394f4effa1"
+          ],
+          "parent": "f222ca4b3208f6c630c749d696491e394f4effa1",
+          "refs": "HEAD -> main, origin/main, origin/HEAD",
+          "branches": [
+            "HEAD -> main",
+            "origin/main",
+            "origin/HEAD",
+            "main"
+          ]
+        },
+        "commitHash": "bee6b63d19462b24671c10459db598c59bfc808a",
+        "lane": 0,
+        "parentLinks": [
+          {
+            "hash": "f222ca4b3208f6c630c749d696491e394f4effa1",
+            "lane": 1
+          }
+        ],
+        "primaryBranchName": "main",
+        "branchColor": "#4f85e8",
+        "branchTags": [
+          "main"
+        ],
+        "worktrees": [
+          {
+            "path": "/Users/dm/dev/dev/n8n",
+            "head": "bee6b63d19462b24671c10459db598c59bfc808a",
+            "branch": "main",
+            "isMerged": false,
+            "mergeCommitHash": null,
+            "status": {
+              "staged": [
+                {
+                  "path": "kamui/model-versions-cache.json",
+                  "originalPath": null,
+                  "status": "modified",
+                  "rawPath": "kamui/model-versions-cache.json",
+                  "timestamp": 1762587816173
+                }
+              ],
+              "unstaged": [
+                {
+                  "path": ".kamui/system-graph-state.json",
+                  "originalPath": null,
+                  "status": "modified",
+                  "rawPath": ".kamui/system-graph-state.json",
+                  "timestamp": 1762587816173
+                }
+              ],
+              "untracked": [],
+              "capturedAt": 1762587816173
+            },
+            "normalizedPath": "/Users/dm/dev/dev/n8n",
+            "lane": 0
+          }
+        ],
+        "index": 4
+      },
+      {
+        "type": "commit",
+        "label": "feat: n8nワークフローエージェント構造を12ステップに再編成",
+        "commit": {
+          "hash": "5576d7df6558f93a52816965e9e0ea7ca6ea0eab",
+          "subject": "feat: n8nワークフローエージェント構造を12ステップに再編成",
+          "author": "daishiman",
+          "timestamp": 1762587618,
+          "parents": [
+            "f222ca4b3208f6c630c749d696491e394f4effa1"
+          ],
+          "parent": "f222ca4b3208f6c630c749d696491e394f4effa1",
+          "refs": "",
+          "branches": []
+        },
+        "commitHash": "5576d7df6558f93a52816965e9e0ea7ca6ea0eab",
+        "lane": 0,
+        "parentLinks": [
+          {
+            "hash": "f222ca4b3208f6c630c749d696491e394f4effa1",
+            "lane": 1
+          }
+        ],
+        "branchColor": "#4f85e8",
+        "branchTags": [],
+        "index": 5
       },
       {
         "type": "commit",
@@ -3614,15 +3380,15 @@
           ]
         },
         "commitHash": "a6a0f11af6f34ceb77c6ff1ea55287a870141911",
-        "lane": 1,
+        "lane": 2,
         "parentLinks": [
           {
             "hash": "c9d27ee22945c551d89fcbc50ebc504725de9bbc",
-            "lane": 0
+            "lane": 2
           },
           {
             "hash": "5f587bf7ab385c1259ea904348936942d62ed3ca",
-            "lane": 1
+            "lane": 3
           }
         ],
         "primaryBranchName": "refs/stash",
@@ -3630,7 +3396,7 @@
         "branchTags": [
           "refs/stash"
         ],
-        "index": 1
+        "index": 6
       },
       {
         "type": "commit",
@@ -3652,42 +3418,12 @@
         "parentLinks": [
           {
             "hash": "c9d27ee22945c551d89fcbc50ebc504725de9bbc",
-            "lane": 0
+            "lane": 2
           }
         ],
         "branchColor": "#4f85e8",
         "branchTags": [],
-        "index": 2
-      },
-      {
-        "type": "unstaged",
-        "label": "未ステージ (1)",
-        "files": [
-          ".kamui/system-graph-state.json"
-        ],
-        "branch": "main",
-        "targetCommitHash": "f222ca4b3208f6c630c749d696491e394f4effa1",
-        "worktreePath": "/Users/dm/dev/dev/n8n",
-        "timestamp": 1762584997336,
-        "sortOrder": 0,
-        "lane": 0,
-        "branchColor": "#4f85e8",
-        "index": 3
-      },
-      {
-        "type": "staged",
-        "label": "ステージ済み (1)",
-        "files": [
-          "kamui/model-versions-cache.json"
-        ],
-        "branch": "main",
-        "targetCommitHash": "f222ca4b3208f6c630c749d696491e394f4effa1",
-        "worktreePath": "/Users/dm/dev/dev/n8n",
-        "timestamp": 1762584997336,
-        "sortOrder": 1,
-        "lane": 0,
-        "branchColor": "#4f85e8",
-        "index": 4
+        "index": 7
       },
       {
         "type": "commit",
@@ -3701,11 +3437,8 @@
             "c9d27ee22945c551d89fcbc50ebc504725de9bbc"
           ],
           "parent": "c9d27ee22945c551d89fcbc50ebc504725de9bbc",
-          "refs": "HEAD -> main, origin/main, origin/HEAD",
+          "refs": "",
           "branches": [
-            "HEAD -> main",
-            "origin/main",
-            "origin/HEAD",
             "main"
           ]
         },
@@ -3714,48 +3447,13 @@
         "parentLinks": [
           {
             "hash": "c9d27ee22945c551d89fcbc50ebc504725de9bbc",
-            "lane": 0
+            "lane": 2
           }
         ],
         "primaryBranchName": "main",
         "branchColor": "#4f85e8",
-        "branchTags": [
-          "main"
-        ],
-        "worktrees": [
-          {
-            "path": "/Users/dm/dev/dev/n8n",
-            "head": "f222ca4b3208f6c630c749d696491e394f4effa1",
-            "branch": "main",
-            "isMerged": false,
-            "mergeCommitHash": null,
-            "status": {
-              "staged": [
-                {
-                  "path": "kamui/model-versions-cache.json",
-                  "originalPath": null,
-                  "status": "modified",
-                  "rawPath": "kamui/model-versions-cache.json",
-                  "timestamp": 1762584996625
-                }
-              ],
-              "unstaged": [
-                {
-                  "path": ".kamui/system-graph-state.json",
-                  "originalPath": null,
-                  "status": "modified",
-                  "rawPath": ".kamui/system-graph-state.json",
-                  "timestamp": 1762584996625
-                }
-              ],
-              "untracked": [],
-              "capturedAt": 1762584996625
-            },
-            "normalizedPath": "/Users/dm/dev/dev/n8n",
-            "lane": 0
-          }
-        ],
-        "index": 5
+        "branchTags": [],
+        "index": 8
       },
       {
         "type": "commit",
@@ -3775,11 +3473,11 @@
           ]
         },
         "commitHash": "bb15723418178f7181263730d01b5d987ec1fb5f",
-        "lane": 2,
+        "lane": 3,
         "parentLinks": [
           {
             "hash": "c9d27ee22945c551d89fcbc50ebc504725de9bbc",
-            "lane": 0
+            "lane": 2
           }
         ],
         "primaryBranchName": "feature/remove-m4a-minutes",
@@ -3787,7 +3485,7 @@
         "branchTags": [
           "feature/remove-m4a-minutes"
         ],
-        "index": 6
+        "index": 9
       },
       {
         "type": "commit",
@@ -3808,21 +3506,21 @@
           ]
         },
         "commitHash": "5b2475ec37962af64de7fc433a608fc1b7f65462",
-        "lane": 1,
+        "lane": 2,
         "parentLinks": [
           {
             "hash": "c9d27ee22945c551d89fcbc50ebc504725de9bbc",
-            "lane": 0
+            "lane": 2
           },
           {
             "hash": "aedbbf110cd7111253956369bc21b7c53b30e420",
-            "lane": 5
+            "lane": 6
           }
         ],
         "primaryBranchName": "refs/stash",
         "branchColor": "#e84f7f",
         "branchTags": [],
-        "index": 7
+        "index": 10
       },
       {
         "type": "commit",
@@ -3844,12 +3542,12 @@
         "parentLinks": [
           {
             "hash": "c9d27ee22945c551d89fcbc50ebc504725de9bbc",
-            "lane": 0
+            "lane": 2
           }
         ],
         "branchColor": "#4f85e8",
         "branchTags": [],
-        "index": 8
+        "index": 11
       },
       {
         "type": "commit",
@@ -3873,13 +3571,13 @@
         "parentLinks": [
           {
             "hash": "22cbe685f21c4fcd53cf81597de4ebdd69480324",
-            "lane": 0
+            "lane": 2
           }
         ],
         "primaryBranchName": "main",
         "branchColor": "#4f85e8",
         "branchTags": [],
-        "index": 9
+        "index": 12
       },
       {
         "type": "commit",
@@ -3901,12 +3599,12 @@
         "parentLinks": [
           {
             "hash": "9a9f35bba6e7d49dffec0c4898ee84b72da3350d",
-            "lane": 6
+            "lane": 7
           }
         ],
         "branchColor": "#4f85e8",
         "branchTags": [],
-        "index": 10
+        "index": 13
       },
       {
         "type": "commit",
@@ -3930,13 +3628,13 @@
         "parentLinks": [
           {
             "hash": "3c8fe1ef80b707277280bcfef85e85c0a705f85c",
-            "lane": 0
+            "lane": 2
           }
         ],
         "primaryBranchName": "main",
         "branchColor": "#4f85e8",
         "branchTags": [],
-        "index": 11
+        "index": 14
       },
       {
         "type": "commit",
@@ -3958,12 +3656,12 @@
         "parentLinks": [
           {
             "hash": "1bcdf74a38a5c32f9564736e5b8f07624546301d",
-            "lane": 6
+            "lane": 7
           }
         ],
         "branchColor": "#4f85e8",
         "branchTags": [],
-        "index": 12
+        "index": 15
       },
       {
         "type": "commit",
@@ -3987,13 +3685,13 @@
         "parentLinks": [
           {
             "hash": "a4e3b8db58ac6501c99965907a78beaac04efc03",
-            "lane": 0
+            "lane": 2
           }
         ],
         "primaryBranchName": "main",
         "branchColor": "#4f85e8",
         "branchTags": [],
-        "index": 13
+        "index": 16
       },
       {
         "type": "commit",
@@ -4013,7 +3711,7 @@
         "parentLinks": [],
         "branchColor": "#4f85e8",
         "branchTags": [],
-        "index": 14
+        "index": 17
       },
       {
         "type": "commit",
@@ -4036,17 +3734,17 @@
         "primaryBranchName": "main",
         "branchColor": "#4f85e8",
         "branchTags": [],
-        "index": 15
+        "index": 18
       },
       {
         "type": "empty",
         "label": "初期状態 (初回コミット以前)",
         "files": [],
         "marker": "pre-history",
-        "index": 16
+        "index": 19
       }
     ]
   },
   "projectRoot": "/Users/dm/dev/dev/n8n",
-  "savedAt": 1762585007390
+  "savedAt": 1762587825565
 }

@@ -354,19 +354,99 @@ MCP サーバーへのアクセス時は「ナレッジ - n8n ワークフロー
 - 責務: AI 要否判定、責務・目標・ゴール定義、Tools/Memory 接続
 - n8n-MCP 活用: AI 関連ノード情報取得と完全検証
 - 処理詳細手順:
-  1. AI 要否判定（複雑な判断・変換・分析・生成タスクのみ）
-  2. 単一責務の原則チェック（1 エージェント=1 明確な目的）
-  3. n8n-MCP 実行（並列）
-  4. AI Agent Node のパラメータ設定
-  5. Chat Model サブノードの接続設定
-  6. Tools の選定と接続設定
-  7. Memory の選定と接続設定
-  8. 責務・目標・ゴールの定義（System Message に記載）
-  9. 入出力スキーマの定義
-  10. 必要なコンテキスト情報の特定
-  11. 複数責務が見つかった場合はノードを分割
-  12. Chat Trigger の設定（Public/Authentication/Response Mode 等）
-  13. 検証実行:
+
+  **このステップで達成すべきこと**:
+  - step050で設計したノード群から、AI Agent Nodeを使用するノードを特定し、完全な配置設計を行う
+  - 各AI Agentが単一責務の原則を100%遵守することを保証する（1 AI Agent = 1明確な責務）
+  - AI Agent + Chat Model + Tools + Memoryのクラスターノード構造を完全に定義する
+  - 各AI AgentのSystem Message（責務・目標・ゴール）を明確に定義する
+  - 次ステップ（完全JSON生成）で実装可能な粒度まで、AI Agent設定を完成させる
+
+  1. **AI 要否判定（複雑な判断・変換・分析・生成タスクのみ）**
+     - 達成目標: どのタスクにAI Agent Nodeを使用するかを判定する
+     - 具体例: ✅AI必要→テキスト生成、データ分析、意図理解 / ❌AI不要→データ取得、フォーマット変換、通知送信
+     - 確認事項: タスクの複雑度、AI処理の必要性、Code Nodeで代替可能か
+
+  2. **単一責務の原則チェック（1 エージェント=1 明確な目的）**
+     - 達成目標: 各AI Agentが1つの明確な責務のみを持つことを確認する
+     - 具体例: ❌「データ整形と分析」→✅「データ整形」+「データ分析」、❌「議題抽出と要約」→✅「議題抽出」+「各議題の要約」
+     - 確認事項: 責務が1文で表現できるか、他のAI Agentと責務が重複していないか、ゴールが明確か
+
+  3. n8n-MCP 実行（並列）:
+
+     **実行基準**:
+     - **実行タイミング**: AI Agent Nodeの配置が完了し、Chat Model / Tools / Memoryの詳細設定を開始する段階
+     - **実行条件**:
+       - AI Agent Nodeの詳細パラメータを確認する必要がある場合
+       - Chat Model、Tools、Memoryの設定方法を確認する必要がある場合
+       - AI Agent Nodeの実装例を参照したい場合
+       - クラスターノード構造の接続方法を確認する必要がある場合
+     - **実行内容**:
+       ```
+       並列実行:
+       - get_node_documentation({nodeType: "@n8n/n8n-nodes-langchain.agent"})
+       - get_node_essentials({nodeType: "@n8n/n8n-nodes-langchain.agent", includeExamples: true})
+       - search_node_properties({nodeType: "@n8n/n8n-nodes-langchain.agent", query: "system message"})
+       - search_node_properties({nodeType: "@n8n/n8n-nodes-langchain.agent", query: "tools memory"})
+       ```
+     - **判断ポイント**:
+       - AI Agent設定: System Message、Tools、Memoryの設定方法を確認
+       - クラスター接続: Chat ModelをAI Agentに接続する方法（ai_languageModel）を確認
+       - Tools選定: 各AI Agentに必要なTools（HTTP Request、Code等）を決定
+       - Memory設定: 会話履歴管理の必要性と設定方法を確認
+     - **スキップ条件**:
+       - AI Agent Nodeの設定方法が完全に理解できている場合
+       - Chat Model / Tools / Memoryの接続方法が明確な場合
+
+  4. **AI Agent Node のパラメータ設定**
+     - 達成目標: AI Agent Nodeの基本パラメータ（名前、プロンプト、オプション等）を設定する
+     - 具体例: name: "議題抽出エージェント"、prompt: "文字起こしテキストから議題を抽出してください"
+     - 確認事項: パラメータの完全性、デフォルト値依存の排除
+
+  5. **Chat Model サブノードの接続設定**
+     - 達成目標: step000で選択したChat ModelをAI Agentに接続する（ai_languageModel接続）
+     - 具体例: OpenAI Chat Model→AI Agent（ai_languageModel）、model: "gpt-4"、temperature: 0.7
+     - 確認事項: Chat Modelタイプ、モデル名、認証設定、接続タイプ（ai_languageModel）
+
+  6. **Tools の選定と接続設定**
+     - 達成目標: 各AI Agentに必要なToolsを選定し、AI Agentに接続する（ai_tool接続）
+     - 具体例: HTTP Request Tool、Code Tool、Database Tool等
+     - 確認事項: Toolsの必要性、Tool設定、接続タイプ（ai_tool）
+
+  7. **Memory の選定と接続設定**
+     - 達成目標: 会話履歴管理が必要なAI AgentにMemoryを接続する（ai_memory接続）
+     - 具体例: Simple Memory、PostgreSQL Chat Memory等
+     - 確認事項: Memory必要性、Memory設定、接続タイプ（ai_memory）
+
+  8. **責務・目標・ゴールの定義（System Message に記載）**
+     - 達成目標: 各AI AgentのSystem Messageに、責務・目標・ゴールを明確に記載する
+     - 具体例: "あなたは議題抽出エージェントです。文字起こしテキストから、会議の議題を箇条書きで抽出してください。"
+     - 確認事項: 責務の明確性、ゴールの測定可能性、指示の具体性
+
+  9. **入出力スキーマの定義**
+     - 達成目標: 各AI Agentの入力データと出力データの形式を定義する
+     - 具体例: 入力: `{ "transcript": "..." }`、出力: `{ "agendas": ["議題1", "議題2"] }`
+     - 確認事項: スキーマの完全性、データ型、必須フィールド
+
+  10. **必要なコンテキスト情報の特定**
+      - 達成目標: AI Agentが処理に必要とするコンテキスト情報を特定する
+      - 具体例: 会議名、日時、参加者、前回の議事録等
+      - 確認事項: コンテキストの取得方法、Memory活用の必要性
+
+  11. **複数責務が見つかった場合はノードを分割**
+      - 達成目標: 1つのAI Agentに複数責務がある場合、複数のAI Agentに分割する
+      - 具体例: ❌「データ検証と分析」→✅「データ検証エージェント」+「データ分析エージェント」
+      - 確認事項: 分割後の責務の明確性、データフロー、処理順序
+
+  12. **Chat Trigger の設定（Public/Authentication/Response Mode 等）**
+      - 達成目標: 対話型AI Agentの場合、Chat Triggerの設定を行う
+      - 具体例: Public URL、認証有無、Response Mode（Text/JSON）
+      - 確認事項: アクセス制御、レスポンス形式、エラーハンドリング
+
+  13. **検証実行**:
+      - 達成目標: 設定したAI Agent Nodeが最小要件を満たしているか検証する
+      - 具体例: validate_node_minimal実行、接続確認、パラメータ確認
+      - 確認事項: 検証結果、エラーの有無、修正の必要性
 - 評価・判断基準: 各 AI Agent が単一責務を持ち、Chat Model/Tools/Memory が正しく接続されているか
 - 出力テンプレート:
 
