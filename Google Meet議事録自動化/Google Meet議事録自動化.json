@@ -1,0 +1,494 @@
+{
+  "name": "【改善版】Google Meet議事録自動化",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "value": 5,
+              "unit": "minutes"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1znZ8JC-Zej5BHPPUGb7-1V_Lt9omuQ_g",
+          "mode": "list",
+          "cachedResultName": "Meet Recordings"
+        },
+        "event": "fileCreated",
+        "options": {
+          "fileType": "application/vnd.google-apps.document"
+        }
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "id": "trigger-google-drive",
+      "name": "📍 Google Drive監視（5分間隔）",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "oTRCN0nC6MxrSHAe",
+          "name": "Google Drive account"
+        }
+      },
+      "notes": "5分ごとに新規ドキュメントをチェック（レート制限対策）"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "text/plain"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [200, 0],
+      "id": "download-file",
+      "name": "📥 ファイルダウンロード",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "oTRCN0nC6MxrSHAe",
+          "name": "Google Drive account"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "notes": "エラー時は3回リトライ、5秒間隔"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ファイル形式とサイズの検証\nconst items = $input.all();\nconst validated = [];\nconst errors = [];\n\nfor (const item of items) {\n  const validation = {\n    isValid: true,\n    errors: [],\n    warnings: []\n  };\n\n  // MIMEタイプチェック\n  const mimeType = item.json.mimeType;\n  if (mimeType !== 'text/plain' && mimeType !== 'application/vnd.google-apps.document') {\n    validation.isValid = false;\n    validation.errors.push(`無効なファイル形式: ${mimeType}`);\n  }\n\n  // ファイル名チェック\n  const name = item.json.name || '';\n  if (name.length === 0) {\n    validation.errors.push('ファイル名が空です');\n  }\n\n  // バイナリデータの存在チェック\n  if (!item.binary || !item.binary.data) {\n    validation.isValid = false;\n    validation.errors.push('ファイルデータが取得できませんでした');\n  }\n\n  if (validation.isValid) {\n    validated.push({\n      json: {\n        ...item.json,\n        validation: validation\n      },\n      binary: item.binary\n    });\n  } else {\n    errors.push({\n      json: {\n        ...item.json,\n        validation: validation,\n        error: validation.errors.join(', ')\n      }\n    });\n  }\n}\n\nif (validated.length === 0 && errors.length > 0) {\n  throw new Error(`ファイル検証失敗: ${errors[0].json.error}`);\n}\n\nreturn validated;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [400, 0],
+      "id": "validate-file",
+      "name": "🔍 ファイル形式検証",
+      "onError": "continueErrorOutput",
+      "retryOnFail": false,
+      "notes": "ファイル形式とデータの妥当性を検証"
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [600, 0],
+      "id": "extract-text",
+      "name": "📄 テキスト抽出",
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "notes": "ファイルからテキストデータを抽出"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 抽出データの検証\nconst items = $input.all();\nconst validated = [];\n\nfor (const item of items) {\n  const data = item.json.data || '';\n  const validation = {\n    isValid: true,\n    dataLength: data.length,\n    warnings: []\n  };\n\n  // 最小文字数チェック（議事録として妥当か）\n  if (data.length < 100) {\n    validation.isValid = false;\n    validation.warnings.push(`データが短すぎます（${data.length}文字）`);\n  }\n\n  // 最大文字数チェック（異常に長いデータ）\n  if (data.length > 100000) {\n    validation.warnings.push('データが非常に長いです。処理に時間がかかる可能性があります');\n  }\n\n  // 日本語が含まれているかチェック\n  const hasJapanese = /[\\u3000-\\u303f\\u3040-\\u309f\\u30a0-\\u30ff\\uff00-\\uff9f\\u4e00-\\u9faf\\u3400-\\u4dbf]/.test(data);\n  if (!hasJapanese) {\n    validation.warnings.push('日本語が検出されませんでした');\n  }\n\n  if (validation.isValid) {\n    validated.push({\n      json: {\n        ...item.json,\n        validation: validation\n      }\n    });\n  } else {\n    throw new Error(`データ検証失敗: ${validation.warnings.join(', ')}`);\n  }\n}\n\nreturn validated;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [800, 0],
+      "id": "validate-data",
+      "name": "✅ データ検証",
+      "onError": "continueErrorOutput",
+      "notes": "抽出データが議事録として妥当かチェック"
+    },
+    {
+      "parameters": {
+        "resource": "block",
+        "operation": "getAll",
+        "blockId": {
+          "__rl": true,
+          "value": "https://www.notion.so/28184a6eb3778018be02c10438d06b99",
+          "mode": "url"
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [1000, -200],
+      "id": "fetch-customer-list",
+      "name": "📋 顧客リスト全件取得",
+      "credentials": {
+        "notionApi": {
+          "id": "FnFzahqSM9wdlbaA",
+          "name": "Notion account"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000,
+      "notes": "全顧客リストを取得（limit削除）"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('📄 テキスト抽出').item.json.data }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=これは弊社の顧客リスト全件です：\n{{ $('📋 顧客リスト全件取得').item.json.content }}\n\nユーザーの入力値（議事録テキスト）を分析し、顧客リストに含まれる顧客との会議かどうかを判定してください。"
+            }
+          ]
+        },
+        "options": {
+          "systemMessage": "あなたは顧客情報を照合するエージェントです。議事録テキストから顧客名や企業名を抽出し、提供された顧客リストと照合してください。"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [1200, 0],
+      "id": "match-customer",
+      "name": "🔗 顧客情報照合",
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "notes": "議事録から顧客を特定し、顧客リストと照合"
+    },
+    {
+      "parameters": {
+        "modelName": "x-ai/grok-2-1212",
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [1200, 200],
+      "id": "llm-grok",
+      "name": "🤖 Grok-2モデル",
+      "credentials": {
+        "openRouterApi": {
+          "id": "4LOg2qTyGJmHv48d",
+          "name": "masao private key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"is_existing_customer\": true,\n  \"customer_name\": \"株式会社サンプル\",\n  \"customer_data\": \"顧客の説明や過去の取引履歴\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [1200, 400],
+      "id": "parser-customer",
+      "name": "📝 顧客情報パーサー"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('📄 テキスト抽出').item.json.data }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=あなたは、ミーティングの議事録を作成するエージェントです。以下のJSON形式に沿って議事録の作成を行ってください。わかりやすく読みやすい議事録を期待しています。\n\n{\n    \"date\": \"メモ内部に日付があれば、2025年1月1日 **時**分の形で\",\n    \"title\": \"このdocsのタイトルを考えて設定\",\n    \"abstract_text\": \"140文字以内\",\n    \"todo\": [\"次にやるべきことなど\"],\n    \"tldv\": [\"ポイント\"],\n    \"meetings_flow\": [\"このドキュメント内部の話の流れをわかりやすく、抜け漏れなくまとめる\"],\n    \"meeting_score\": \"0-100点でmtgのスコアを。最高のmtgは80以上・良いMTGは60以上、赤点は60未満\",\n    \"meeting_reflection\":\"mtgの反省ポイント\"\n}\n\n【顧客情報】\n{{ $('🔗 顧客情報照合').item.json.output }}\n\n上記の顧客情報を踏まえて、議事録を作成してください。"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [1400, 0],
+      "id": "generate-minutes",
+      "name": "🤖 統合議事録生成エージェント",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000,
+      "notes": "顧客情報を含めた議事録を一括生成"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-exp",
+        "options": {
+          "temperature": 0.5
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [1400, 200],
+      "id": "llm-gemini",
+      "name": "🤖 Gemini 2.0モデル",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "oDxMxVwQCQUCqP5O",
+          "name": "m personal API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n    \"date\": \"2025年10月1日 18:57\",\n    \"title\": \"mtg title\",\n    \"abstract_text\": \"140文字\",\n    \"todo\": [\"\"],\n    \"tldv\": [\"\"],\n    \"meetings_flow\": [\"\", \"\", \"\"],\n    \"meeting_score\": 100,\n    \"meeting_reflection\":\"mtgの反省ポイント\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [1400, 400],
+      "id": "parser-minutes",
+      "name": "📝 議事録パーサー"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 改善版: エラーハンドリングとログ追加\nfunction parseJpDatetime(str) {\n  try {\n    if (typeof str !== 'string') return null;\n    const m = str.match(/(\\d{4})年\\s*(\\d{1,2})月\\s*(\\d{1,2})日(?:\\s+(\\d{1,2})時(\\d{1,2})分)?/);\n    if (!m) return null;\n    const [, y, mon, d, hh = '0', mm = '0'] = m;\n    const dt = new Date(Number(y), Number(mon) - 1, Number(d), Number(hh), Number(mm));\n    const pad = (n, len = 2) => String(n).padStart(len, '0');\n    const compact = `${y}${pad(mon)}${pad(d)}`;\n    return {\n      isoString: dt.toISOString(),\n      compact,\n      original: str\n    };\n  } catch (error) {\n    console.error('日付パースエラー:', error);\n    return null;\n  }\n}\n\nfunction bullets(arr, { numbered = false } = {}) {\n  if (!Array.isArray(arr) || arr.length === 0) return '';\n  return arr.map((t, i) =>\n    `${numbered ? `${i + 1}.` : '-'} ${t}`\n  ).join('\\n');\n}\n\nconst toProcess = [];\nfor (const item of items) {\n  if (Array.isArray(item.json)) {\n    for (const row of item.json) toProcess.push(row);\n  } else {\n    toProcess.push(item.json);\n  }\n}\n\nconst out = [];\n\nfor (const row of toProcess) {\n  try {\n    const data = row?.output ?? row;\n    const dateInfo = parseJpDatetime(data?.date ?? '');\n\n    const title = data?.title ?? '無題';\n    const abstractText = data?.abstract_text ?? '';\n    const tldv = Array.isArray(data?.tldv) ? data.tldv : [];\n    const todo = Array.isArray(data?.todo) ? data.todo : [];\n    const flow = Array.isArray(data?.meetings_flow) ? data.meetings_flow : [];\n    const meetingScore = data?.meeting_score ?? 0;\n    const reflection = data?.meeting_reflection ?? '';\n\n    // content構築\n    const txt = [\n      '【TODO】',\n      bullets(todo, { numbered: true }),\n      '',\n      '【TL;DV（重要ポイント）】',\n      bullets(tldv),\n      '',\n      '【議事録（流れ）】',\n      bullets(flow),\n      '',\n      '【ミーティング反省】',\n      reflection\n    ].join('\\n');\n\n    out.push({\n      json: {\n        title,\n        excerpt: abstractText?.slice(0, 140) || '要約なし',\n        content: txt,\n        date_iso: dateInfo?.compact ?? 'YYYYMMDD',\n        date_iso_full: dateInfo?.isoString ?? new Date().toISOString(),\n        meeting_score: meetingScore,\n        meeting_reflection: reflection,\n        processed_at: new Date().toISOString()\n      }\n    });\n  } catch (error) {\n    console.error('データ整形エラー:', error);\n    // エラーでも最低限のデータは返す\n    out.push({\n      json: {\n        title: 'エラー発生',\n        excerpt: 'データ整形中にエラーが発生しました',\n        content: `エラー詳細: ${error.message}`,\n        date_iso: new Date().toISOString().slice(0, 10).replace(/-/g, ''),\n        date_iso_full: new Date().toISOString(),\n        meeting_score: 0,\n        error: error.message\n      }\n    });\n  }\n}\n\nreturn out;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1600, 0],
+      "id": "format-data",
+      "name": "📦 データ整形",
+      "onError": "continueErrorOutput",
+      "notes": "議事録データをNotion/Slack用に整形"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "27f84a6e-b377-8059-a691-f5d048ae5a08",
+          "mode": "list",
+          "cachedResultName": "履歴"
+        },
+        "title": "={{ $json.date_iso }}_{{ $json.title }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Date|date",
+              "date": "={{ $json.date_iso_full }}"
+            },
+            {
+              "key": "更新者|people",
+              "peopleValue": ["76f63ebc-85c9-4c0d-85c4-b4597c951721"]
+            },
+            {
+              "key": "リンク|files",
+              "fileUrls": {
+                "fileUrl": [
+                  {
+                    "name": "GoogleDrive",
+                    "url": "={{ $('📍 Google Drive監視（5分間隔）').item.json.webViewLink }}"
+                  }
+                ]
+              }
+            },
+            {
+              "key": "ミーティングの相手|rich_text",
+              "textContent": "={{ $('🔗 顧客情報照合').item.json.output.customer_name }}"
+            },
+            {
+              "key": "スコア|number",
+              "numberValue": "={{ $json.meeting_score }}"
+            }
+          ]
+        },
+        "blockUi": {
+          "blockValues": [
+            {
+              "type": "heading_1",
+              "textContent": "📋 要約"
+            },
+            {
+              "textContent": "={{ $json.excerpt }}"
+            },
+            {
+              "textContent": "=⏰ 日時: {{ $json.date_iso_full }}"
+            },
+            {
+              "richText": true,
+              "text": {
+                "text": [
+                  {
+                    "text": "🔗リンクはこちらから",
+                    "isLink": true,
+                    "textLink": "={{ $('📍 Google Drive監視（5分間隔）').item.json.webViewLink }}",
+                    "annotationUi": {}
+                  },
+                  {
+                    "text": "=\n\n✅ スコア: {{ $json.meeting_score }} / 100",
+                    "annotationUi": {}
+                  },
+                  {
+                    "text": "=\n\n💡 MTGの反省点: {{ $json.meeting_reflection }}",
+                    "annotationUi": {
+                      "code": true
+                    }
+                  },
+                  {
+                    "text": "=\n\n{{ $json.content }}",
+                    "annotationUi": {}
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [1800, 0],
+      "id": "create-notion-page",
+      "name": "💾 Notion作成",
+      "credentials": {
+        "notionApi": {
+          "id": "FnFzahqSM9wdlbaA",
+          "name": "Notion account"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "notes": "議事録をNotionページとして作成"
+    },
+    {
+      "parameters": {
+        "webhookUri": "={{ $credentials.webhookUri }}",
+        "content": "=🎉 **MTGの議事録を追加しました**",
+        "embeds": {
+          "values": [
+            {
+              "title": "={{ $('📦 データ整形').item.json.date_iso }} {{ $('📦 データ整形').item.json.title }}",
+              "description": "={{ $('📦 データ整形').item.json.excerpt }}",
+              "color": "=5763719",
+              "fields": {
+                "fields": [
+                  {
+                    "name": "📊 MTGスコア",
+                    "value": "={{ $('📦 データ整形').item.json.meeting_score }}/100点",
+                    "inline": true
+                  },
+                  {
+                    "name": "👥 ミーティング相手",
+                    "value": "={{ $('🔗 顧客情報照合').item.json.output.customer_name || '不明' }}",
+                    "inline": true
+                  },
+                  {
+                    "name": "📝 Notionページ",
+                    "value": "=[リンクを開く]({{ $('💾 Notion作成').item.json.url }})"
+                  },
+                  {
+                    "name": "📁 Google Drive",
+                    "value": "=[元ファイルを開く]({{ $('📍 Google Drive監視（5分間隔）').item.json.webViewLink }})"
+                  }
+                ]
+              },
+              "footer": {
+                "text": "n8n 議事録自動化",
+                "iconUrl": "https://n8n.io/favicon.ico"
+              },
+              "timestamp": "={{ new Date().toISOString() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [2000, 0],
+      "id": "send-discord",
+      "name": "📢 Discord通知",
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "your-discord-webhook-id",
+          "name": "Discord Webhook"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "notes": "成功通知をDiscordに送信"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 実行ログの記録\nconst items = $input.all();\nconst logs = [];\n\nfor (const item of items) {\n  logs.push({\n    json: {\n      workflow_id: $workflow.id,\n      workflow_name: $workflow.name,\n      execution_id: $execution.id,\n      execution_mode: $execution.mode,\n      timestamp: new Date().toISOString(),\n      status: 'success',\n      file_name: $('📍 Google Drive監視（5分間隔）').item.json.name,\n      file_id: $('📍 Google Drive監視（5分間隔）').item.json.id,\n      customer_name: $('🔗 顧客情報照合').item.json.output?.customer_name || 'Unknown',\n      meeting_score: item.json.meeting_score,\n      notion_url: $('💾 Notion作成').item.json.url,\n      discord_notified: true,\n      processed_data: {\n        title: item.json.title,\n        date: item.json.date_iso_full,\n        excerpt_length: item.json.excerpt?.length || 0\n      }\n    }\n  });\n}\n\nconsole.log('実行ログ記録:', logs);\nreturn logs;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2200, 0],
+      "id": "log-execution",
+      "name": "💾 実行ログ記録",
+      "notes": "ワークフロー実行履歴を記録（将来的にDBやNotion保存可能）"
+    }
+  ],
+  "connections": {
+    "📍 Google Drive監視（5分間隔）": {
+      "main": [[{"node": "📥 ファイルダウンロード", "type": "main", "index": 0}]]
+    },
+    "📥 ファイルダウンロード": {
+      "main": [[{"node": "🔍 ファイル形式検証", "type": "main", "index": 0}]]
+    },
+    "🔍 ファイル形式検証": {
+      "main": [[{"node": "📄 テキスト抽出", "type": "main", "index": 0}]]
+    },
+    "📄 テキスト抽出": {
+      "main": [[{"node": "✅ データ検証", "type": "main", "index": 0}]]
+    },
+    "✅ データ検証": {
+      "main": [[{"node": "📋 顧客リスト全件取得", "type": "main", "index": 0}]]
+    },
+    "📋 顧客リスト全件取得": {
+      "main": [[{"node": "🔗 顧客情報照合", "type": "main", "index": 0}]]
+    },
+    "🔗 顧客情報照合": {
+      "main": [[{"node": "🤖 統合議事録生成エージェント", "type": "main", "index": 0}]]
+    },
+    "🤖 Grok-2モデル": {
+      "ai_languageModel": [[
+        {"node": "🔗 顧客情報照合", "type": "ai_languageModel", "index": 0}
+      ]]
+    },
+    "📝 顧客情報パーサー": {
+      "ai_outputParser": [[
+        {"node": "🔗 顧客情報照合", "type": "ai_outputParser", "index": 0}
+      ]]
+    },
+    "🤖 統合議事録生成エージェント": {
+      "main": [[{"node": "📦 データ整形", "type": "main", "index": 0}]]
+    },
+    "🤖 Gemini 2.0モデル": {
+      "ai_languageModel": [[
+        {"node": "🤖 統合議事録生成エージェント", "type": "ai_languageModel", "index": 0}
+      ]]
+    },
+    "📝 議事録パーサー": {
+      "ai_outputParser": [[
+        {"node": "🤖 統合議事録生成エージェント", "type": "ai_outputParser", "index": 0}
+      ]]
+    },
+    "📦 データ整形": {
+      "main": [[{"node": "💾 Notion作成", "type": "main", "index": 0}]]
+    },
+    "💾 Notion作成": {
+      "main": [[{"node": "📢 Discord通知", "type": "main", "index": 0}]]
+    },
+    "📢 Discord通知": {
+      "main": [[{"node": "💾 実行ログ記録", "type": "main", "index": 0}]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "timezone": "Asia/Tokyo",
+    "errorWorkflow": "error-workflow-id"
+  },
+  "staticData": null,
+  "tags": ["議事録", "自動化", "AI", "改善版"],
+  "pinData": {},
+  "versionId": "improved-v2.0"
+}

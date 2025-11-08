@@ -1,0 +1,201 @@
+{
+  "name": "Discord_to_GoogleCalendar_Sync_AllInOne",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "discord-event",
+        "responseMode": "onReceived",
+        "responseData": "{\"status\": \"received\"}"
+      },
+      "id": "T001",
+      "name": "Discordトリガー",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Discordメッセージを解析\\ntry {\\n  const message = $json.body.content;\\n  const pattern = /予定[:：](.*)日時[:：](.*)/;\\n  const match = message.match(pattern);\\n  if (!match) throw new Error('メッセージ形式が不正です');\\n  return [{ json: { title: match[1].trim(), date: match[2].trim() } }];\\n} catch (error) {\\n  return [{ json: { error: error.message } }];\\n}"
+      },
+      "id": "T002",
+      "name": "Discord入力解析（AI）",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// 形式検証\\nif ($json.error) return $json;\\nif (!$json.title || !$json.date) throw new Error('タイトルまたは日付が不足しています');\\nreturn $input.item;"
+      },
+      "id": "T003",
+      "name": "予定データ形式検証（AI）",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [700, 300]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": { "__rl": true },
+        "options": { "timeMin": "={{$json.date}}", "timeMax": "={{$json.date}}" }
+      },
+      "id": "T004",
+      "name": "Googleカレンダー取得",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [900, 300],
+      "credentials": { "googleApi": { "name": "Google OAuth2" } },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "if ($json.error) return $json;\\nconst events = $input.all();\\nreturn [{ json: { hasConflict: events.length > 0, conflicts: events.map(e => e.json.summary || '') } }];"
+      },
+      "id": "T005",
+      "name": "重複検出（AI）",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 300],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "conditions": { "boolean": [{ "value1": "={{$json.hasConflict}}", "value2": false }] }
+      },
+      "id": "T006",
+      "name": "重複あり／なし分岐",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1300, 300]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "if ($json.error) return $json;\\nreturn [{ json: { summary: $json.title, start: { dateTime: $json.date }, end: { dateTime: $json.date }, attendees: [] } }];"
+      },
+      "id": "T007",
+      "name": "Googleカレンダー登録データ生成（AI）",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1500, 200]
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "calendar": { "__rl": true }
+      },
+      "id": "T008",
+      "name": "Googleカレンダー登録",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [1700, 200],
+      "credentials": { "googleApi": { "name": "Google OAuth2" } },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return [{ json: { recipients: ['team@example.com','pm@example.com'] } }];"
+      },
+      "id": "T009",
+      "name": "関係者抽出（AI）",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1900, 200]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "toEmail": "={{$json.recipients.join(', ')}}",
+        "subject": "新しい予定が追加されました",
+        "message": "Googleカレンダーに新しいイベントが登録されました。"
+      },
+      "id": "T010",
+      "name": "Gmail通知送信",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [2100, 200],
+      "credentials": { "gmailOAuth2": { "name": "Gmail OAuth2" } },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "webhookUri": "={{$env('DISCORD_WEBHOOK')}}",
+        "content": "✅ 予定をGoogleカレンダーに登録しました！"
+      },
+      "id": "T011",
+      "name": "Discord通知（成功）",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [2300, 200]
+    },
+    {
+      "parameters": {
+        "webhookUri": "={{$env('DISCORD_WEBHOOK')}}",
+        "content": "⚠️ 予定が重複しているため登録をスキップしました。"
+      },
+      "id": "T012",
+      "name": "Discord通知（重複）",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [1500, 400]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// エラーハンドリング統合\\nif ($json.error || $json.hasConflict === undefined && !$json.title) {\\n  const msg = $json.error || '未知のエラーが発生しました';\\n  return [{ json: { error_message: msg, node: $node.name, time: new Date().toISOString() } }];\\n}\\nreturn [];"
+      },
+      "id": "T013",
+      "name": "内部エラーチェック",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 500]
+    },
+    {
+      "parameters": {
+        "webhookUri": "={{$env('DISCORD_ERROR_WEBHOOK')}}",
+        "content": "🚨 **エラー通知** 🚨\\nノード: {{$json.node}}\\n内容: {{$json.error_message}}\\n時刻: {{$json.time}}"
+      },
+      "id": "T014",
+      "name": "Discord通知（エラー）",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [1150, 500]
+    }
+  ],
+  "connections": {
+    "Discordトリガー": { "main": [[{ "node": "Discord入力解析（AI）", "type": "main", "index": 0 }]] },
+    "Discord入力解析（AI）": { "main": [[{ "node": "予定データ形式検証（AI）", "type": "main", "index": 0 }]] },
+    "予定データ形式検証（AI）": { "main": [[{ "node": "Googleカレンダー取得", "type": "main", "index": 0 }]] },
+    "Googleカレンダー取得": {
+      "main": [
+        [{ "node": "重複検出（AI）", "type": "main", "index": 0 }],
+        [{ "node": "内部エラーチェック", "type": "main", "index": 0 }]
+      ]
+    },
+    "重複検出（AI）": {
+      "main": [[{ "node": "重複あり／なし分岐", "type": "main", "index": 0 }]]
+    },
+    "重複あり／なし分岐": {
+      "main": [
+        [{ "node": "Googleカレンダー登録データ生成（AI）", "type": "main", "index": 0 }],
+        [{ "node": "Discord通知（重複）", "type": "main", "index": 0 }]
+      ]
+    },
+    "Googleカレンダー登録データ生成（AI）": { "main": [[{ "node": "Googleカレンダー登録", "type": "main", "index": 0 }]] },
+    "Googleカレンダー登録": { "main": [[{ "node": "関係者抽出（AI）", "type": "main", "index": 0 }]] },
+    "関係者抽出（AI）": { "main": [[{ "node": "Gmail通知送信", "type": "main", "index": 0 }]] },
+    "Gmail通知送信": { "main": [[{ "node": "Discord通知（成功）", "type": "main", "index": 0 }]] },
+    "内部エラーチェック": { "main": [[{ "node": "Discord通知（エラー）", "type": "main", "index": 0 }]] }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Tokyo",
+    "saveExecutionProgress": true
+  },
+  "versionId": "v1.1"
+}

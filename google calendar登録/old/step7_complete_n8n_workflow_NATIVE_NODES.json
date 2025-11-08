@@ -1,0 +1,1202 @@
+{
+  "name": "Discord Calendar Manager - Google Calendar Integration (Native Nodes)",
+  "meta": {
+    "templateCreatedBy": "n8n AI Workflow Designer v9 - Native Nodes Edition",
+    "description": "Discord Bot経由でGoogleカレンダー予定管理を自動化。Discord、Google Calendar、Gmail専用ノードを使用した最適化実装",
+    "version": "3.0.0",
+    "improvements": "HTTP RequestノードをDiscord、Google Calendar、Gmail専用ノードに置き換え。より安定性と保守性が向上"
+  },
+  "nodes": [
+    {
+      "_comment": "トリガー: DiscordからのWebhookを受信",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "discord-calendar",
+        "authentication": "none",
+        "responseMode": "lastNode",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "id": "webhook_001",
+      "name": "Discord Bot Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [240, 300],
+      "webhookId": "discord-calendar-webhook",
+      "notes": "処理内容: DiscordボットからのWebhook受信\n入力: Discord メッセージ (user_id, channel_id, message_content, callback_url)\n出力: Webhookデータを次のノードへ送信"
+    },
+    {
+      "_comment": "データ抽出: Webhookペイロードから必要なフィールドを抽出",
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "user_id",
+              "name": "user_id",
+              "value": "={{ $json.body.user_id }}",
+              "type": "string"
+            },
+            {
+              "id": "channel_id",
+              "name": "channel_id",
+              "value": "={{ $json.body.channel_id }}",
+              "type": "string"
+            },
+            {
+              "id": "message_content",
+              "name": "message_content",
+              "value": "={{ $json.body.message_content }}",
+              "type": "string"
+            },
+            {
+              "id": "callback_url",
+              "name": "callback_url",
+              "value": "={{ $json.body.callback_url }}",
+              "type": "string"
+            },
+            {
+              "id": "request_timestamp",
+              "name": "request_timestamp",
+              "value": "={{ $json.body.timestamp }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "set_002",
+      "name": "Webhookデータ抽出",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [460, 300],
+      "notes": "処理内容: Webhookペイロードから必要なフィールドを抽出して構造化\n入力: Webhook生データ\n出力: user_id, channel_id, message_content, callback_url, request_timestamp"
+    },
+    {
+      "_comment": "ステート確認: ユーザーの保存済み状態を確認（重複時の選択フロー用）",
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const staticData = this.getWorkflowStaticData('global');\nconst userId = $input.first().json.user_id;\nconst savedState = staticData[userId];\n\nreturn [{\n  json: {\n    ...($input.first().json),\n    is_selection_flow: !!savedState,\n    saved_state: savedState || null\n  }\n}];"
+      },
+      "id": "code_003",
+      "name": "ステート確認",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300],
+      "notes": "処理内容: グローバルステートからユーザーの保存済み状態を読み込み\n入力: user_id\n出力: is_selection_flow (boolean), saved_state (object or null)\n役割: 初回リクエストか、重複時の選択フローかを判定"
+    },
+    {
+      "_comment": "フロー分岐: 初回フローか選択フローかで分岐",
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition_1",
+              "leftValue": "={{ $json.is_selection_flow }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "false"
+              }
+            }
+          ]
+        }
+      },
+      "id": "if_017",
+      "name": "フロー振り分け",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [800, 300],
+      "notes": "処理内容: is_selection_flowフラグで処理フローを振り分け\n分岐1 (true): 初回予定登録フロー\n分岐2 (false): 重複時の選択フロー"
+    },
+    {
+      "_comment": "保存済みステート読み込み: 重複時の選択フロー用",
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const staticData = this.getWorkflowStaticData('global');\nconst userId = $input.first().json.user_id;\nconst savedState = staticData[userId];\n\nif (!savedState) {\n  throw new Error('No saved state found for user');\n}\n\nreturn [{\n  json: {\n    ...savedState,\n    user_id: userId,\n    message_content: $input.first().json.message_content,\n    callback_url: $input.first().json.callback_url,\n    channel_id: $input.first().json.channel_id\n  }\n}];"
+      },
+      "id": "code_006",
+      "name": "保存済みステート読み込み",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 500],
+      "notes": "処理内容: 保存されたステートを復元し、新しいメッセージと結合\n入力: user_id, message_content, channel_id\n出力: 保存済みのoriginal_request, proposed_alternativesと新しいmessage_content\n役割: 選択フローでユーザーの番号入力を処理するための準備"
+    },
+    {
+      "_comment": "Webhookデータ検証: 初回フロー用の入力データ検証",
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition_1",
+              "leftValue": "={{ $json.message_content }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            },
+            {
+              "id": "condition_2",
+              "leftValue": "={{ $json.user_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            },
+            {
+              "id": "condition_3",
+              "leftValue": "={{ $json.channel_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if_007",
+      "name": "Webhookデータ検証",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [920, 300],
+      "notes": "処理内容: 必須フィールドの存在確認とフォーマット検証\n検証項目: message_content (非空), user_id (非空), channel_id (非空)\n分岐1 (true): 検証成功 → AI予定抽出へ\n分岐2 (false): 検証失敗 → エラー返信へ"
+    },
+    {
+      "_comment": "AI Agent 1: Discord予定抽出 - Grokを使用して自然言語から予定情報を抽出",
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message_content }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "あなたはDiscordメッセージから予定情報を抽出する専門家です。\n\n【責務】\n- ユーザーが送信した自然言語のメッセージから、予定のタイトル、日時、所要時間、参加者のメールアドレス、説明を抽出する\n\n【ゴール】\n以下の5つのフィールドを含むJSONを生成すること：\n1. event_title: 予定のタイトル（文字列）\n2. event_datetime: 予定の開始日時（ISO 8601形式、日本時間+09:00）\n3. duration_minutes: 所要時間（分単位の整数）\n4. attendee_emails: 参加者のメールアドレスリスト（配列、なければ空配列）\n5. description: 補足説明（文字列、なければ空文字列）\n\n【重要な制約】\n- 日時が指定されていない場合は、今日の9:00とする\n- 時刻のみ指定の場合は、今日の日付とする\n- 所要時間が不明な場合は60分とする\n- メールアドレスが記載されていない場合は空配列\n- 必ずJSON形式で出力する",
+          "maxIterations": 3,
+          "returnIntermediateSteps": false
+        }
+      },
+      "id": "agent_010",
+      "name": "【AI Agent 1】Discord予定抽出",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [1120, 300],
+      "notes": "処理内容: Discordメッセージから予定情報をJSON形式で抽出\n責務: 自然言語テキスト → 構造化予定データ\n入力: message_content (自然言語)\n出力: event_title, event_datetime, duration_minutes, attendee_emails, description\n連携: Chat Model (Grok), Memory, Output Parser Tool"
+    },
+    {
+      "_comment": "Chat Model 1: Grok 2 - AI Agent 1用の言語モデル",
+      "parameters": {
+        "model": "x-ai/grok-2-1212",
+        "options": {
+          "baseURL": "https://openrouter.ai/api/v1",
+          "temperature": 0.3,
+          "maxTokens": 1000,
+          "topP": 0.9
+        }
+      },
+      "id": "chatmodel_011",
+      "name": "Grok Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [1000, 120],
+      "credentials": {
+        "openAiApi": {
+          "id": "openrouter_api",
+          "name": "OpenRouter API"
+        }
+      },
+      "notes": "処理内容: Grok 2モデルでテキスト理解と構造化データ抽出\nモデル: x-ai/grok-2-1212\n温度設定: 0.3 (正確性重視)\n最大トークン: 1000\n役割: Discord予定抽出AI Agentの推論エンジン"
+    },
+    {
+      "_comment": "Memory 1: 会話履歴管理 - AI Agent 1用",
+      "parameters": {
+        "contextWindowLength": 5
+      },
+      "id": "memory_012",
+      "name": "Discord予定抽出 Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.2,
+      "position": [1000, 200],
+      "notes": "処理内容: AI Agent 1の会話履歴を保存\n保存内容: 過去5件の予定抽出履歴\n役割: 文脈を保持して一貫性のある抽出を実現"
+    },
+    {
+      "_comment": "Output Parser Tool: JSON出力を構造化",
+      "parameters": {
+        "schemaType": "fromJson",
+        "jsonSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"event_title\": {\"type\": \"string\"},\n    \"event_datetime\": {\"type\": \"string\"},\n    \"duration_minutes\": {\"type\": \"number\"},\n    \"attendee_emails\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}},\n    \"description\": {\"type\": \"string\"}\n  },\n  \"required\": [\"event_title\", \"event_datetime\", \"duration_minutes\", \"attendee_emails\"]\n}"
+      },
+      "id": "parser_013",
+      "name": "予定データParser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [1000, 400],
+      "notes": "処理内容: AI Agent出力をJSONスキーマに従って構造化\n検証項目: 必須フィールドの存在、型の正確性\n出力: 検証済みJSON"
+    },
+    {
+      "_comment": "AI抽出結果検証: パース後の追加検証",
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const data = $input.first().json;\nconst isValid = \n  data.event_title && typeof data.event_title === 'string' &&\n  data.event_datetime && /^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}/.test(data.event_datetime) &&\n  data.duration_minutes && typeof data.duration_minutes === 'number' && data.duration_minutes > 0 &&\n  Array.isArray(data.attendee_emails);\n\nreturn [{\n  json: {\n    ...data,\n    validation_passed: isValid,\n    validation_error: isValid ? null : 'Invalid AI extraction format',\n    channel_id: data.channel_id || $input.first().json.channel_id,\n    callback_url: data.callback_url || $input.first().json.callback_url\n  }\n}];"
+      },
+      "id": "code_008",
+      "name": "AI抽出結果検証",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1320, 300],
+      "notes": "処理内容: AI抽出結果の詳細検証（型、フォーマット、範囲）\n検証項目: event_title (文字列), event_datetime (ISO 8601), duration_minutes (正の整数), attendee_emails (配列)\n出力: validation_passed (boolean), validation_error (string or null)"
+    },
+    {
+      "_comment": "検証結果チェック: 検証成功・失敗で分岐",
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition_1",
+              "leftValue": "={{ $json.validation_passed }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ]
+        }
+      },
+      "id": "if_009",
+      "name": "検証結果チェック",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1440, 300],
+      "notes": "処理内容: validation_passedフラグで処理を分岐\n分岐1 (true): 検証成功 → タイムスタンプ計算へ\n分岐2 (false): 検証失敗 → エラー返信へ"
+    },
+    {
+      "_comment": "タイムスタンプ計算: 予定の開始・終了時刻と検索範囲を計算",
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const data = $input.first().json;\nconst startDate = new Date(data.event_datetime);\nconst endDate = new Date(startDate.getTime() + data.duration_minutes * 60 * 1000);\n\nreturn [{\n  json: {\n    ...data,\n    start_timestamp: startDate.getTime(),\n    end_timestamp: endDate.getTime(),\n    end_datetime: endDate.toISOString(),\n    event_datetime_minus_24h: new Date(startDate.getTime() - 24*60*60*1000).toISOString(),\n    event_datetime_plus_48h: new Date(startDate.getTime() + 48*60*60*1000).toISOString()\n  }\n}];"
+      },
+      "id": "code_012",
+      "name": "タイムスタンプ計算",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1560, 300],
+      "notes": "処理内容: 予定の時刻情報を計算\n計算項目:\n- start_timestamp, end_timestamp: ミリ秒単位のタイムスタンプ\n- end_datetime: 予定終了時刻 (ISO 8601)\n- event_datetime_minus_24h, event_datetime_plus_48h: カレンダー検索範囲"
+    },
+    {
+      "_comment": "Googleカレンダー既存予定取得: Google Calendar専用ノード使用",
+      "parameters": {
+        "resource": "event",
+        "operation": "getAll",
+        "calendarId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "primary"
+        },
+        "returnAll": false,
+        "limit": 50,
+        "options": {
+          "timeMin": "={{ $json.event_datetime_minus_24h }}",
+          "timeMax": "={{ $json.event_datetime_plus_48h }}",
+          "singleEvents": true,
+          "orderBy": "startTime",
+          "timeZone": "Asia/Tokyo"
+        }
+      },
+      "id": "gcal_004",
+      "name": "Googleカレンダー既存予定取得",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.2,
+      "position": [1680, 300],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "google_calendar_oauth",
+          "name": "Google Calendar OAuth2"
+        }
+      },
+      "notes": "処理内容: Google Calendar専用ノードで既存予定を取得\n操作: Event - Get All\n検索範囲: 予定時刻の前後24-48時間\nパラメータ: timeMin, timeMax, singleEvents=true, orderBy=startTime\n出力: イベント配列（summary, start, end含む）"
+    },
+    {
+      "_comment": "カレンダーレスポンス整形: 専用ノード出力を使いやすい形式に変換",
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const items = $input.all();\nconst formattedEvents = items.map(item => {\n  const event = item.json;\n  return {\n    title: event.summary || 'No Title',\n    start_datetime: event.start.dateTime,\n    end_datetime: event.end.dateTime,\n    start_ts: new Date(event.start.dateTime).getTime(),\n    end_ts: new Date(event.end.dateTime).getTime()\n  };\n});\n\n// 元のデータを保持しつつ、整形済みイベントを追加\nconst originalData = $('タイムスタンプ計算').first().json;\n\nreturn [{\n  json: {\n    ...originalData,\n    existing_events: formattedEvents\n  }\n}];"
+      },
+      "id": "code_005",
+      "name": "カレンダーレスポンス整形",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1800, 300],
+      "notes": "処理内容: Google Calendar専用ノード出力を整形\n抽出フィールド: title, start_datetime, end_datetime, start_ts, end_ts\n出力: existing_events配列と元のデータを結合"
+    },
+    {
+      "_comment": "予定重複判定: 新規予定と既存予定の時間重複をチェック",
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const newStart = $input.first().json.start_timestamp;\nconst newEnd = $input.first().json.end_timestamp;\nconst existingEvents = $input.first().json.existing_events || [];\n\nlet hasConflict = false;\nlet conflictEvent = null;\n\nfor (const event of existingEvents) {\n  if (\n    (newStart >= event.start_ts && newStart < event.end_ts) ||\n    (newEnd > event.start_ts && newEnd <= event.end_ts) ||\n    (newStart <= event.start_ts && newEnd >= event.end_ts)\n  ) {\n    hasConflict = true;\n    conflictEvent = event;\n    break;\n  }\n}\n\nreturn [{\n  json: {\n    ...($input.first().json),\n    has_conflict: hasConflict,\n    conflict_event: conflictEvent\n  }\n}];"
+      },
+      "id": "code_018",
+      "name": "予定重複判定",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1920, 300],
+      "notes": "処理内容: 新規予定と既存予定の時間重複判定\nアルゴリズム: 区間重複チェック（開始・終了時刻の全パターン検証）\n出力: has_conflict (boolean), conflict_event (object or null)"
+    },
+    {
+      "_comment": "重複有無で分岐: 重複なし→登録、重複あり→代替案生成",
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition_1",
+              "leftValue": "={{ $json.has_conflict }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "false"
+              }
+            }
+          ]
+        }
+      },
+      "id": "if_019",
+      "name": "重複有無で分岐",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2040, 300],
+      "notes": "処理内容: has_conflictフラグで処理を分岐\n分岐1 (false): 重複なし → カレンダー登録へ\n分岐2 (true): 重複あり → AI Agent 2（代替案生成）へ"
+    },
+    {
+      "_comment": "Googleカレンダー予定登録: Google Calendar専用ノード使用",
+      "parameters": {
+        "resource": "event",
+        "operation": "create",
+        "calendarId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "primary"
+        },
+        "start": "={{ $json.event_datetime }}",
+        "end": "={{ $json.end_datetime }}",
+        "summary": "={{ $json.event_title }}",
+        "description": "={{ $json.description }}",
+        "options": {
+          "attendees": "={{ $json.attendee_emails.map(email => email).join(',') }}",
+          "timeZone": "Asia/Tokyo",
+          "useDefaultReminders": true
+        }
+      },
+      "id": "gcal_023",
+      "name": "Googleカレンダー予定登録",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.2,
+      "position": [2180, 200],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "google_calendar_oauth",
+          "name": "Google Calendar OAuth2"
+        }
+      },
+      "notes": "処理内容: Google Calendar専用ノードで予定を作成\n操作: Event - Create\nパラメータ: summary, description, start, end, attendees, timeZone, reminders\nタイムゾーン: Asia/Tokyo\n出力: 作成された予定のイベントID"
+    },
+    {
+      "_comment": "メール送信要否判定: 参加者がいる場合のみメール送信",
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition_1",
+              "leftValue": "={{ $json.attendee_emails.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "larger"
+              }
+            }
+          ]
+        }
+      },
+      "id": "if_020",
+      "name": "メール送信要否判定",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2300, 200],
+      "notes": "処理内容: attendee_emails配列の長さで判定\n分岐1 (true): 参加者あり → AI Agent 3（メール生成）へ\n分岐2 (false): 参加者なし → 直接Discord成功返信へ"
+    },
+    {
+      "_comment": "AI Agent 3: 通知メール生成 - Claudeを使用してビジネスメール作成",
+      "parameters": {
+        "promptType": "define",
+        "text": "=予定情報:\n- タイトル: {{ $json.event_title }}\n- 日時: {{ $json.event_datetime }}\n- 所要時間: {{ $json.duration_minutes }}分\n- 参加者: {{ $json.attendee_emails.join(', ') }}\n- 説明: {{ $json.description }}\n\n上記の情報をもとに、参加者への通知メールを作成してください。",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "あなたはビジネスメール作成の専門家です。\n\n【責務】\n- 予定情報から参加者向けの通知メールを作成する\n- 件名、HTML本文、プレーンテキスト本文の3つを生成する\n\n【ゴール】\n以下の形式で完全なメール文章を生成すること：\n{\n  \"email_subject\": \"件名（60文字以内）\",\n  \"email_body_html\": \"HTML形式の本文\",\n  \"email_body_plain\": \"プレーンテキスト版の本文\"\n}\n\n【重要な制約】\n- 件名は「【予定通知】」で始める\n- HTML本文は<html><body>タグで囲む\n- 本文には予定のタイトル、日時、所要時間、参加者への配慮を含める\n- 丁寧でビジネスライクな文体を使用する",
+          "maxIterations": 2,
+          "returnIntermediateSteps": false
+        }
+      },
+      "id": "agent_024",
+      "name": "【AI Agent 3】通知メール生成",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [2420, 200],
+      "notes": "処理内容: 予定情報からビジネスメールを自動生成\n責務: 構造化予定データ → 丁寧なビジネスメール\n入力: event_title, event_datetime, duration_minutes, attendee_emails, description\n出力: email_subject, email_body_html, email_body_plain\n連携: Chat Model (Claude), Memory, Output Parser Tool"
+    },
+    {
+      "_comment": "Chat Model 3: Claude 3.5 Sonnet - AI Agent 3用の言語モデル",
+      "parameters": {
+        "model": "anthropic/claude-3.5-sonnet:beta",
+        "options": {
+          "baseURL": "https://openrouter.ai/api/v1",
+          "temperature": 0.8,
+          "maxTokens": 1500,
+          "topP": 0.9
+        }
+      },
+      "id": "chatmodel_025",
+      "name": "Claude Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [2300, 20],
+      "credentials": {
+        "openAiApi": {
+          "id": "openrouter_api",
+          "name": "OpenRouter API"
+        }
+      },
+      "notes": "処理内容: Claude 3.5 Sonnetでビジネスメール生成\nモデル: anthropic/claude-3.5-sonnet:beta\n温度設定: 0.8 (自然で創造的な文章)\n最大トークン: 1500\n役割: 通知メール生成AI Agentの推論エンジン"
+    },
+    {
+      "_comment": "Memory 3: 会話履歴管理 - AI Agent 3用",
+      "parameters": {
+        "contextWindowLength": 3
+      },
+      "id": "memory_026",
+      "name": "メール生成 Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.2,
+      "position": [2300, 100],
+      "notes": "処理内容: AI Agent 3の会話履歴を保存\n保存内容: 過去3件のメール生成履歴\n役割: 文脈を保持して一貫性のあるメールを生成"
+    },
+    {
+      "_comment": "Output Parser Tool 3: メールJSON出力を構造化",
+      "parameters": {
+        "schemaType": "fromJson",
+        "jsonSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"email_subject\": {\"type\": \"string\", \"maxLength\": 60},\n    \"email_body_html\": {\"type\": \"string\"},\n    \"email_body_plain\": {\"type\": \"string\"}\n  },\n  \"required\": [\"email_subject\", \"email_body_html\", \"email_body_plain\"]\n}"
+      },
+      "id": "parser_027",
+      "name": "メールデータParser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [2300, 300],
+      "notes": "処理内容: AI Agent出力をメールJSONスキーマに従って構造化\n検証項目: email_subject (60文字以内), email_body_html, email_body_plain\n出力: 検証済みメールJSON"
+    },
+    {
+      "_comment": "Gmail送信: Gmail専用ノード使用（複数参加者への送信）",
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $json.attendee_emails.join(',') }}",
+        "subject": "={{ $json.email_subject }}",
+        "emailType": "html",
+        "message": "={{ $json.email_body_html }}",
+        "options": {
+          "ccList": "",
+          "bccList": "",
+          "replyTo": "",
+          "attachments": "none"
+        }
+      },
+      "id": "gmail_028",
+      "name": "Gmail送信",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [2540, 200],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail_oauth",
+          "name": "Gmail OAuth2"
+        }
+      },
+      "notes": "処理内容: Gmail専用ノードでメールを送信\n操作: Message - Send\nパラメータ: sendTo (カンマ区切り), subject, message (HTML)\n出力: 送信完了ステータス"
+    },
+    {
+      "_comment": "Discord成功返信: Discord専用ノード使用",
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "channelId": "={{ $json.channel_id }}",
+        "content": "=✅ 予定を登録しました！\n\n📅 タイトル: {{ $json.event_title }}\n🕐 日時: {{ $json.event_datetime }}\n⏱️ 所要時間: {{ $json.duration_minutes }}分\n👥 参加者: {{ $json.attendee_emails.length }}名\n\n📧 通知メールを送信しました。"
+      },
+      "id": "discord_036",
+      "name": "Discord成功返信",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [2660, 200],
+      "credentials": {
+        "discordApi": {
+          "id": "discord_bot",
+          "name": "Discord Bot Token"
+        }
+      },
+      "notes": "処理内容: Discord専用ノードでメッセージを送信\n操作: Message - Send\nパラメータ: channelId, content (絵文字付きフォーマット)\n出力: メッセージ送信完了"
+    },
+    {
+      "_comment": "AI Agent 2: 空き時間候補生成 - Geminiを使用して代替時間を提案",
+      "parameters": {
+        "promptType": "define",
+        "text": "=希望日時: {{ $json.event_datetime }}\n所要時間: {{ $json.duration_minutes }}分\n既存予定: {{ JSON.stringify($json.existing_events) }}\n対象期間: 今日と明日（{{ $now.toFormat('yyyy-MM-dd') }}から{{ $now.plus({days: 1}).toFormat('yyyy-MM-dd') }}）\n\n上記の情報をもとに、空き時間の候補を5つ提案してください。",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "あなたはカレンダー分析の専門家です。\n\n【責務】\n- ユーザーの既存予定リストを分析し、希望日時に重複がある場合に代替候補を提案する\n- 既存予定と重複しない時間帯のみを提案する\n\n【ゴール】\n以下の形式で5つの候補を生成すること：\n{\n  \"alternative_slots\": [\n    {\n      \"slot_datetime\": \"YYYY-MM-DDTHH:MM:SS+09:00\",\n      \"reason\": \"推奨理由（50文字以内）\"\n    }\n  ]\n}\n\n【重要な制約】\n- 候補数は必ず5つ\n- 対象期間は今日と明日の2日分のみ\n- 営業時間内（9:00-18:00）を優先\n- 既存予定と重複しないことを必ず確認\n- 理由は具体的に記述",
+          "maxIterations": 3,
+          "returnIntermediateSteps": false
+        }
+      },
+      "id": "agent_027",
+      "name": "【AI Agent 2】空き時間候補生成",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [2180, 400],
+      "notes": "処理内容: 既存予定を分析して空き時間候補を5つ提案\n責務: 既存予定リスト + 希望時刻 → 5つの代替候補\n入力: event_datetime, duration_minutes, existing_events\n出力: alternative_slots (配列、5要素)\n連携: Chat Model (Gemini), Memory, Output Parser Tool"
+    },
+    {
+      "_comment": "Chat Model 2: Gemini 2.0 Flash - AI Agent 2用の言語モデル",
+      "parameters": {
+        "model": "google/gemini-2.0-flash-exp:free",
+        "options": {
+          "baseURL": "https://openrouter.ai/api/v1",
+          "temperature": 0.7,
+          "maxTokens": 2000,
+          "topP": 0.95
+        }
+      },
+      "id": "chatmodel_029",
+      "name": "Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [2060, 220],
+      "credentials": {
+        "openAiApi": {
+          "id": "openrouter_api",
+          "name": "OpenRouter API"
+        }
+      },
+      "notes": "処理内容: Gemini 2.0 Flashでカレンダー分析と候補生成\nモデル: google/gemini-2.0-flash-exp:free\n温度設定: 0.7 (バランス型)\n最大トークン: 2000\n役割: 空き時間候補生成AI Agentの推論エンジン"
+    },
+    {
+      "_comment": "Memory 2: 会話履歴管理 - AI Agent 2用",
+      "parameters": {
+        "contextWindowLength": 3
+      },
+      "id": "memory_030",
+      "name": "候補生成 Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.2,
+      "position": [2060, 300],
+      "notes": "処理内容: AI Agent 2の会話履歴を保存\n保存内容: 過去3件の候補生成履歴\n役割: 文脈を保持して一貫性のある候補を提案"
+    },
+    {
+      "_comment": "Output Parser Tool 2: 候補JSON出力を構造化",
+      "parameters": {
+        "schemaType": "fromJson",
+        "jsonSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"alternative_slots\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"slot_datetime\": {\"type\": \"string\"},\n          \"reason\": {\"type\": \"string\", \"maxLength\": 50}\n        },\n        \"required\": [\"slot_datetime\", \"reason\"]\n      },\n      \"minItems\": 5,\n      \"maxItems\": 5\n    }\n  },\n  \"required\": [\"alternative_slots\"]\n}"
+      },
+      "id": "parser_031",
+      "name": "候補データParser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [2060, 500],
+      "notes": "処理内容: AI Agent出力を候補JSONスキーマに従って構造化\n検証項目: alternative_slots配列（必ず5要素）、各要素はslot_datetime, reason\n出力: 検証済み候補JSON"
+    },
+    {
+      "_comment": "ステート保存: ユーザーの選択を待つための状態を保存",
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const staticData = this.getWorkflowStaticData('global');\nconst userId = $input.first().json.user_id;\nconst channelId = $input.first().json.channel_id;\n\nstaticData[userId] = {\n  original_request: {\n    event_title: $input.first().json.event_title,\n    duration_minutes: $input.first().json.duration_minutes,\n    attendee_emails: $input.first().json.attendee_emails,\n    description: $input.first().json.description\n  },\n  proposed_alternatives: $input.first().json.alternative_slots,\n  channel_id: channelId,\n  status: 'awaiting_selection',\n  timestamp: Date.now()\n};\n\nreturn [{\n  json: {\n    ...($input.first().json),\n    state_saved: true\n  }\n}];"
+      },
+      "id": "code_029",
+      "name": "ステート保存",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2300, 400],
+      "notes": "処理内容: グローバルステートにユーザーの選択待ち状態を保存\n保存内容: original_request, proposed_alternatives, channel_id, status, timestamp\n役割: 次回のWebhookでユーザーの番号選択を処理できるようにする"
+    },
+    {
+      "_comment": "Discord重複返信: Discord専用ノード使用",
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "channelId": "={{ $json.channel_id }}",
+        "content": "=⚠️ 予定が重複しています\n\n以下の候補から選択してください（番号で返信）:\n\n1️⃣ {{ $json.alternative_slots[0].slot_datetime }} - {{ $json.alternative_slots[0].reason }}\n2️⃣ {{ $json.alternative_slots[1].slot_datetime }} - {{ $json.alternative_slots[1].reason }}\n3️⃣ {{ $json.alternative_slots[2].slot_datetime }} - {{ $json.alternative_slots[2].reason }}\n4️⃣ {{ $json.alternative_slots[3].slot_datetime }} - {{ $json.alternative_slots[3].reason }}\n5️⃣ {{ $json.alternative_slots[4].slot_datetime }} - {{ $json.alternative_slots[4].reason }}\n\n番号（1-5）で返信してください。"
+      },
+      "id": "discord_037",
+      "name": "Discord重複返信",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [2420, 400],
+      "credentials": {
+        "discordApi": {
+          "id": "discord_bot",
+          "name": "Discord Bot Token"
+        }
+      },
+      "notes": "処理内容: Discord専用ノードで5つの代替候補を提示\n操作: Message - Send\nフォーマット: 番号付きリスト（絵文字使用）\n次のアクション: ユーザーが1-5の番号で返信"
+    },
+    {
+      "_comment": "ユーザー選択番号解析: 1-5の番号を解析して選択された候補を取得",
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const message = $input.first().json.message_content;\nconst match = message.match(/[1-5]/);\n\nif (!match) {\n  return [{\n    json: {\n      ...($input.first().json),\n      selection_valid: false,\n      selection_number: null,\n      error_message: '1-5の番号を入力してください'\n    }\n  }];\n}\n\nconst selectionNumber = parseInt(match[0]);\nconst alternatives = $input.first().json.proposed_alternatives;\nconst selectedSlot = alternatives[selectionNumber - 1];\n\nreturn [{\n  json: {\n    ...($input.first().json),\n    selection_valid: true,\n    selection_number: selectionNumber,\n    event_datetime: selectedSlot.slot_datetime,\n    event_title: $input.first().json.original_request.event_title,\n    duration_minutes: $input.first().json.original_request.duration_minutes,\n    attendee_emails: $input.first().json.original_request.attendee_emails,\n    description: $input.first().json.original_request.description\n  }\n}];"
+      },
+      "id": "code_014",
+      "name": "ユーザー選択番号解析",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1020, 500],
+      "notes": "処理内容: ユーザーが入力した1-5の番号を解析\n処理:\n1. 正規表現で番号を抽出\n2. 選択された候補のslot_datetimeを取得\n3. original_requestから予定情報を復元\n出力: selection_valid, selection_number, event_datetime, event_title, etc."
+    },
+    {
+      "_comment": "選択番号検証: 番号が有効かチェック",
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition_1",
+              "leftValue": "={{ $json.selection_valid }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ]
+        }
+      },
+      "id": "if_021",
+      "name": "選択番号検証",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1140, 500],
+      "notes": "処理内容: selection_validフラグで処理を分岐\n分岐1 (true): 有効な番号 → ステートクリア → タイムスタンプ計算へ\n分岐2 (false): 無効な番号 → エラー返信へ"
+    },
+    {
+      "_comment": "ステートクリア: 選択完了後、保存済みステートを削除",
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const staticData = this.getWorkflowStaticData('global');\nconst userId = $input.first().json.user_id;\ndelete staticData[userId];\n\nreturn [{\n  json: {\n    ...($input.first().json),\n    state_cleared: true\n  }\n}];"
+      },
+      "id": "code_030",
+      "name": "ステートクリア",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1260, 500],
+      "notes": "処理内容: グローバルステートからユーザーの状態を削除\n役割: メモリリーク防止、次回の初回フローを正常に動作させる"
+    },
+    {
+      "_comment": "Discordエラー返信: Discord専用ノード使用",
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "channelId": "={{ $json.channel_id }}",
+        "content": "=❌ エラーが発生しました\n\n{{ $json.error_message || $json.validation_error || '予期しないエラーです' }}\n\nもう一度お試しいただくか、管理者にお問い合わせください。"
+      },
+      "id": "discord_038",
+      "name": "Discordエラー返信",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [1020, 700],
+      "credentials": {
+        "discordApi": {
+          "id": "discord_bot",
+          "name": "Discord Bot Token"
+        }
+      },
+      "notes": "処理内容: Discord専用ノードでエラーメッセージを送信\n操作: Message - Send\nエラー種別: Webhook検証失敗、AI抽出失敗、選択番号無効、予期しないエラー\nフォーマット: エラー絵文字 + エラー内容 + 対処方法"
+    },
+    {
+      "_comment": "ワークフロー終了: 全処理完了",
+      "parameters": {},
+      "id": "noop_042",
+      "name": "ワークフロー終了",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [2780, 300],
+      "notes": "処理内容: ワークフロー正常終了\n到達パターン:\n1. Discord成功返信 → 終了\n2. Discord重複返信 → 終了\n3. Discordエラー返信 → 終了"
+    }
+  ],
+  "connections": {
+    "Discord Bot Webhook": {
+      "main": [
+        [
+          {
+            "node": "Webhookデータ抽出",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhookデータ抽出": {
+      "main": [
+        [
+          {
+            "node": "ステート確認",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ステート確認": {
+      "main": [
+        [
+          {
+            "node": "フロー振り分け",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "フロー振り分け": {
+      "main": [
+        [
+          {
+            "node": "Webhookデータ検証",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "保存済みステート読み込み",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "保存済みステート読み込み": {
+      "main": [
+        [
+          {
+            "node": "ユーザー選択番号解析",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhookデータ検証": {
+      "main": [
+        [
+          {
+            "node": "【AI Agent 1】Discord予定抽出",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Discordエラー返信",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "【AI Agent 1】Discord予定抽出": {
+      "main": [
+        [
+          {
+            "node": "AI抽出結果検証",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Grok Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "【AI Agent 1】Discord予定抽出",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord予定抽出 Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "【AI Agent 1】Discord予定抽出",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "予定データParser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "【AI Agent 1】Discord予定抽出",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI抽出結果検証": {
+      "main": [
+        [
+          {
+            "node": "検証結果チェック",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "検証結果チェック": {
+      "main": [
+        [
+          {
+            "node": "タイムスタンプ計算",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Discordエラー返信",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "タイムスタンプ計算": {
+      "main": [
+        [
+          {
+            "node": "Googleカレンダー既存予定取得",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Googleカレンダー既存予定取得": {
+      "main": [
+        [
+          {
+            "node": "カレンダーレスポンス整形",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "カレンダーレスポンス整形": {
+      "main": [
+        [
+          {
+            "node": "予定重複判定",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "予定重複判定": {
+      "main": [
+        [
+          {
+            "node": "重複有無で分岐",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "重複有無で分岐": {
+      "main": [
+        [
+          {
+            "node": "Googleカレンダー予定登録",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "【AI Agent 2】空き時間候補生成",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Googleカレンダー予定登録": {
+      "main": [
+        [
+          {
+            "node": "メール送信要否判定",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "メール送信要否判定": {
+      "main": [
+        [
+          {
+            "node": "【AI Agent 3】通知メール生成",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Discord成功返信",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "【AI Agent 3】通知メール生成": {
+      "main": [
+        [
+          {
+            "node": "Gmail送信",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "【AI Agent 3】通知メール生成",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "メール生成 Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "【AI Agent 3】通知メール生成",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "メールデータParser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "【AI Agent 3】通知メール生成",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail送信": {
+      "main": [
+        [
+          {
+            "node": "Discord成功返信",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord成功返信": {
+      "main": [
+        [
+          {
+            "node": "ワークフロー終了",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "【AI Agent 2】空き時間候補生成": {
+      "main": [
+        [
+          {
+            "node": "ステート保存",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "【AI Agent 2】空き時間候補生成",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "候補生成 Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "【AI Agent 2】空き時間候補生成",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "候補データParser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "【AI Agent 2】空き時間候補生成",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ステート保存": {
+      "main": [
+        [
+          {
+            "node": "Discord重複返信",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord重複返信": {
+      "main": [
+        [
+          {
+            "node": "ワークフロー終了",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ユーザー選択番号解析": {
+      "main": [
+        [
+          {
+            "node": "選択番号検証",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "選択番号検証": {
+      "main": [
+        [
+          {
+            "node": "ステートクリア",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Discordエラー返信",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ステートクリア": {
+      "main": [
+        [
+          {
+            "node": "タイムスタンプ計算",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discordエラー返信": {
+      "main": [
+        [
+          {
+            "node": "ワークフロー終了",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "timezone": "Asia/Tokyo",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": 300,
+    "errorWorkflow": "Discord Calendar Manager - Error Handling"
+  },
+  "staticData": null,
+  "tags": [],
+  "pinData": {},
+  "versionId": "3"
+}

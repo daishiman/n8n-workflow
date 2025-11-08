@@ -1,0 +1,3911 @@
+{
+  "schemaVersion": 1,
+  "projectPath": "/Users/dm/dev/dev/ObsidianMemo/05_Project/n8n",
+  "projectRootName": "n8n",
+  "graphRenderingMode": "normal",
+  "linkDisplayMode": "all",
+  "graphStats": {
+    "totalNodes": 99,
+    "folders": 18,
+    "files": 81,
+    "images": 0,
+    "videos": 0,
+    "audio": 0,
+    "code": 1,
+    "text": 56,
+    "html": 0,
+    "yaml": 0,
+    "json": 23,
+    "other": 1,
+    "totalLines": 0,
+    "maxLines": 0
+  },
+  "directoryTree": {
+    "name": "n8n",
+    "type": "directory",
+    "path": "n8n",
+    "children": [
+      {
+        "name": ".claude",
+        "type": "directory",
+        "path": ".claude",
+        "children": [],
+        "hasMore": true
+      },
+      {
+        "name": ".kamui",
+        "type": "directory",
+        "path": ".kamui",
+        "children": [],
+        "hasMore": true
+      },
+      {
+        "name": "google calendar登録",
+        "type": "directory",
+        "path": "google calendar登録",
+        "children": [
+          {
+            "name": "old",
+            "type": "directory",
+            "path": "google calendar登録/old",
+            "children": [
+              {
+                "name": "Discord連携Googleカレンダー自動予定管理_ErrorHandling.json",
+                "type": "file",
+                "path": "google calendar登録/old/Discord連携Googleカレンダー自動予定管理_ErrorHandling.json"
+              },
+              {
+                "name": "Discord連携Googleカレンダー自動予定管理.json",
+                "type": "file",
+                "path": "google calendar登録/old/Discord連携Googleカレンダー自動予定管理.json"
+              },
+              {
+                "name": "step7_complete_n8n_workflow_CORRECTED.json",
+                "type": "file",
+                "path": "google calendar登録/old/step7_complete_n8n_workflow_CORRECTED.json"
+              },
+              {
+                "name": "step7_complete_n8n_workflow_NATIVE_NODES_v2.json",
+                "type": "file",
+                "path": "google calendar登録/old/step7_complete_n8n_workflow_NATIVE_NODES_v2.json"
+              },
+              {
+                "name": "step7_complete_n8n_workflow_NATIVE_NODES_v3.json",
+                "type": "file",
+                "path": "google calendar登録/old/step7_complete_n8n_workflow_NATIVE_NODES_v3.json"
+              },
+              {
+                "name": "step7_complete_n8n_workflow_NATIVE_NODES.json",
+                "type": "file",
+                "path": "google calendar登録/old/step7_complete_n8n_workflow_NATIVE_NODES.json"
+              },
+              {
+                "name": "step7_complete_n8n_workflow.json",
+                "type": "file",
+                "path": "google calendar登録/old/step7_complete_n8n_workflow.json"
+              },
+              {
+                "name": "step8_error_workflow_CORRECTED_v2.json",
+                "type": "file",
+                "path": "google calendar登録/old/step8_error_workflow_CORRECTED_v2.json"
+              },
+              {
+                "name": "step8_error_workflow_CORRECTED.json",
+                "type": "file",
+                "path": "google calendar登録/old/step8_error_workflow_CORRECTED.json"
+              },
+              {
+                "name": "step8_error_workflow.json",
+                "type": "file",
+                "path": "google calendar登録/old/step8_error_workflow.json"
+              }
+            ]
+          },
+          {
+            "name": "プロンプト",
+            "type": "directory",
+            "path": "google calendar登録/プロンプト",
+            "children": [
+              {
+                "name": "【AI Agent 1】Discord予定抽出-プロンプト.md",
+                "type": "file",
+                "path": "google calendar登録/プロンプト/【AI Agent 1】Discord予定抽出-プロンプト.md"
+              },
+              {
+                "name": "【AI Agent 1】Discord予定抽出-プロンプトシート.md",
+                "type": "file",
+                "path": "google calendar登録/プロンプト/【AI Agent 1】Discord予定抽出-プロンプトシート.md"
+              }
+            ]
+          },
+          {
+            "name": "CORRECTION_REPORT.md",
+            "type": "file",
+            "path": "google calendar登録/CORRECTION_REPORT.md"
+          },
+          {
+            "name": "DIRECTORY_STRUCTURE.md",
+            "type": "file",
+            "path": "google calendar登録/DIRECTORY_STRUCTURE.md"
+          },
+          {
+            "name": "Discord設定ガイド.md",
+            "type": "file",
+            "path": "google calendar登録/Discord設定ガイド.md"
+          },
+          {
+            "name": "IMPROVEMENTS_v2.md",
+            "type": "file",
+            "path": "google calendar登録/IMPROVEMENTS_v2.md"
+          },
+          {
+            "name": "MANUAL_UPDATE_GUIDE.md",
+            "type": "file",
+            "path": "google calendar登録/MANUAL_UPDATE_GUIDE.md"
+          },
+          {
+            "name": "NATIVE_NODES_CORRECTION.md",
+            "type": "file",
+            "path": "google calendar登録/NATIVE_NODES_CORRECTION.md"
+          },
+          {
+            "name": "README_FINAL.md",
+            "type": "file",
+            "path": "google calendar登録/README_FINAL.md"
+          },
+          {
+            "name": "relative_date_converter.js",
+            "type": "file",
+            "path": "google calendar登録/relative_date_converter.js"
+          },
+          {
+            "name": "step0_ai_config.json",
+            "type": "file",
+            "path": "google calendar登録/step0_ai_config.json"
+          },
+          {
+            "name": "step1_business_requirements.md",
+            "type": "file",
+            "path": "google calendar登録/step1_business_requirements.md"
+          },
+          {
+            "name": "step10_final_package.md",
+            "type": "file",
+            "path": "google calendar登録/step10_final_package.md"
+          },
+          {
+            "name": "step2_layered_structure.md",
+            "type": "file",
+            "path": "google calendar登録/step2_layered_structure.md"
+          },
+          {
+            "name": "step3_task_breakdown.md",
+            "type": "file",
+            "path": "google calendar登録/step3_task_breakdown.md"
+          },
+          {
+            "name": "step4_pattern_application.md",
+            "type": "file",
+            "path": "google calendar登録/step4_pattern_application.md"
+          },
+          {
+            "name": "step5_n8n_design.md",
+            "type": "file",
+            "path": "google calendar登録/step5_n8n_design.md"
+          },
+          {
+            "name": "step6_ai_agent_deployment.md",
+            "type": "file",
+            "path": "google calendar登録/step6_ai_agent_deployment.md"
+          },
+          {
+            "name": "step7_complete_n8n_workflow_NATIVE_NODES_v4.json",
+            "type": "file",
+            "path": "google calendar登録/step7_complete_n8n_workflow_NATIVE_NODES_v4.json"
+          },
+          {
+            "name": "step7_workflow_implementation_guide.md",
+            "type": "file",
+            "path": "google calendar登録/step7_workflow_implementation_guide.md"
+          },
+          {
+            "name": "step7.5_connection_verification.md",
+            "type": "file",
+            "path": "google calendar登録/step7.5_connection_verification.md"
+          },
+          {
+            "name": "step7.5_validation_report.md",
+            "type": "file",
+            "path": "google calendar登録/step7.5_validation_report.md"
+          },
+          {
+            "name": "step8_connection_verification_report.md",
+            "type": "file",
+            "path": "google calendar登録/step8_connection_verification_report.md"
+          },
+          {
+            "name": "step8_correction_report.md",
+            "type": "file",
+            "path": "google calendar登録/step8_correction_report.md"
+          },
+          {
+            "name": "step8_error_workflow_CORRECTED_v3.json",
+            "type": "file",
+            "path": "google calendar登録/step8_error_workflow_CORRECTED_v3.json"
+          },
+          {
+            "name": "step8_error_workflow_documentation.md",
+            "type": "file",
+            "path": "google calendar登録/step8_error_workflow_documentation.md"
+          },
+          {
+            "name": "step9_implementation_guide.md",
+            "type": "file",
+            "path": "google calendar登録/step9_implementation_guide.md"
+          },
+          {
+            "name": "STICKY_NOTE_NODE_LIST_GUIDE.md",
+            "type": "file",
+            "path": "google calendar登録/STICKY_NOTE_NODE_LIST_GUIDE.md"
+          },
+          {
+            "name": "UPDATE_REPORT_v3.md",
+            "type": "file",
+            "path": "google calendar登録/UPDATE_REPORT_v3.md"
+          },
+          {
+            "name": "workflow_update_instructions.md",
+            "type": "file",
+            "path": "google calendar登録/workflow_update_instructions.md"
+          }
+        ]
+      },
+      {
+        "name": "Google Drive M4A議事録自動生成",
+        "type": "directory",
+        "path": "Google Drive M4A議事録自動生成",
+        "children": [
+          {
+            "name": "step0_AI設定",
+            "type": "directory",
+            "path": "Google Drive M4A議事録自動生成/step0_AI設定",
+            "children": [
+              {
+                "name": "AI設定確定書.json",
+                "type": "file",
+                "path": "Google Drive M4A議事録自動生成/step0_AI設定/AI設定確定書.json"
+              },
+              {
+                "name": "README.md",
+                "type": "file",
+                "path": "Google Drive M4A議事録自動生成/step0_AI設定/README.md"
+              }
+            ]
+          },
+          {
+            "name": "step1_業務理解",
+            "type": "directory",
+            "path": "Google Drive M4A議事録自動生成/step1_業務理解",
+            "children": [
+              {
+                "name": "業務要件サマリー.md",
+                "type": "file",
+                "path": "Google Drive M4A議事録自動生成/step1_業務理解/業務要件サマリー.md"
+              }
+            ]
+          },
+          {
+            "name": "step2_構造化",
+            "type": "directory",
+            "path": "Google Drive M4A議事録自動生成/step2_構造化",
+            "children": [
+              {
+                "name": "8層フレームワーク構造.json",
+                "type": "file",
+                "path": "Google Drive M4A議事録自動生成/step2_構造化/8層フレームワーク構造.json"
+              },
+              {
+                "name": "README.md",
+                "type": "file",
+                "path": "Google Drive M4A議事録自動生成/step2_構造化/README.md"
+              }
+            ]
+          },
+          {
+            "name": "step3_タスク分解",
+            "type": "directory",
+            "path": "Google Drive M4A議事録自動生成/step3_タスク分解",
+            "children": [
+              {
+                "name": "README.md",
+                "type": "file",
+                "path": "Google Drive M4A議事録自動生成/step3_タスク分解/README.md"
+              },
+              {
+                "name": "ノード分解計画.json",
+                "type": "file",
+                "path": "Google Drive M4A議事録自動生成/step3_タスク分解/ノード分解計画.json"
+              }
+            ]
+          },
+          {
+            "name": "step4_パターン適用",
+            "type": "directory",
+            "path": "Google Drive M4A議事録自動生成/step4_パターン適用",
+            "children": [
+              {
+                "name": "README.md",
+                "type": "file",
+                "path": "Google Drive M4A議事録自動生成/step4_パターン適用/README.md"
+              },
+              {
+                "name": "ワークフローパターン設計.json",
+                "type": "file",
+                "path": "Google Drive M4A議事録自動生成/step4_パターン適用/ワークフローパターン設計.json"
+              }
+            ]
+          },
+          {
+            "name": "step5_n8n設計変換",
+            "type": "directory",
+            "path": "Google Drive M4A議事録自動生成/step5_n8n設計変換",
+            "children": [
+              {
+                "name": "ノード選定とExpression設計.md",
+                "type": "file",
+                "path": "Google Drive M4A議事録自動生成/step5_n8n設計変換/ノード選定とExpression設計.md"
+              }
+            ]
+          },
+          {
+            "name": "step6_AIエージェント配置",
+            "type": "directory",
+            "path": "Google Drive M4A議事録自動生成/step6_AIエージェント配置",
+            "children": [
+              {
+                "name": "AIエージェント配置設計.md",
+                "type": "file",
+                "path": "Google Drive M4A議事録自動生成/step6_AIエージェント配置/AIエージェント配置設計.md"
+              }
+            ]
+          },
+          {
+            "name": "step7_完全JSON生成",
+            "type": "directory",
+            "path": "Google Drive M4A議事録自動生成/step7_完全JSON生成",
+            "children": [
+              {
+                "name": "README.md",
+                "type": "file",
+                "path": "Google Drive M4A議事録自動生成/step7_完全JSON生成/README.md"
+              },
+              {
+                "name": "メインワークフロー.json",
+                "type": "file",
+                "path": "Google Drive M4A議事録自動生成/step7_完全JSON生成/メインワークフロー.json"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Google Meet議事録自動化",
+        "type": "directory",
+        "path": "Google Meet議事録自動化",
+        "children": [
+          {
+            "name": "Google Meet議事録自動化.json",
+            "type": "file",
+            "path": "Google Meet議事録自動化/Google Meet議事録自動化.json"
+          },
+          {
+            "name": "議事録自動化エラー通知.json",
+            "type": "file",
+            "path": "Google Meet議事録自動化/議事録自動化エラー通知.json"
+          }
+        ]
+      },
+      {
+        "name": "prompt - n8nワークフロー自動設計",
+        "type": "directory",
+        "path": "prompt - n8nワークフロー自動設計",
+        "children": [
+          {
+            "name": "old",
+            "type": "directory",
+            "path": "prompt - n8nワークフロー自動設計/old",
+            "children": [
+              {
+                "name": "プロンプト - n8nワークフロー自動設計.md",
+                "type": "file",
+                "path": "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計.md"
+              },
+              {
+                "name": "プロンプト - n8nワークフロー自動設計v10（Add sticky noteを追加）.md",
+                "type": "file",
+                "path": "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v10（Add sticky noteを追加）.md"
+              },
+              {
+                "name": "プロンプト - n8nワークフロー自動設計v11(Sticky Note詳細化).md",
+                "type": "file",
+                "path": "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v11(Sticky Note詳細化).md"
+              },
+              {
+                "name": "プロンプト - n8nワークフロー自動設計v2.md",
+                "type": "file",
+                "path": "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v2.md"
+              },
+              {
+                "name": "プロンプト - n8nワークフロー自動設計v3.md",
+                "type": "file",
+                "path": "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v3.md"
+              },
+              {
+                "name": "プロンプト - n8nワークフロー自動設計v4（AIエージェント分離）.md",
+                "type": "file",
+                "path": "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v4（AIエージェント分離）.md"
+              },
+              {
+                "name": "プロンプト - n8nワークフロー自動設計v5（LLMの選択を自由にする）.md",
+                "type": "file",
+                "path": "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v5（LLMの選択を自由にする）.md"
+              },
+              {
+                "name": "プロンプト - n8nワークフロー自動設計v6（ノード情報参照追加）.md",
+                "type": "file",
+                "path": "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v6（ノード情報参照追加）.md"
+              },
+              {
+                "name": "プロンプト - n8nワークフロー自動設計v7（ai-agentツールの変更）.md",
+                "type": "file",
+                "path": "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v7（ai-agentツールの変更）.md"
+              },
+              {
+                "name": "プロンプト - n8nワークフロー自動設計v8（n8n-mcpは指定があるときのみ使用） copy.md",
+                "type": "file",
+                "path": "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v8（n8n-mcpは指定があるときのみ使用） copy.md"
+              },
+              {
+                "name": "プロンプト - n8nワークフロー自動設計v9（jsonに説明を追加）.md",
+                "type": "file",
+                "path": "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v9（jsonに説明を追加）.md"
+              }
+            ]
+          },
+          {
+            "name": "CHANGELOG_v11.md",
+            "type": "file",
+            "path": "prompt - n8nワークフロー自動設計/CHANGELOG_v11.md"
+          },
+          {
+            "name": "CHANGELOG_v12_abstraction.md",
+            "type": "file",
+            "path": "prompt - n8nワークフロー自動設計/CHANGELOG_v12_abstraction.md"
+          },
+          {
+            "name": "CHANGELOG_v12_spacing_adjustment.md",
+            "type": "file",
+            "path": "prompt - n8nワークフロー自動設計/CHANGELOG_v12_spacing_adjustment.md"
+          },
+          {
+            "name": "CHANGELOG_v12.md",
+            "type": "file",
+            "path": "prompt - n8nワークフロー自動設計/CHANGELOG_v12.md"
+          },
+          {
+            "name": "validation_report.md",
+            "type": "file",
+            "path": "prompt - n8nワークフロー自動設計/validation_report.md"
+          },
+          {
+            "name": "ナレッジ - n8nワークフロー自動設計.md",
+            "type": "file",
+            "path": "prompt - n8nワークフロー自動設計/ナレッジ - n8nワークフロー自動設計.md"
+          },
+          {
+            "name": "ナレッジ - n8nワークフロー自動設計（AI-agent）.md",
+            "type": "file",
+            "path": "prompt - n8nワークフロー自動設計/ナレッジ - n8nワークフロー自動設計（AI-agent）.md"
+          },
+          {
+            "name": "ナレッジ - n8nワークフロー自動設計（n8n-MCP）.md",
+            "type": "file",
+            "path": "prompt - n8nワークフロー自動設計/ナレッジ - n8nワークフロー自動設計（n8n-MCP）.md"
+          },
+          {
+            "name": "プロンプト - n8nワークフロー自動設計v12(Sticky Noteにノード名を記述).md",
+            "type": "file",
+            "path": "prompt - n8nワークフロー自動設計/プロンプト - n8nワークフロー自動設計v12(Sticky Noteにノード名を記述).md"
+          },
+          {
+            "name": "作成シート - n8nワークフロー自動設計.md",
+            "type": "file",
+            "path": "prompt - n8nワークフロー自動設計/作成シート - n8nワークフロー自動設計.md"
+          },
+          {
+            "name": "説明 - n8nワークフロー自動設計.md",
+            "type": "file",
+            "path": "prompt - n8nワークフロー自動設計/説明 - n8nワークフロー自動設計.md"
+          }
+        ]
+      },
+      {
+        "name": ".DS_Store",
+        "type": "file",
+        "path": ".DS_Store"
+      },
+      {
+        "name": "arxiv.json",
+        "type": "file",
+        "path": "arxiv.json"
+      },
+      {
+        "name": "calendar-gpt.json",
+        "type": "file",
+        "path": "calendar-gpt.json"
+      },
+      {
+        "name": "calendar.json",
+        "type": "file",
+        "path": "calendar.json"
+      }
+    ]
+  },
+  "graphData": {
+    "nodes": [
+      {
+        "id": "n8n",
+        "name": "n8n",
+        "path": "n8n",
+        "type": "directory",
+        "lines": 0,
+        "val": 14,
+        "color": "#4d515a",
+        "baseColor": "#4ec9b0",
+        "originalColor": "#4ec9b0",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": null,
+        "childFileCount": 4,
+        "x": 30.45048771668201,
+        "y": -26.71961501190586,
+        "z": -20.89831646589685,
+        "vx": 0.138751215718422,
+        "vy": 0.3375170644942939,
+        "vz": 0.25102421455180157
+      },
+      {
+        "id": "n8n/.claude",
+        "name": ".claude",
+        "path": "n8n/.claude",
+        "type": "directory",
+        "lines": 0,
+        "val": 14,
+        "color": "#4d515a",
+        "baseColor": "#4ec9b0",
+        "originalColor": "#4ec9b0",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n",
+        "childFileCount": 0,
+        "x": 38.39603764084115,
+        "y": -46.76927879210755,
+        "z": 10.797657271753888,
+        "vx": 0.03129419402895213,
+        "vy": 0.24277895729698606,
+        "vz": 0.2399433789217145
+      },
+      {
+        "id": "n8n/.kamui",
+        "name": ".kamui",
+        "path": "n8n/.kamui",
+        "type": "directory",
+        "lines": 0,
+        "val": 14,
+        "color": "#4d515a",
+        "baseColor": "#4ec9b0",
+        "originalColor": "#4ec9b0",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n",
+        "childFileCount": 0,
+        "x": 39.19158367965624,
+        "y": -20.829661142695947,
+        "z": -58.66647602095923,
+        "vx": -0.08143001081265736,
+        "vy": 0.3153380488482754,
+        "vz": 0.1556642586893021
+      },
+      {
+        "id": "n8n/google calendar登録",
+        "name": "google calendar登録",
+        "path": "n8n/google calendar登録",
+        "type": "directory",
+        "lines": 0,
+        "val": 14,
+        "color": "#4d515a",
+        "baseColor": "#4ec9b0",
+        "originalColor": "#4ec9b0",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n",
+        "childFileCount": 28,
+        "x": 7.349059338736717,
+        "y": 154.85644326459808,
+        "z": -30.350760820118296,
+        "vx": 0.28154291105020357,
+        "vy": 0.627638934560244,
+        "vz": -0.21286903779561886
+      },
+      {
+        "id": "n8n/google calendar登録/old",
+        "name": "old",
+        "path": "n8n/google calendar登録/old",
+        "type": "directory",
+        "lines": 0,
+        "val": 14,
+        "color": "#4d515a",
+        "baseColor": "#4ec9b0",
+        "originalColor": "#4ec9b0",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/google calendar登録",
+        "childFileCount": 10,
+        "x": -21.654458423164506,
+        "y": 215.88870149089806,
+        "z": 106.00136823775945,
+        "vx": 0.4675928167864001,
+        "vy": 1.43609489474098,
+        "vz": -0.8260065794375328
+      },
+      {
+        "id": "n8n/google calendar登録/old/Discord連携Googleカレンダー自動予定管理_ErrorHandling.json",
+        "name": "Discord連携Googleカレンダー自動予定管理_ErrorHandling.json",
+        "path": "n8n/google calendar登録/old/Discord連携Googleカレンダー自動予定管理_ErrorHandling.json",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#8e44ad",
+        "baseColor": "#8e44ad",
+        "originalColor": "#8e44ad",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録/old",
+        "childFileCount": 0,
+        "x": -50.385304269851574,
+        "y": 242.508346851476,
+        "z": 120.41630826337654,
+        "vx": 0.6351743245054898,
+        "vy": 1.6882781158943747,
+        "vz": -0.7784781086633575
+      },
+      {
+        "id": "n8n/google calendar登録/old/Discord連携Googleカレンダー自動予定管理.json",
+        "name": "Discord連携Googleカレンダー自動予定管理.json",
+        "path": "n8n/google calendar登録/old/Discord連携Googleカレンダー自動予定管理.json",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#8e44ad",
+        "baseColor": "#8e44ad",
+        "originalColor": "#8e44ad",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録/old",
+        "childFileCount": 0,
+        "x": -55.86853514482873,
+        "y": 199.0284462693886,
+        "z": 122.9825046608296,
+        "vx": 0.522253706662908,
+        "vy": 1.41319157027379,
+        "vz": -0.6955706340593372
+      },
+      {
+        "id": "n8n/google calendar登録/old/step7_complete_n8n_workflow_CORRECTED.json",
+        "name": "step7_complete_n8n_workflow_CORRECTED.json",
+        "path": "n8n/google calendar登録/old/step7_complete_n8n_workflow_CORRECTED.json",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#8e44ad",
+        "baseColor": "#8e44ad",
+        "originalColor": "#8e44ad",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録/old",
+        "childFileCount": 0,
+        "x": -10.749799358500402,
+        "y": 225.68752692417522,
+        "z": 144.2447825100176,
+        "vx": 0.8425330582530708,
+        "vy": 1.4846704298579818,
+        "vz": -0.3486232634078184
+      },
+      {
+        "id": "n8n/google calendar登録/old/step7_complete_n8n_workflow_NATIVE_NODES_v2.json",
+        "name": "step7_complete_n8n_workflow_NATIVE_NODES_v2.json",
+        "path": "n8n/google calendar登録/old/step7_complete_n8n_workflow_NATIVE_NODES_v2.json",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#8e44ad",
+        "baseColor": "#8e44ad",
+        "originalColor": "#8e44ad",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録/old",
+        "childFileCount": 0,
+        "x": -62.93503840813409,
+        "y": 225.7648864647836,
+        "z": 104.54346773509721,
+        "vx": 0.46407437058718437,
+        "vy": 1.51700896479723,
+        "vz": -0.5110259375419123
+      },
+      {
+        "id": "n8n/google calendar登録/old/step7_complete_n8n_workflow_NATIVE_NODES_v3.json",
+        "name": "step7_complete_n8n_workflow_NATIVE_NODES_v3.json",
+        "path": "n8n/google calendar登録/old/step7_complete_n8n_workflow_NATIVE_NODES_v3.json",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#8e44ad",
+        "baseColor": "#8e44ad",
+        "originalColor": "#8e44ad",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録/old",
+        "childFileCount": 0,
+        "x": -30.135995852089334,
+        "y": 257.1569513051635,
+        "z": 103.4204520333544,
+        "vx": 0.7087519903048071,
+        "vy": 1.4710694906721065,
+        "vz": -0.8258819901972371
+      },
+      {
+        "id": "n8n/google calendar登録/old/step7_complete_n8n_workflow_NATIVE_NODES.json",
+        "name": "step7_complete_n8n_workflow_NATIVE_NODES.json",
+        "path": "n8n/google calendar登録/old/step7_complete_n8n_workflow_NATIVE_NODES.json",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#8e44ad",
+        "baseColor": "#8e44ad",
+        "originalColor": "#8e44ad",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録/old",
+        "childFileCount": 0,
+        "x": 11.003150236862709,
+        "y": 231.1822304021327,
+        "z": 125.62142809665283,
+        "vx": 0.5383382892684145,
+        "vy": 1.5953303852899048,
+        "vz": -0.9914589432188525
+      },
+      {
+        "id": "n8n/google calendar登録/old/step7_complete_n8n_workflow.json",
+        "name": "step7_complete_n8n_workflow.json",
+        "path": "n8n/google calendar登録/old/step7_complete_n8n_workflow.json",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#8e44ad",
+        "baseColor": "#8e44ad",
+        "originalColor": "#8e44ad",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録/old",
+        "childFileCount": 0,
+        "x": -37.91943702969514,
+        "y": 201.11441896859344,
+        "z": 143.64231819851528,
+        "vx": 0.6109317043069874,
+        "vy": 1.51952343819912,
+        "vz": -0.7105013783775432
+      },
+      {
+        "id": "n8n/google calendar登録/old/step8_error_workflow_CORRECTED_v2.json",
+        "name": "step8_error_workflow_CORRECTED_v2.json",
+        "path": "n8n/google calendar登録/old/step8_error_workflow_CORRECTED_v2.json",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#8e44ad",
+        "baseColor": "#8e44ad",
+        "originalColor": "#8e44ad",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録/old",
+        "childFileCount": 0,
+        "x": -8.249732186598992,
+        "y": 197.54946115269763,
+        "z": 142.1978337645482,
+        "vx": 0.6312953359680697,
+        "vy": 1.3888178188805065,
+        "vz": -0.9190898602167181
+      },
+      {
+        "id": "n8n/google calendar登録/old/step8_error_workflow_CORRECTED.json",
+        "name": "step8_error_workflow_CORRECTED.json",
+        "path": "n8n/google calendar登録/old/step8_error_workflow_CORRECTED.json",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#8e44ad",
+        "baseColor": "#8e44ad",
+        "originalColor": "#8e44ad",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録/old",
+        "childFileCount": 0,
+        "x": -39.421450068969946,
+        "y": 231.55687401768364,
+        "z": 143.59223890238437,
+        "vx": 0.5555078552449247,
+        "vy": 1.315626353404106,
+        "vz": -0.789013317214738
+      },
+      {
+        "id": "n8n/google calendar登録/old/step8_error_workflow.json",
+        "name": "step8_error_workflow.json",
+        "path": "n8n/google calendar登録/old/step8_error_workflow.json",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#8e44ad",
+        "baseColor": "#8e44ad",
+        "originalColor": "#8e44ad",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録/old",
+        "childFileCount": 0,
+        "x": -13.964652860032157,
+        "y": 252.24515562487306,
+        "z": 128.77644327207892,
+        "vx": 0.5571390697705804,
+        "vy": 1.3570524972265707,
+        "vz": -0.745834602719431
+      },
+      {
+        "id": "n8n/google calendar登録/プロンプト",
+        "name": "プロンプト",
+        "path": "n8n/google calendar登録/プロンプト",
+        "type": "directory",
+        "lines": 0,
+        "val": 14,
+        "color": "#4d515a",
+        "baseColor": "#4ec9b0",
+        "originalColor": "#4ec9b0",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/google calendar登録",
+        "childFileCount": 2,
+        "x": -0.997977683622082,
+        "y": 200.95752976981504,
+        "z": -113.85482369091665,
+        "vx": 0.24521534150327873,
+        "vy": 1.1207259415807287,
+        "vz": -0.5549166393203464
+      },
+      {
+        "id": "n8n/google calendar登録/プロンプト/【AI Agent 1】Discord予定抽出-プロンプト.md",
+        "name": "【AI Agent 1】Discord予定抽出-プロンプト.md",
+        "path": "n8n/google calendar登録/プロンプト/【AI Agent 1】Discord予定抽出-プロンプト.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録/プロンプト",
+        "childFileCount": 0,
+        "x": -19.256506480296096,
+        "y": 219.86864177931275,
+        "z": -139.23720396371525,
+        "vx": 0.28517619826142776,
+        "vy": 1.2909161481076203,
+        "vz": -0.8115179672956121
+      },
+      {
+        "id": "n8n/google calendar登録/プロンプト/【AI Agent 1】Discord予定抽出-プロンプトシート.md",
+        "name": "【AI Agent 1】Discord予定抽出-プロンプトシート.md",
+        "path": "n8n/google calendar登録/プロンプト/【AI Agent 1】Discord予定抽出-プロンプトシート.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録/プロンプト",
+        "childFileCount": 0,
+        "x": 6.996723371008607,
+        "y": 218.05188940422894,
+        "z": -146.94218777884637,
+        "vx": 0.27598740911463604,
+        "vy": 1.3347760142348941,
+        "vz": -0.7123023819596157
+      },
+      {
+        "id": "n8n/google calendar登録/CORRECTION_REPORT.md",
+        "name": "CORRECTION_REPORT.md",
+        "path": "n8n/google calendar登録/CORRECTION_REPORT.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録",
+        "childFileCount": 0,
+        "x": -9.836371234196154,
+        "y": 189.01904420015234,
+        "z": -59.490083928021086,
+        "vx": -0.07009163071132535,
+        "vy": 0.9171231539743587,
+        "vz": -0.20798730065216012
+      },
+      {
+        "id": "n8n/google calendar登録/DIRECTORY_STRUCTURE.md",
+        "name": "DIRECTORY_STRUCTURE.md",
+        "path": "n8n/google calendar登録/DIRECTORY_STRUCTURE.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録",
+        "childFileCount": 0,
+        "x": 7.056449113895088,
+        "y": 122.32010692865259,
+        "z": 1.3114024389176264,
+        "vx": 0.5633509252004039,
+        "vy": 0.987145325449321,
+        "vz": -0.23305457564921875
+      },
+      {
+        "id": "n8n/google calendar登録/Discord設定ガイド.md",
+        "name": "Discord設定ガイド.md",
+        "path": "n8n/google calendar登録/Discord設定ガイド.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録",
+        "childFileCount": 0,
+        "x": 13.630583543320368,
+        "y": 204.2489923802513,
+        "z": -24.128818024401006,
+        "vx": -0.011137418796109851,
+        "vy": 0.9772639474650376,
+        "vz": -0.5314033859264247
+      },
+      {
+        "id": "n8n/google calendar登録/IMPROVEMENTS_v2.md",
+        "name": "IMPROVEMENTS_v2.md",
+        "path": "n8n/google calendar登録/IMPROVEMENTS_v2.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録",
+        "childFileCount": 0,
+        "x": 38.09442199238706,
+        "y": 180.68538541325685,
+        "z": -3.9486071936121205,
+        "vx": 0.26121349504537517,
+        "vy": 0.9816057972543661,
+        "vz": -0.28980428619649945
+      },
+      {
+        "id": "n8n/google calendar登録/MANUAL_UPDATE_GUIDE.md",
+        "name": "MANUAL_UPDATE_GUIDE.md",
+        "path": "n8n/google calendar登録/MANUAL_UPDATE_GUIDE.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録",
+        "childFileCount": 0,
+        "x": 47.126858474608916,
+        "y": 159.87849229708135,
+        "z": -58.37188891202743,
+        "vx": 0.3946475595165305,
+        "vy": 0.07317492161997483,
+        "vz": -0.22603779153755854
+      },
+      {
+        "id": "n8n/google calendar登録/NATIVE_NODES_CORRECTION.md",
+        "name": "NATIVE_NODES_CORRECTION.md",
+        "path": "n8n/google calendar登録/NATIVE_NODES_CORRECTION.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録",
+        "childFileCount": 0,
+        "x": 33.76243062125925,
+        "y": 195.8293961479812,
+        "z": -34.39797562304325,
+        "vx": 0.18881247602518847,
+        "vy": 0.7691628786124084,
+        "vz": -0.17912066308436023
+      },
+      {
+        "id": "n8n/google calendar登録/README_FINAL.md",
+        "name": "README_FINAL.md",
+        "path": "n8n/google calendar登録/README_FINAL.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録",
+        "childFileCount": 0,
+        "x": 38.00839782273568,
+        "y": 140.38818582832482,
+        "z": 1.2122207836492878,
+        "vx": 0.32855724433091793,
+        "vy": 0.3169619165220242,
+        "vz": -0.4203965795184002
+      },
+      {
+        "id": "n8n/google calendar登録/relative_date_converter.js",
+        "name": "relative_date_converter.js",
+        "path": "n8n/google calendar登録/relative_date_converter.js",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#f7df1e",
+        "baseColor": "#f7df1e",
+        "originalColor": "#f7df1e",
+        "defaultGlow": 0.1,
+        "glowIntensity": 0.1,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録",
+        "childFileCount": 0,
+        "x": -30.15140845732765,
+        "y": 166.8932406068166,
+        "z": -5.639732663726227,
+        "vx": 0.4537321874510817,
+        "vy": 1.28836644226914,
+        "vz": -0.2576645804950199
+      },
+      {
+        "id": "n8n/google calendar登録/step0_ai_config.json",
+        "name": "step0_ai_config.json",
+        "path": "n8n/google calendar登録/step0_ai_config.json",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#8e44ad",
+        "baseColor": "#8e44ad",
+        "originalColor": "#8e44ad",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録",
+        "childFileCount": 0,
+        "x": -22.10610273601026,
+        "y": 193.33817226639007,
+        "z": -38.34851529803592,
+        "vx": 0.17139526766291266,
+        "vy": 0.9433547488652511,
+        "vz": -0.009946780356561113
+      },
+      {
+        "id": "n8n/google calendar登録/step1_business_requirements.md",
+        "name": "step1_business_requirements.md",
+        "path": "n8n/google calendar登録/step1_business_requirements.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録",
+        "childFileCount": 0,
+        "x": 44.77658431011158,
+        "y": 134.09217497247073,
+        "z": -49.293768000127805,
+        "vx": 0.26549406369181106,
+        "vy": 0.7855147386852709,
+        "vz": -0.2146827133669643
+      },
+      {
+        "id": "n8n/google calendar登録/step10_final_package.md",
+        "name": "step10_final_package.md",
+        "path": "n8n/google calendar登録/step10_final_package.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録",
+        "childFileCount": 0,
+        "x": -13.13432560892998,
+        "y": 133.1040537137691,
+        "z": -66.61653489313136,
+        "vx": 0.41285300428815425,
+        "vy": 0.9554194666127387,
+        "vz": -0.3719305913245975
+      },
+      {
+        "id": "n8n/google calendar登録/step2_layered_structure.md",
+        "name": "step2_layered_structure.md",
+        "path": "n8n/google calendar登録/step2_layered_structure.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録",
+        "childFileCount": 0,
+        "x": 7.280438326011684,
+        "y": 190.31552222308667,
+        "z": 0.8089906724789918,
+        "vx": 0.6325761338393927,
+        "vy": 0.2736451923457632,
+        "vz": -0.08834908360343523
+      },
+      {
+        "id": "n8n/google calendar登録/step3_task_breakdown.md",
+        "name": "step3_task_breakdown.md",
+        "path": "n8n/google calendar登録/step3_task_breakdown.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録",
+        "childFileCount": 0,
+        "x": 21.82607430280525,
+        "y": 166.45705571381538,
+        "z": 12.138041855816283,
+        "vx": 0.19313986321836155,
+        "vy": 0.861774044898017,
+        "vz": -0.30568003185655956
+      },
+      {
+        "id": "n8n/google calendar登録/step4_pattern_application.md",
+        "name": "step4_pattern_application.md",
+        "path": "n8n/google calendar登録/step4_pattern_application.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録",
+        "childFileCount": 0,
+        "x": -15.063482686718995,
+        "y": 196.4875214516004,
+        "z": -16.230404967583436,
+        "vx": 0.22717076229777156,
+        "vy": 0.8772835002112048,
+        "vz": -0.18575961644559036
+      },
+      {
+        "id": "n8n/google calendar登録/step5_n8n_design.md",
+        "name": "step5_n8n_design.md",
+        "path": "n8n/google calendar登録/step5_n8n_design.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録",
+        "childFileCount": 0,
+        "x": -3.636464541454011,
+        "y": 157.17137197519185,
+        "z": -76.19446013119787,
+        "vx": 0.23183515983222597,
+        "vy": 1.0360937458417048,
+        "vz": -0.3427051177340494
+      },
+      {
+        "id": "n8n/google calendar登録/step6_ai_agent_deployment.md",
+        "name": "step6_ai_agent_deployment.md",
+        "path": "n8n/google calendar登録/step6_ai_agent_deployment.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録",
+        "childFileCount": 0,
+        "x": 13.400318492244567,
+        "y": 115.62948683257827,
+        "z": -49.52466859049792,
+        "vx": 0.7112882961296735,
+        "vy": 0.9731094271591745,
+        "vz": -0.3270049728671704
+      },
+      {
+        "id": "n8n/google calendar登録/step7_complete_n8n_workflow_NATIVE_NODES_v4.json",
+        "name": "step7_complete_n8n_workflow_NATIVE_NODES_v4.json",
+        "path": "n8n/google calendar登録/step7_complete_n8n_workflow_NATIVE_NODES_v4.json",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#8e44ad",
+        "baseColor": "#8e44ad",
+        "originalColor": "#8e44ad",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録",
+        "childFileCount": 0,
+        "x": -39.42484548844603,
+        "y": 163.5581395250534,
+        "z": -34.886864847139044,
+        "vx": 0.3250023610044375,
+        "vy": 1.315307735759228,
+        "vz": -0.16934565795035764
+      },
+      {
+        "id": "n8n/google calendar登録/step7_workflow_implementation_guide.md",
+        "name": "step7_workflow_implementation_guide.md",
+        "path": "n8n/google calendar登録/step7_workflow_implementation_guide.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録",
+        "childFileCount": 0,
+        "x": -33.57109197905979,
+        "y": 135.90391951995284,
+        "z": -45.31845823488265,
+        "vx": 0.03167957102320401,
+        "vy": 0.9713571588476723,
+        "vz": -0.03656494116015824
+      },
+      {
+        "id": "n8n/google calendar登録/step7.5_connection_verification.md",
+        "name": "step7.5_connection_verification.md",
+        "path": "n8n/google calendar登録/step7.5_connection_verification.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録",
+        "childFileCount": 0,
+        "x": 21.97145801751305,
+        "y": 136.94618845236639,
+        "z": -71.49452379348759,
+        "vx": 0.5027549070807428,
+        "vy": 0.7814279169205637,
+        "vz": -0.1918958571328634
+      },
+      {
+        "id": "n8n/google calendar登録/step7.5_validation_report.md",
+        "name": "step7.5_validation_report.md",
+        "path": "n8n/google calendar登録/step7.5_validation_report.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録",
+        "childFileCount": 0,
+        "x": 17.543155753307975,
+        "y": 195.49416066078535,
+        "z": -57.7957319545626,
+        "vx": 0.012166322096314436,
+        "vy": 0.9621276494114765,
+        "vz": -0.32005487512752784
+      },
+      {
+        "id": "n8n/google calendar登録/step8_connection_verification_report.md",
+        "name": "step8_connection_verification_report.md",
+        "path": "n8n/google calendar登録/step8_connection_verification_report.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録",
+        "childFileCount": 0,
+        "x": 49.110322499236744,
+        "y": 177.79277887316962,
+        "z": -40.32575968143889,
+        "vx": 0.1822733949892818,
+        "vy": 0.9094023070479779,
+        "vz": -0.46136265281670386
+      },
+      {
+        "id": "n8n/google calendar登録/step8_correction_report.md",
+        "name": "step8_correction_report.md",
+        "path": "n8n/google calendar登録/step8_correction_report.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録",
+        "childFileCount": 0,
+        "x": -29.00847957057872,
+        "y": 135.62386198690348,
+        "z": -10.287234924773246,
+        "vx": 0.3428672660705689,
+        "vy": 0.708295294347696,
+        "vz": -0.3358771730141959
+      },
+      {
+        "id": "n8n/google calendar登録/step8_error_workflow_CORRECTED_v3.json",
+        "name": "step8_error_workflow_CORRECTED_v3.json",
+        "path": "n8n/google calendar登録/step8_error_workflow_CORRECTED_v3.json",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#8e44ad",
+        "baseColor": "#8e44ad",
+        "originalColor": "#8e44ad",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録",
+        "childFileCount": 0,
+        "x": 52.94251575540822,
+        "y": 161.7201140121173,
+        "z": -19.49126970439067,
+        "vx": 0.447053425024411,
+        "vy": 0.7222366842461005,
+        "vz": -0.0743781523797712
+      },
+      {
+        "id": "n8n/google calendar登録/step8_error_workflow_documentation.md",
+        "name": "step8_error_workflow_documentation.md",
+        "path": "n8n/google calendar登録/step8_error_workflow_documentation.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録",
+        "childFileCount": 0,
+        "x": 25.970297308222467,
+        "y": 170.0486706642747,
+        "z": -73.17792679684193,
+        "vx": 0.2222597271671374,
+        "vy": 0.9421273537112067,
+        "vz": -0.36465520545901264
+      },
+      {
+        "id": "n8n/google calendar登録/step9_implementation_guide.md",
+        "name": "step9_implementation_guide.md",
+        "path": "n8n/google calendar登録/step9_implementation_guide.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録",
+        "childFileCount": 0,
+        "x": -1.5908085337327922,
+        "y": 154.04753030636704,
+        "z": 12.80301110152703,
+        "vx": -0.06381306658209465,
+        "vy": 0.6750953416713105,
+        "vz": -0.4152804891986908
+      },
+      {
+        "id": "n8n/google calendar登録/STICKY_NOTE_NODE_LIST_GUIDE.md",
+        "name": "STICKY_NOTE_NODE_LIST_GUIDE.md",
+        "path": "n8n/google calendar登録/STICKY_NOTE_NODE_LIST_GUIDE.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録",
+        "childFileCount": 0,
+        "x": -12.741587009825794,
+        "y": 115.57060473397624,
+        "z": -28.03025063798865,
+        "vx": 0.21800592636918387,
+        "vy": 0.9936470392568171,
+        "vz": -0.2860826008595975
+      },
+      {
+        "id": "n8n/google calendar登録/UPDATE_REPORT_v3.md",
+        "name": "UPDATE_REPORT_v3.md",
+        "path": "n8n/google calendar登録/UPDATE_REPORT_v3.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録",
+        "childFileCount": 0,
+        "x": -29.530657330062024,
+        "y": 166.47149504052337,
+        "z": -62.64395058417003,
+        "vx": 0.02956343867177736,
+        "vy": 0.8563594845532426,
+        "vz": -0.20362304178954685
+      },
+      {
+        "id": "n8n/google calendar登録/workflow_update_instructions.md",
+        "name": "workflow_update_instructions.md",
+        "path": "n8n/google calendar登録/workflow_update_instructions.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/google calendar登録",
+        "childFileCount": 0,
+        "x": 45.10020536104644,
+        "y": 130.2337874425028,
+        "z": -22.00960877624944,
+        "vx": 0.3330376800717735,
+        "vy": 0.6012230976696207,
+        "vz": 0.2855523106100064
+      },
+      {
+        "id": "n8n/Google Drive M4A議事録自動生成",
+        "name": "Google Drive M4A議事録自動生成",
+        "path": "n8n/Google Drive M4A議事録自動生成",
+        "type": "directory",
+        "lines": 0,
+        "val": 14,
+        "color": "#4d515a",
+        "baseColor": "#4ec9b0",
+        "originalColor": "#4ec9b0",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n",
+        "childFileCount": 0,
+        "x": 182.99104744562666,
+        "y": -172.3793872999554,
+        "z": 21.326780381623998,
+        "vx": 0.42347238383386526,
+        "vy": -0.5892633338677835,
+        "vz": -0.25939769111932426
+      },
+      {
+        "id": "n8n/Google Drive M4A議事録自動生成/step0_AI設定",
+        "name": "step0_AI設定",
+        "path": "n8n/Google Drive M4A議事録自動生成/step0_AI設定",
+        "type": "directory",
+        "lines": 0,
+        "val": 14,
+        "color": "#4d515a",
+        "baseColor": "#4ec9b0",
+        "originalColor": "#4ec9b0",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/Google Drive M4A議事録自動生成",
+        "childFileCount": 2,
+        "x": 215.7542849253702,
+        "y": -169.9708463154773,
+        "z": -43.15512057311532,
+        "vx": 0.8319084755062124,
+        "vy": -0.7739503968514704,
+        "vz": -0.11852923886319408
+      },
+      {
+        "id": "n8n/Google Drive M4A議事録自動生成/step0_AI設定/AI設定確定書.json",
+        "name": "AI設定確定書.json",
+        "path": "n8n/Google Drive M4A議事録自動生成/step0_AI設定/AI設定確定書.json",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#8e44ad",
+        "baseColor": "#8e44ad",
+        "originalColor": "#8e44ad",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/Google Drive M4A議事録自動生成/step0_AI設定",
+        "childFileCount": 0,
+        "x": 243.99307506277182,
+        "y": -162.38165621653715,
+        "z": -65.88038900559627,
+        "vx": 1.053450534446278,
+        "vy": -0.8885378020754352,
+        "vz": -0.07113188269350061
+      },
+      {
+        "id": "n8n/Google Drive M4A議事録自動生成/step0_AI設定/README.md",
+        "name": "README.md",
+        "path": "n8n/Google Drive M4A議事録自動生成/step0_AI設定/README.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/Google Drive M4A議事録自動生成/step0_AI設定",
+        "childFileCount": 0,
+        "x": 226.22180799738135,
+        "y": -181.13797046041634,
+        "z": -78.19772023638049,
+        "vx": 1.055564600770334,
+        "vy": -0.9883675704927376,
+        "vz": -0.22999775372383685
+      },
+      {
+        "id": "n8n/Google Drive M4A議事録自動生成/step1_業務理解",
+        "name": "step1_業務理解",
+        "path": "n8n/Google Drive M4A議事録自動生成/step1_業務理解",
+        "type": "directory",
+        "lines": 0,
+        "val": 14,
+        "color": "#4d515a",
+        "baseColor": "#4ec9b0",
+        "originalColor": "#4ec9b0",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/Google Drive M4A議事録自動生成",
+        "childFileCount": 1,
+        "x": 163.93652442899318,
+        "y": -198.93529217012068,
+        "z": -19.04176372788348,
+        "vx": 0.6252372975752646,
+        "vy": -0.7023440708371088,
+        "vz": -0.22540409298564815
+      },
+      {
+        "id": "n8n/Google Drive M4A議事録自動生成/step1_業務理解/業務要件サマリー.md",
+        "name": "業務要件サマリー.md",
+        "path": "n8n/Google Drive M4A議事録自動生成/step1_業務理解/業務要件サマリー.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/Google Drive M4A議事録自動生成/step1_業務理解",
+        "childFileCount": 0,
+        "x": 155.26542748265,
+        "y": -223.75412698087314,
+        "z": -45.874626802608006,
+        "vx": 0.716334628983616,
+        "vy": -0.8563140880366084,
+        "vz": -0.27316774162043495
+      },
+      {
+        "id": "n8n/Google Drive M4A議事録自動生成/step2_構造化",
+        "name": "step2_構造化",
+        "path": "n8n/Google Drive M4A議事録自動生成/step2_構造化",
+        "type": "directory",
+        "lines": 0,
+        "val": 14,
+        "color": "#4d515a",
+        "baseColor": "#4ec9b0",
+        "originalColor": "#4ec9b0",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/Google Drive M4A議事録自動生成",
+        "childFileCount": 2,
+        "x": 208.89371033228934,
+        "y": -140.30684271540173,
+        "z": 75.83712688491022,
+        "vx": 0.630727968060786,
+        "vy": -0.650792083016681,
+        "vz": -0.10043791683078016
+      },
+      {
+        "id": "n8n/Google Drive M4A議事録自動生成/step2_構造化/8層フレームワーク構造.json",
+        "name": "8層フレームワーク構造.json",
+        "path": "n8n/Google Drive M4A議事録自動生成/step2_構造化/8層フレームワーク構造.json",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#8e44ad",
+        "baseColor": "#8e44ad",
+        "originalColor": "#8e44ad",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/Google Drive M4A議事録自動生成/step2_構造化",
+        "childFileCount": 0,
+        "x": 210.5129694358822,
+        "y": -129.87226444416953,
+        "z": 110.77752589336217,
+        "vx": 0.9260363735947018,
+        "vy": -0.6004774800198145,
+        "vz": 0.003310434416641942
+      },
+      {
+        "id": "n8n/Google Drive M4A議事録自動生成/step2_構造化/README.md",
+        "name": "README.md",
+        "path": "n8n/Google Drive M4A議事録自動生成/step2_構造化/README.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/Google Drive M4A議事録自動生成/step2_構造化",
+        "childFileCount": 0,
+        "x": 238.55445140432275,
+        "y": -128.39012380970536,
+        "z": 98.39810133153046,
+        "vx": 0.8165129851655307,
+        "vy": -0.5871992352900319,
+        "vz": -0.2195009063777385
+      },
+      {
+        "id": "n8n/Google Drive M4A議事録自動生成/step3_タスク分解",
+        "name": "step3_タスク分解",
+        "path": "n8n/Google Drive M4A議事録自動生成/step3_タスク分解",
+        "type": "directory",
+        "lines": 0,
+        "val": 14,
+        "color": "#4d515a",
+        "baseColor": "#4ec9b0",
+        "originalColor": "#4ec9b0",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/Google Drive M4A議事録自動生成",
+        "childFileCount": 2,
+        "x": 146.68995074369522,
+        "y": -219.58274248877728,
+        "z": 49.56616539480878,
+        "vx": 0.5222488842133278,
+        "vy": -0.7651184692920084,
+        "vz": -0.27909420266402785
+      },
+      {
+        "id": "n8n/Google Drive M4A議事録自動生成/step3_タスク分解/README.md",
+        "name": "README.md",
+        "path": "n8n/Google Drive M4A議事録自動生成/step3_タスク分解/README.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/Google Drive M4A議事録自動生成/step3_タスク分解",
+        "childFileCount": 0,
+        "x": 129.34933982756147,
+        "y": -234.65781435208987,
+        "z": 78.45126228156475,
+        "vx": 0.5141042591327187,
+        "vy": -0.9693844683424173,
+        "vz": -0.32359447821483106
+      },
+      {
+        "id": "n8n/Google Drive M4A議事録自動生成/step3_タスク分解/ノード分解計画.json",
+        "name": "ノード分解計画.json",
+        "path": "n8n/Google Drive M4A議事録自動生成/step3_タスク分解/ノード分解計画.json",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#8e44ad",
+        "baseColor": "#8e44ad",
+        "originalColor": "#8e44ad",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/Google Drive M4A議事録自動生成/step3_タスク分解",
+        "childFileCount": 0,
+        "x": 135.90591962507338,
+        "y": -255.8026971523458,
+        "z": 57.678931822307696,
+        "vx": 0.5498094181080667,
+        "vy": -0.909353740312666,
+        "vz": -0.42681127538193925
+      },
+      {
+        "id": "n8n/Google Drive M4A議事録自動生成/step4_パターン適用",
+        "name": "step4_パターン適用",
+        "path": "n8n/Google Drive M4A議事録自動生成/step4_パターン適用",
+        "type": "directory",
+        "lines": 0,
+        "val": 14,
+        "color": "#4d515a",
+        "baseColor": "#4ec9b0",
+        "originalColor": "#4ec9b0",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/Google Drive M4A議事録自動生成",
+        "childFileCount": 2,
+        "x": 208.00066649873452,
+        "y": -208.0240129182751,
+        "z": 80.45170917193597,
+        "vx": 0.6320214883065907,
+        "vy": -0.8396266803423665,
+        "vz": -0.23012916218223656
+      },
+      {
+        "id": "n8n/Google Drive M4A議事録自動生成/step4_パターン適用/README.md",
+        "name": "README.md",
+        "path": "n8n/Google Drive M4A議事録自動生成/step4_パターン適用/README.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/Google Drive M4A議事録自動生成/step4_パターン適用",
+        "childFileCount": 0,
+        "x": 226.06436236897093,
+        "y": -236.01016457838622,
+        "z": 97.63731922440618,
+        "vx": 0.7613067729999266,
+        "vy": -0.9126050037826865,
+        "vz": -0.18751470453483524
+      },
+      {
+        "id": "n8n/Google Drive M4A議事録自動生成/step4_パターン適用/ワークフローパターン設計.json",
+        "name": "ワークフローパターン設計.json",
+        "path": "n8n/Google Drive M4A議事録自動生成/step4_パターン適用/ワークフローパターン設計.json",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#8e44ad",
+        "baseColor": "#8e44ad",
+        "originalColor": "#8e44ad",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/Google Drive M4A議事録自動生成/step4_パターン適用",
+        "childFileCount": 0,
+        "x": 218.54766954671493,
+        "y": -217.15829853768798,
+        "z": 116.87078143703997,
+        "vx": 0.7249001183678956,
+        "vy": -1.039765978701908,
+        "vz": -0.17264130928416896
+      },
+      {
+        "id": "n8n/Google Drive M4A議事録自動生成/step5_n8n設計変換",
+        "name": "step5_n8n設計変換",
+        "path": "n8n/Google Drive M4A議事録自動生成/step5_n8n設計変換",
+        "type": "directory",
+        "lines": 0,
+        "val": 14,
+        "color": "#4d515a",
+        "baseColor": "#4ec9b0",
+        "originalColor": "#4ec9b0",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/Google Drive M4A議事録自動生成",
+        "childFileCount": 1,
+        "x": 221.6810330247739,
+        "y": -138.74341798365768,
+        "z": 15.230116829436298,
+        "vx": 0.5157392580396749,
+        "vy": -0.679115110690299,
+        "vz": -0.2899526932061009
+      },
+      {
+        "id": "n8n/Google Drive M4A議事録自動生成/step5_n8n設計変換/ノード選定とExpression設計.md",
+        "name": "ノード選定とExpression設計.md",
+        "path": "n8n/Google Drive M4A議事録自動生成/step5_n8n設計変換/ノード選定とExpression設計.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/Google Drive M4A議事録自動生成/step5_n8n設計変換",
+        "childFileCount": 0,
+        "x": 254.9905682095434,
+        "y": -120.35879147423736,
+        "z": 11.416372236052077,
+        "vx": 0.708060112318499,
+        "vy": -0.6999151471552133,
+        "vz": -0.1877741390710901
+      },
+      {
+        "id": "n8n/Google Drive M4A議事録自動生成/step6_AIエージェント配置",
+        "name": "step6_AIエージェント配置",
+        "path": "n8n/Google Drive M4A議事録自動生成/step6_AIエージェント配置",
+        "type": "directory",
+        "lines": 0,
+        "val": 14,
+        "color": "#4d515a",
+        "baseColor": "#4ec9b0",
+        "originalColor": "#4ec9b0",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/Google Drive M4A議事録自動生成",
+        "childFileCount": 1,
+        "x": 237.53316741986882,
+        "y": -185.0601489949377,
+        "z": 24.708408766294404,
+        "vx": 0.4431336854573848,
+        "vy": -0.7872343610379081,
+        "vz": -0.327235329498098
+      },
+      {
+        "id": "n8n/Google Drive M4A議事録自動生成/step6_AIエージェント配置/AIエージェント配置設計.md",
+        "name": "AIエージェント配置設計.md",
+        "path": "n8n/Google Drive M4A議事録自動生成/step6_AIエージェント配置/AIエージェント配置設計.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/Google Drive M4A議事録自動生成/step6_AIエージェント配置",
+        "childFileCount": 0,
+        "x": 276.19782605171827,
+        "y": -191.76022159919586,
+        "z": 26.992294739571268,
+        "vx": 0.6009310817502512,
+        "vy": -0.9126313807513553,
+        "vz": -0.2855281196869235
+      },
+      {
+        "id": "n8n/Google Drive M4A議事録自動生成/step7_完全JSON生成",
+        "name": "step7_完全JSON生成",
+        "path": "n8n/Google Drive M4A議事録自動生成/step7_完全JSON生成",
+        "type": "directory",
+        "lines": 0,
+        "val": 14,
+        "color": "#4d515a",
+        "baseColor": "#4ec9b0",
+        "originalColor": "#4ec9b0",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/Google Drive M4A議事録自動生成",
+        "childFileCount": 2,
+        "x": 215.9747825921897,
+        "y": -242.13514367158734,
+        "z": 5.443682523232209,
+        "vx": 0.7273904399518083,
+        "vy": -0.7305941114373283,
+        "vz": -0.2634540742561166
+      },
+      {
+        "id": "n8n/Google Drive M4A議事録自動生成/step7_完全JSON生成/README.md",
+        "name": "README.md",
+        "path": "n8n/Google Drive M4A議事録自動生成/step7_完全JSON生成/README.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/Google Drive M4A議事録自動生成/step7_完全JSON生成",
+        "childFileCount": 0,
+        "x": 216.05450109101878,
+        "y": -278.75915625338894,
+        "z": 0.34825052498375897,
+        "vx": 1.0694306820800927,
+        "vy": -0.8962391978815027,
+        "vz": -0.20402364878542512
+      },
+      {
+        "id": "n8n/Google Drive M4A議事録自動生成/step7_完全JSON生成/メインワークフロー.json",
+        "name": "メインワークフロー.json",
+        "path": "n8n/Google Drive M4A議事録自動生成/step7_完全JSON生成/メインワークフロー.json",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#8e44ad",
+        "baseColor": "#8e44ad",
+        "originalColor": "#8e44ad",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/Google Drive M4A議事録自動生成/step7_完全JSON生成",
+        "childFileCount": 0,
+        "x": 242.7528506599105,
+        "y": -269.3240268817584,
+        "z": -2.8300609644438945,
+        "vx": 0.9595685719496061,
+        "vy": -0.7390001504158147,
+        "vz": -0.1894878909512035
+      },
+      {
+        "id": "n8n/Google Meet議事録自動化",
+        "name": "Google Meet議事録自動化",
+        "path": "n8n/Google Meet議事録自動化",
+        "type": "directory",
+        "lines": 0,
+        "val": 14,
+        "color": "#4d515a",
+        "baseColor": "#4ec9b0",
+        "originalColor": "#4ec9b0",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n",
+        "childFileCount": 2,
+        "x": 96.38125784412469,
+        "y": -16.31487931355705,
+        "z": -19.171067083002885,
+        "vx": -0.12125516966334249,
+        "vy": -0.4874550701224473,
+        "vz": -0.42203756538737924
+      },
+      {
+        "id": "n8n/Google Meet議事録自動化/Google Meet議事録自動化.json",
+        "name": "Google Meet議事録自動化.json",
+        "path": "n8n/Google Meet議事録自動化/Google Meet議事録自動化.json",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#8e44ad",
+        "baseColor": "#8e44ad",
+        "originalColor": "#8e44ad",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/Google Meet議事録自動化",
+        "childFileCount": 0,
+        "x": 131.12002334359585,
+        "y": -25.590045751764208,
+        "z": -20.682755716852558,
+        "vx": 0.0826810743991971,
+        "vy": -0.5830323567124231,
+        "vz": -0.99095529528626
+      },
+      {
+        "id": "n8n/Google Meet議事録自動化/議事録自動化エラー通知.json",
+        "name": "議事録自動化エラー通知.json",
+        "path": "n8n/Google Meet議事録自動化/議事録自動化エラー通知.json",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#8e44ad",
+        "baseColor": "#8e44ad",
+        "originalColor": "#8e44ad",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/Google Meet議事録自動化",
+        "childFileCount": 0,
+        "x": 128.50637278345698,
+        "y": 2.9742813692187626,
+        "z": -15.152709824723448,
+        "vx": 0.27179478451888184,
+        "vy": -0.5419235519417507,
+        "vz": -0.66299466255082
+      },
+      {
+        "id": "n8n/prompt - n8nワークフロー自動設計",
+        "name": "prompt - n8nワークフロー自動設計",
+        "path": "n8n/prompt - n8nワークフロー自動設計",
+        "type": "directory",
+        "lines": 0,
+        "val": 14,
+        "color": "#4d515a",
+        "baseColor": "#4ec9b0",
+        "originalColor": "#4ec9b0",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n",
+        "childFileCount": 11,
+        "x": -124.09270409064413,
+        "y": -105.408992076261,
+        "z": -30.102370090204115,
+        "vx": -0.2398187816334843,
+        "vy": -0.011703086961359343,
+        "vz": 0.14549065005442205
+      },
+      {
+        "id": "n8n/prompt - n8nワークフロー自動設計/old",
+        "name": "old",
+        "path": "n8n/prompt - n8nワークフロー自動設計/old",
+        "type": "directory",
+        "lines": 0,
+        "val": 14,
+        "color": "#4d515a",
+        "baseColor": "#4ec9b0",
+        "originalColor": "#4ec9b0",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": false,
+        "parentPath": "n8n/prompt - n8nワークフロー自動設計",
+        "childFileCount": 11,
+        "x": -267.82051893070053,
+        "y": -140.75775101130364,
+        "z": -8.074377372029781,
+        "vx": -0.1503979936434716,
+        "vy": -1.1002063007125602,
+        "vz": -1.009660906028629
+      },
+      {
+        "id": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計.md",
+        "name": "プロンプト - n8nワークフロー自動設計.md",
+        "path": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/prompt - n8nワークフロー自動設計/old",
+        "childFileCount": 0,
+        "x": -278.6996844562432,
+        "y": -103.23288144451065,
+        "z": -16.574809022826308,
+        "vx": -0.34032490792034453,
+        "vy": -1.2501764207448964,
+        "vz": -1.3205764009355985
+      },
+      {
+        "id": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v10（Add sticky noteを追加）.md",
+        "name": "プロンプト - n8nワークフロー自動設計v10（Add sticky noteを追加）.md",
+        "path": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v10（Add sticky noteを追加）.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/prompt - n8nワークフロー自動設計/old",
+        "childFileCount": 0,
+        "x": -299.44502680355595,
+        "y": -141.65456699861875,
+        "z": 19.854706269444215,
+        "vx": -0.12111215524934113,
+        "vy": -1.04907308130643,
+        "vz": -0.8428919748036403
+      },
+      {
+        "id": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v11(Sticky Note詳細化).md",
+        "name": "プロンプト - n8nワークフロー自動設計v11(Sticky Note詳細化).md",
+        "path": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v11(Sticky Note詳細化).md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/prompt - n8nワークフロー自動設計/old",
+        "childFileCount": 0,
+        "x": -267.45880582104905,
+        "y": -180.51498226507726,
+        "z": -4.448065465067452,
+        "vx": -0.0491356491766961,
+        "vy": -1.0487659787663306,
+        "vz": -1.0519719837575663
+      },
+      {
+        "id": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v2.md",
+        "name": "プロンプト - n8nワークフロー自動設計v2.md",
+        "path": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v2.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/prompt - n8nワークフロー自動設計/old",
+        "childFileCount": 0,
+        "x": -293.0059796690699,
+        "y": -169.8545513111841,
+        "z": 10.25926052003686,
+        "vx": -0.11999787396647194,
+        "vy": -1.2761567487301755,
+        "vz": -1.2698922950007634
+      },
+      {
+        "id": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v3.md",
+        "name": "プロンプト - n8nワークフロー自動設計v3.md",
+        "path": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v3.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/prompt - n8nワークフロー自動設計/old",
+        "childFileCount": 0,
+        "x": -269.1307520116869,
+        "y": -127.88816047315511,
+        "z": 31.377818070354955,
+        "vx": -0.33035661179046316,
+        "vy": -1.2945987368661187,
+        "vz": -0.9646067915740718
+      },
+      {
+        "id": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v4（AIエージェント分離）.md",
+        "name": "プロンプト - n8nワークフロー自動設計v4（AIエージェント分離）.md",
+        "path": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v4（AIエージェント分離）.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/prompt - n8nワークフロー自動設計/old",
+        "childFileCount": 0,
+        "x": -305.3183603786006,
+        "y": -158.1903389625721,
+        "z": -17.761615682237572,
+        "vx": -0.11070061758978589,
+        "vy": -1.2023766330987498,
+        "vz": -0.9859712050530528
+      },
+      {
+        "id": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v5（LLMの選択を自由にする）.md",
+        "name": "プロンプト - n8nワークフロー自動設計v5（LLMの選択を自由にする）.md",
+        "path": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v5（LLMの選択を自由にする）.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/prompt - n8nワークフロー自動設計/old",
+        "childFileCount": 0,
+        "x": -293.0588754047059,
+        "y": -113.25561496697021,
+        "z": 13.255713470535559,
+        "vx": -0.14545339767605703,
+        "vy": -1.0923077200863098,
+        "vz": -1.1189100988328744
+      },
+      {
+        "id": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v6（ノード情報参照追加）.md",
+        "name": "プロンプト - n8nワークフロー自動設計v6（ノード情報参照追加）.md",
+        "path": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v6（ノード情報参照追加）.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/prompt - n8nワークフロー自動設計/old",
+        "childFileCount": 0,
+        "x": -310.9583925608753,
+        "y": -130.5733690590458,
+        "z": -7.715444033994385,
+        "vx": -0.101870211941236,
+        "vy": -1.2181554525643068,
+        "vz": -1.2606582049910564
+      },
+      {
+        "id": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v7（ai-agentツールの変更）.md",
+        "name": "プロンプト - n8nワークフロー自動設計v7（ai-agentツールの変更）.md",
+        "path": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v7（ai-agentツールの変更）.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/prompt - n8nワークフロー自動設計/old",
+        "childFileCount": 0,
+        "x": -296.10425340914657,
+        "y": -128.92673689591663,
+        "z": -36.534167750206954,
+        "vx": -0.16718753624707033,
+        "vy": -1.5605167980262844,
+        "vz": -1.077087359249582
+      },
+      {
+        "id": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v8（n8n-mcpは指定があるときのみ使用） copy.md",
+        "name": "プロンプト - n8nワークフロー自動設計v8（n8n-mcpは指定があるときのみ使用） copy.md",
+        "path": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v8（n8n-mcpは指定があるときのみ使用） copy.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/prompt - n8nワークフロー自動設計/old",
+        "childFileCount": 0,
+        "x": -284.6813785365355,
+        "y": -166.6492973058923,
+        "z": -35.599995423295844,
+        "vx": 0.13931529983221488,
+        "vy": -0.8560718041705351,
+        "vz": -1.3428567457671587
+      },
+      {
+        "id": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v9（jsonに説明を追加）.md",
+        "name": "プロンプト - n8nワークフロー自動設計v9（jsonに説明を追加）.md",
+        "path": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v9（jsonに説明を追加）.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/prompt - n8nワークフロー自動設計/old",
+        "childFileCount": 0,
+        "x": -271.4071969303052,
+        "y": -161.25808673064995,
+        "z": 28.67112253705093,
+        "vx": -0.6178807397112075,
+        "vy": -1.4757931640022321,
+        "vz": -1.2907656935877905
+      },
+      {
+        "id": "n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v11.md",
+        "name": "CHANGELOG_v11.md",
+        "path": "n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v11.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/prompt - n8nワークフロー自動設計",
+        "childFileCount": 0,
+        "x": -152.51005648074116,
+        "y": -126.34543900564879,
+        "z": -52.59891794287396,
+        "vx": -0.039866300364136374,
+        "vy": 0.16449887563816545,
+        "vz": 0.018857202386786197
+      },
+      {
+        "id": "n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v12_abstraction.md",
+        "name": "CHANGELOG_v12_abstraction.md",
+        "path": "n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v12_abstraction.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/prompt - n8nワークフロー自動設計",
+        "childFileCount": 0,
+        "x": -157.4210517673088,
+        "y": -122.3858258956084,
+        "z": -16.198623756149615,
+        "vx": -0.04967206444969936,
+        "vy": 0.1659643005090872,
+        "vz": 0.2809866781558379
+      },
+      {
+        "id": "n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v12_spacing_adjustment.md",
+        "name": "CHANGELOG_v12_spacing_adjustment.md",
+        "path": "n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v12_spacing_adjustment.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/prompt - n8nワークフロー自動設計",
+        "childFileCount": 0,
+        "x": -132.09054608651863,
+        "y": -130.5275111228962,
+        "z": 2.4195315098316783,
+        "vx": -0.12436200184982515,
+        "vy": 0.23458219385749077,
+        "vz": 0.1812046167056481
+      },
+      {
+        "id": "n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v12.md",
+        "name": "CHANGELOG_v12.md",
+        "path": "n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v12.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/prompt - n8nワークフロー自動設計",
+        "childFileCount": 0,
+        "x": -114.90903762614906,
+        "y": -107.81837805361066,
+        "z": -69.56350897928606,
+        "vx": -0.1090613082585523,
+        "vy": 0.08604067312705788,
+        "vz": 0.02263894167755236
+      },
+      {
+        "id": "n8n/prompt - n8nワークフロー自動設計/validation_report.md",
+        "name": "validation_report.md",
+        "path": "n8n/prompt - n8nワークフロー自動設計/validation_report.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/prompt - n8nワークフロー自動設計",
+        "childFileCount": 0,
+        "x": -104.69306783966378,
+        "y": -118.16730418639538,
+        "z": 1.7467228063212694,
+        "vx": -0.07940431610312182,
+        "vy": 0.082023041046387,
+        "vz": 0.09079017054359202
+      },
+      {
+        "id": "n8n/prompt - n8nワークフロー自動設計/ナレッジ - n8nワークフロー自動設計.md",
+        "name": "ナレッジ - n8nワークフロー自動設計.md",
+        "path": "n8n/prompt - n8nワークフロー自動設計/ナレッジ - n8nワークフロー自動設計.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/prompt - n8nワークフロー自動設計",
+        "childFileCount": 0,
+        "x": -159.11550177541574,
+        "y": -95.69726478042763,
+        "z": -50.23454839732843,
+        "vx": -0.2118276610842694,
+        "vy": 0.35938769129685405,
+        "vz": 0.5115661191549657
+      },
+      {
+        "id": "n8n/prompt - n8nワークフロー自動設計/ナレッジ - n8nワークフロー自動設計（AI-agent）.md",
+        "name": "ナレッジ - n8nワークフロー自動設計（AI-agent）.md",
+        "path": "n8n/prompt - n8nワークフロー自動設計/ナレッジ - n8nワークフロー自動設計（AI-agent）.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/prompt - n8nワークフロー自動設計",
+        "childFileCount": 0,
+        "x": -126.31560143209614,
+        "y": -134.17003254492687,
+        "z": -62.600059506343044,
+        "vx": 0.0012169446922007771,
+        "vy": 0.17217161942112516,
+        "vz": 0.12463484350542867
+      },
+      {
+        "id": "n8n/prompt - n8nワークフロー自動設計/ナレッジ - n8nワークフロー自動設計（n8n-MCP）.md",
+        "name": "ナレッジ - n8nワークフロー自動設計（n8n-MCP）.md",
+        "path": "n8n/prompt - n8nワークフロー自動設計/ナレッジ - n8nワークフロー自動設計（n8n-MCP）.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/prompt - n8nワークフロー自動設計",
+        "childFileCount": 0,
+        "x": -137.96578479560412,
+        "y": -82.43873295298395,
+        "z": -60.922463186617804,
+        "vx": -0.08807271915017453,
+        "vy": 0.03474437559966448,
+        "vz": 0.03346961137948334
+      },
+      {
+        "id": "n8n/prompt - n8nワークフロー自動設計/プロンプト - n8nワークフロー自動設計v12(Sticky Noteにノード名を記述).md",
+        "name": "プロンプト - n8nワークフロー自動設計v12(Sticky Noteにノード名を記述).md",
+        "path": "n8n/prompt - n8nワークフロー自動設計/プロンプト - n8nワークフロー自動設計v12(Sticky Noteにノード名を記述).md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/prompt - n8nワークフロー自動設計",
+        "childFileCount": 0,
+        "x": -131.09543581398643,
+        "y": -148.30008190660692,
+        "z": -29.48033781094174,
+        "vx": -0.034618216507446294,
+        "vy": 0.16061917923124613,
+        "vz": 0.08748569595956403
+      },
+      {
+        "id": "n8n/prompt - n8nワークフロー自動設計/作成シート - n8nワークフロー自動設計.md",
+        "name": "作成シート - n8nワークフロー自動設計.md",
+        "path": "n8n/prompt - n8nワークフロー自動設計/作成シート - n8nワークフロー自動設計.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/prompt - n8nワークフロー自動設計",
+        "childFileCount": 0,
+        "x": -149.11856044470517,
+        "y": -87.57762113453845,
+        "z": -5.423028897958451,
+        "vx": -0.301673256436961,
+        "vy": 0.12415441710752177,
+        "vz": 0.08422292006258199
+      },
+      {
+        "id": "n8n/prompt - n8nワークフロー自動設計/説明 - n8nワークフロー自動設計.md",
+        "name": "説明 - n8nワークフロー自動設計.md",
+        "path": "n8n/prompt - n8nワークフロー自動設計/説明 - n8nワークフロー自動設計.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#3498db",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n/prompt - n8nワークフロー自動設計",
+        "childFileCount": 0,
+        "x": -101.25184871344044,
+        "y": -138.08059524881727,
+        "z": -41.27162367558952,
+        "vx": 0.05336858773783626,
+        "vy": 0.2539481811443657,
+        "vz": 0.20912821491782987
+      },
+      {
+        "id": "n8n/.DS_Store",
+        "name": ".DS_Store",
+        "path": "n8n/.DS_Store",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#57606f",
+        "baseColor": "#57606f",
+        "originalColor": "#57606f",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n",
+        "childFileCount": 0,
+        "x": 2.0515792859825197,
+        "y": -37.128541195957986,
+        "z": 0.5877824152170665,
+        "vx": 0.07409314906476151,
+        "vy": 0.21260011712024815,
+        "vz": 0.2027119450068951
+      },
+      {
+        "id": "n8n/arxiv.json",
+        "name": "arxiv.json",
+        "path": "n8n/arxiv.json",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#8e44ad",
+        "baseColor": "#8e44ad",
+        "originalColor": "#8e44ad",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n",
+        "childFileCount": 0,
+        "x": 58.441747564586606,
+        "y": -46.343093613870465,
+        "z": -38.52419229006496,
+        "vx": -0.14104129137591506,
+        "vy": -0.18137168084475275,
+        "vz": -0.055685193110009745
+      },
+      {
+        "id": "n8n/calendar-gpt.json",
+        "name": "calendar-gpt.json",
+        "path": "n8n/calendar-gpt.json",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#8e44ad",
+        "baseColor": "#8e44ad",
+        "originalColor": "#8e44ad",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n",
+        "childFileCount": 0,
+        "x": 23.667426496409544,
+        "y": -64.14808916529518,
+        "z": -31.24337480219706,
+        "vx": 0.03912460151922914,
+        "vy": 0.1386787413510272,
+        "vz": 0.36616975499549603
+      },
+      {
+        "id": "n8n/calendar.json",
+        "name": "calendar.json",
+        "path": "n8n/calendar.json",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#8e44ad",
+        "baseColor": "#8e44ad",
+        "originalColor": "#8e44ad",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.18,
+        "highlighted": true,
+        "parentPath": "n8n",
+        "childFileCount": 0,
+        "x": 19.611568572742293,
+        "y": -43.967627430733,
+        "z": -55.798166454869914,
+        "vx": -0.2916807801308708,
+        "vy": 0.3172838382142784,
+        "vz": 0.28646348921886206
+      }
+    ],
+    "links": [
+      {
+        "source": "n8n",
+        "target": "n8n/.claude",
+        "type": "tree"
+      },
+      {
+        "source": "n8n",
+        "target": "n8n/.kamui",
+        "type": "tree"
+      },
+      {
+        "source": "n8n",
+        "target": "n8n/google calendar登録",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録",
+        "target": "n8n/google calendar登録/old",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録/old",
+        "target": "n8n/google calendar登録/old/Discord連携Googleカレンダー自動予定管理_ErrorHandling.json",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録/old",
+        "target": "n8n/google calendar登録/old/Discord連携Googleカレンダー自動予定管理.json",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録/old",
+        "target": "n8n/google calendar登録/old/step7_complete_n8n_workflow_CORRECTED.json",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録/old",
+        "target": "n8n/google calendar登録/old/step7_complete_n8n_workflow_NATIVE_NODES_v2.json",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録/old",
+        "target": "n8n/google calendar登録/old/step7_complete_n8n_workflow_NATIVE_NODES_v3.json",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録/old",
+        "target": "n8n/google calendar登録/old/step7_complete_n8n_workflow_NATIVE_NODES.json",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録/old",
+        "target": "n8n/google calendar登録/old/step7_complete_n8n_workflow.json",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録/old",
+        "target": "n8n/google calendar登録/old/step8_error_workflow_CORRECTED_v2.json",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録/old",
+        "target": "n8n/google calendar登録/old/step8_error_workflow_CORRECTED.json",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録/old",
+        "target": "n8n/google calendar登録/old/step8_error_workflow.json",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録",
+        "target": "n8n/google calendar登録/プロンプト",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録/プロンプト",
+        "target": "n8n/google calendar登録/プロンプト/【AI Agent 1】Discord予定抽出-プロンプト.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録/プロンプト",
+        "target": "n8n/google calendar登録/プロンプト/【AI Agent 1】Discord予定抽出-プロンプトシート.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録",
+        "target": "n8n/google calendar登録/CORRECTION_REPORT.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録",
+        "target": "n8n/google calendar登録/DIRECTORY_STRUCTURE.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録",
+        "target": "n8n/google calendar登録/Discord設定ガイド.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録",
+        "target": "n8n/google calendar登録/IMPROVEMENTS_v2.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録",
+        "target": "n8n/google calendar登録/MANUAL_UPDATE_GUIDE.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録",
+        "target": "n8n/google calendar登録/NATIVE_NODES_CORRECTION.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録",
+        "target": "n8n/google calendar登録/README_FINAL.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録",
+        "target": "n8n/google calendar登録/relative_date_converter.js",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録",
+        "target": "n8n/google calendar登録/step0_ai_config.json",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録",
+        "target": "n8n/google calendar登録/step1_business_requirements.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録",
+        "target": "n8n/google calendar登録/step10_final_package.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録",
+        "target": "n8n/google calendar登録/step2_layered_structure.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録",
+        "target": "n8n/google calendar登録/step3_task_breakdown.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録",
+        "target": "n8n/google calendar登録/step4_pattern_application.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録",
+        "target": "n8n/google calendar登録/step5_n8n_design.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録",
+        "target": "n8n/google calendar登録/step6_ai_agent_deployment.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録",
+        "target": "n8n/google calendar登録/step7_complete_n8n_workflow_NATIVE_NODES_v4.json",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録",
+        "target": "n8n/google calendar登録/step7_workflow_implementation_guide.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録",
+        "target": "n8n/google calendar登録/step7.5_connection_verification.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録",
+        "target": "n8n/google calendar登録/step7.5_validation_report.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録",
+        "target": "n8n/google calendar登録/step8_connection_verification_report.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録",
+        "target": "n8n/google calendar登録/step8_correction_report.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録",
+        "target": "n8n/google calendar登録/step8_error_workflow_CORRECTED_v3.json",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録",
+        "target": "n8n/google calendar登録/step8_error_workflow_documentation.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録",
+        "target": "n8n/google calendar登録/step9_implementation_guide.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録",
+        "target": "n8n/google calendar登録/STICKY_NOTE_NODE_LIST_GUIDE.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録",
+        "target": "n8n/google calendar登録/UPDATE_REPORT_v3.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/google calendar登録",
+        "target": "n8n/google calendar登録/workflow_update_instructions.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n",
+        "target": "n8n/Google Drive M4A議事録自動生成",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/Google Drive M4A議事録自動生成",
+        "target": "n8n/Google Drive M4A議事録自動生成/step0_AI設定",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/Google Drive M4A議事録自動生成/step0_AI設定",
+        "target": "n8n/Google Drive M4A議事録自動生成/step0_AI設定/AI設定確定書.json",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/Google Drive M4A議事録自動生成/step0_AI設定",
+        "target": "n8n/Google Drive M4A議事録自動生成/step0_AI設定/README.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/Google Drive M4A議事録自動生成",
+        "target": "n8n/Google Drive M4A議事録自動生成/step1_業務理解",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/Google Drive M4A議事録自動生成/step1_業務理解",
+        "target": "n8n/Google Drive M4A議事録自動生成/step1_業務理解/業務要件サマリー.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/Google Drive M4A議事録自動生成",
+        "target": "n8n/Google Drive M4A議事録自動生成/step2_構造化",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/Google Drive M4A議事録自動生成/step2_構造化",
+        "target": "n8n/Google Drive M4A議事録自動生成/step2_構造化/8層フレームワーク構造.json",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/Google Drive M4A議事録自動生成/step2_構造化",
+        "target": "n8n/Google Drive M4A議事録自動生成/step2_構造化/README.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/Google Drive M4A議事録自動生成",
+        "target": "n8n/Google Drive M4A議事録自動生成/step3_タスク分解",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/Google Drive M4A議事録自動生成/step3_タスク分解",
+        "target": "n8n/Google Drive M4A議事録自動生成/step3_タスク分解/README.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/Google Drive M4A議事録自動生成/step3_タスク分解",
+        "target": "n8n/Google Drive M4A議事録自動生成/step3_タスク分解/ノード分解計画.json",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/Google Drive M4A議事録自動生成",
+        "target": "n8n/Google Drive M4A議事録自動生成/step4_パターン適用",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/Google Drive M4A議事録自動生成/step4_パターン適用",
+        "target": "n8n/Google Drive M4A議事録自動生成/step4_パターン適用/README.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/Google Drive M4A議事録自動生成/step4_パターン適用",
+        "target": "n8n/Google Drive M4A議事録自動生成/step4_パターン適用/ワークフローパターン設計.json",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/Google Drive M4A議事録自動生成",
+        "target": "n8n/Google Drive M4A議事録自動生成/step5_n8n設計変換",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/Google Drive M4A議事録自動生成/step5_n8n設計変換",
+        "target": "n8n/Google Drive M4A議事録自動生成/step5_n8n設計変換/ノード選定とExpression設計.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/Google Drive M4A議事録自動生成",
+        "target": "n8n/Google Drive M4A議事録自動生成/step6_AIエージェント配置",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/Google Drive M4A議事録自動生成/step6_AIエージェント配置",
+        "target": "n8n/Google Drive M4A議事録自動生成/step6_AIエージェント配置/AIエージェント配置設計.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/Google Drive M4A議事録自動生成",
+        "target": "n8n/Google Drive M4A議事録自動生成/step7_完全JSON生成",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/Google Drive M4A議事録自動生成/step7_完全JSON生成",
+        "target": "n8n/Google Drive M4A議事録自動生成/step7_完全JSON生成/README.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/Google Drive M4A議事録自動生成/step7_完全JSON生成",
+        "target": "n8n/Google Drive M4A議事録自動生成/step7_完全JSON生成/メインワークフロー.json",
+        "type": "tree"
+      },
+      {
+        "source": "n8n",
+        "target": "n8n/Google Meet議事録自動化",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/Google Meet議事録自動化",
+        "target": "n8n/Google Meet議事録自動化/Google Meet議事録自動化.json",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/Google Meet議事録自動化",
+        "target": "n8n/Google Meet議事録自動化/議事録自動化エラー通知.json",
+        "type": "tree"
+      },
+      {
+        "source": "n8n",
+        "target": "n8n/prompt - n8nワークフロー自動設計",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/prompt - n8nワークフロー自動設計",
+        "target": "n8n/prompt - n8nワークフロー自動設計/old",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/prompt - n8nワークフロー自動設計/old",
+        "target": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/prompt - n8nワークフロー自動設計/old",
+        "target": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v10（Add sticky noteを追加）.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/prompt - n8nワークフロー自動設計/old",
+        "target": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v11(Sticky Note詳細化).md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/prompt - n8nワークフロー自動設計/old",
+        "target": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v2.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/prompt - n8nワークフロー自動設計/old",
+        "target": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v3.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/prompt - n8nワークフロー自動設計/old",
+        "target": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v4（AIエージェント分離）.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/prompt - n8nワークフロー自動設計/old",
+        "target": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v5（LLMの選択を自由にする）.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/prompt - n8nワークフロー自動設計/old",
+        "target": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v6（ノード情報参照追加）.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/prompt - n8nワークフロー自動設計/old",
+        "target": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v7（ai-agentツールの変更）.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/prompt - n8nワークフロー自動設計/old",
+        "target": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v8（n8n-mcpは指定があるときのみ使用） copy.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/prompt - n8nワークフロー自動設計/old",
+        "target": "n8n/prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v9（jsonに説明を追加）.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/prompt - n8nワークフロー自動設計",
+        "target": "n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v11.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/prompt - n8nワークフロー自動設計",
+        "target": "n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v12_abstraction.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/prompt - n8nワークフロー自動設計",
+        "target": "n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v12_spacing_adjustment.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/prompt - n8nワークフロー自動設計",
+        "target": "n8n/prompt - n8nワークフロー自動設計/CHANGELOG_v12.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/prompt - n8nワークフロー自動設計",
+        "target": "n8n/prompt - n8nワークフロー自動設計/validation_report.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/prompt - n8nワークフロー自動設計",
+        "target": "n8n/prompt - n8nワークフロー自動設計/ナレッジ - n8nワークフロー自動設計.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/prompt - n8nワークフロー自動設計",
+        "target": "n8n/prompt - n8nワークフロー自動設計/ナレッジ - n8nワークフロー自動設計（AI-agent）.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/prompt - n8nワークフロー自動設計",
+        "target": "n8n/prompt - n8nワークフロー自動設計/ナレッジ - n8nワークフロー自動設計（n8n-MCP）.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/prompt - n8nワークフロー自動設計",
+        "target": "n8n/prompt - n8nワークフロー自動設計/プロンプト - n8nワークフロー自動設計v12(Sticky Noteにノード名を記述).md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/prompt - n8nワークフロー自動設計",
+        "target": "n8n/prompt - n8nワークフロー自動設計/作成シート - n8nワークフロー自動設計.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n/prompt - n8nワークフロー自動設計",
+        "target": "n8n/prompt - n8nワークフロー自動設計/説明 - n8nワークフロー自動設計.md",
+        "type": "tree"
+      },
+      {
+        "source": "n8n",
+        "target": "n8n/.DS_Store",
+        "type": "tree"
+      },
+      {
+        "source": "n8n",
+        "target": "n8n/arxiv.json",
+        "type": "tree"
+      },
+      {
+        "source": "n8n",
+        "target": "n8n/calendar-gpt.json",
+        "type": "tree"
+      },
+      {
+        "source": "n8n",
+        "target": "n8n/calendar.json",
+        "type": "tree"
+      }
+    ]
+  },
+  "trackedFiles": [
+    ".claude/agents/プロンプト - n8nワークフロー自動設計v12(Sticky Noteにノード名を記述).md",
+    ".claude/settings.local.json",
+    "Google Drive M4A議事録自動生成/step0_AI設定/AI設定確定書.json",
+    "Google Drive M4A議事録自動生成/step0_AI設定/README.md",
+    "Google Drive M4A議事録自動生成/step1_業務理解/業務要件サマリー.md",
+    "Google Drive M4A議事録自動生成/step2_構造化/8層フレームワーク構造.json",
+    "Google Drive M4A議事録自動生成/step2_構造化/README.md",
+    "Google Drive M4A議事録自動生成/step3_タスク分解/README.md",
+    "Google Drive M4A議事録自動生成/step3_タスク分解/ノード分解計画.json",
+    "Google Drive M4A議事録自動生成/step4_パターン適用/README.md",
+    "Google Drive M4A議事録自動生成/step4_パターン適用/ワークフローパターン設計.json",
+    "Google Drive M4A議事録自動生成/step5_n8n設計変換/ノード選定とExpression設計.md",
+    "Google Drive M4A議事録自動生成/step6_AIエージェント配置/AIエージェント配置設計.md",
+    "Google Drive M4A議事録自動生成/step7_完全JSON生成/README.md",
+    "Google Drive M4A議事録自動生成/step7_完全JSON生成/メインワークフロー.json"
+  ],
+  "uiState": {
+    "expandedDirs": [
+      "n8n",
+      "n8n/n8n",
+      "n8n/.kamui",
+      "n8n/n8n/.kamui",
+      "n8n/.kamui/prompt",
+      "n8n/n8n/.kamui/prompt",
+      "n8n/Google Meet議事録自動化",
+      "n8n/n8n/Google Meet議事録自動化",
+      "n8n/google calendar登録",
+      "n8n/n8n/google calendar登録",
+      "n8n/google calendar登録/old",
+      "n8n/n8n/google calendar登録/old",
+      "n8n/google calendar登録/プロンプト",
+      "n8n/n8n/google calendar登録/プロンプト",
+      "n8n/prompt - n8nワークフロー自動設計",
+      "n8n/n8n/prompt - n8nワークフロー自動設計",
+      "n8n/prompt - n8nワークフロー自動設計/old",
+      "n8n/n8n/prompt - n8nワークフロー自動設計/old"
+    ],
+    "selectedPath": null
+  },
+  "directoryTreeMeta": {
+    "mode": "full",
+    "maxDepthApplied": 10,
+    "maxEntriesPerDirectory": 0,
+    "isPartial": false
+  },
+  "gitHistoryMeta": {
+    "mode": "full",
+    "isPartial": false,
+    "branchPulse": {
+      "generatedAt": 1762583835715,
+      "targets": [
+        "feature/google-drive-m4a-minutes-generator",
+        "main",
+        "master"
+      ],
+      "statsByBranch": {
+        "feature/google-drive-m4a-minutes-generator": {
+          "branch": "feature/google-drive-m4a-minutes-generator",
+          "head": "1bcdf74a38a5c32f9564736e5b8f07624546301d",
+          "baseRef": null,
+          "baseHead": null,
+          "mergeBase": "1bcdf74a38a5c32f9564736e5b8f07624546301d",
+          "divergence": {
+            "aheadCount": 0,
+            "fileCount": 0
+          },
+          "baseline": null,
+          "upstream": null
+        }
+      }
+    }
+  },
+  "gitHistoryState": {
+    "selectedTimelineIndex": 1,
+    "activeCommitHash": null,
+    "entries": [
+      {
+        "type": "live",
+        "label": "現在のコードベース",
+        "files": [],
+        "branch": "feature/google-drive-m4a-minutes-generator",
+        "targetCommitHash": "1bcdf74a38a5c32f9564736e5b8f07624546301d",
+        "worktreePath": "/Users/dm/dev/dev/ObsidianMemo/05_Project/n8n",
+        "timestamp": 1762583836313,
+        "lane": 1,
+        "branchLabel": "feature/google-drive-m4a-minutes-generator",
+        "branchTags": [
+          "feature/google-drive-m4a-minutes-generator"
+        ],
+        "isDefaultWorktree": true,
+        "branchColor": "#e84f7f",
+        "index": 0
+      },
+      {
+        "type": "unstaged",
+        "label": "未ステージ (71)",
+        "files": [
+          ".DS_Store",
+          ".kamui/model-versions-cache.json",
+          ".kamui/prompt/merge-prompt.txt",
+          ".kamui/system-graph-state.json",
+          "Google Meet議事録自動化/Google Meet議事録自動化.json",
+          "Google Meet議事録自動化/議事録自動化エラー通知.json",
+          "arxiv.json",
+          "calendar-gpt.json",
+          "calendar.json",
+          "google calendar登録/CORRECTION_REPORT.md",
+          "google calendar登録/DIRECTORY_STRUCTURE.md",
+          "google calendar登録/Discord設定ガイド.md",
+          "google calendar登録/IMPROVEMENTS_v2.md",
+          "google calendar登録/MANUAL_UPDATE_GUIDE.md",
+          "google calendar登録/NATIVE_NODES_CORRECTION.md",
+          "google calendar登録/README_FINAL.md",
+          "google calendar登録/STICKY_NOTE_NODE_LIST_GUIDE.md",
+          "google calendar登録/UPDATE_REPORT_v3.md",
+          "google calendar登録/old/Discord連携Googleカレンダー自動予定管理.json",
+          "google calendar登録/old/Discord連携Googleカレンダー自動予定管理_ErrorHandling.json",
+          "google calendar登録/old/step7_complete_n8n_workflow.json",
+          "google calendar登録/old/step7_complete_n8n_workflow_CORRECTED.json",
+          "google calendar登録/old/step7_complete_n8n_workflow_NATIVE_NODES.json",
+          "google calendar登録/old/step7_complete_n8n_workflow_NATIVE_NODES_v2.json",
+          "google calendar登録/old/step7_complete_n8n_workflow_NATIVE_NODES_v3.json",
+          "google calendar登録/old/step8_error_workflow.json",
+          "google calendar登録/old/step8_error_workflow_CORRECTED.json",
+          "google calendar登録/old/step8_error_workflow_CORRECTED_v2.json",
+          "google calendar登録/relative_date_converter.js",
+          "google calendar登録/step0_ai_config.json",
+          "google calendar登録/step10_final_package.md",
+          "google calendar登録/step1_business_requirements.md",
+          "google calendar登録/step2_layered_structure.md",
+          "google calendar登録/step3_task_breakdown.md",
+          "google calendar登録/step4_pattern_application.md",
+          "google calendar登録/step5_n8n_design.md",
+          "google calendar登録/step6_ai_agent_deployment.md",
+          "google calendar登録/step7.5_connection_verification.md",
+          "google calendar登録/step7.5_validation_report.md",
+          "google calendar登録/step7_complete_n8n_workflow_NATIVE_NODES_v4.json",
+          "google calendar登録/step7_workflow_implementation_guide.md",
+          "google calendar登録/step8_connection_verification_report.md",
+          "google calendar登録/step8_correction_report.md",
+          "google calendar登録/step8_error_workflow_CORRECTED_v3.json",
+          "google calendar登録/step8_error_workflow_documentation.md",
+          "google calendar登録/step9_implementation_guide.md",
+          "google calendar登録/workflow_update_instructions.md",
+          "google calendar登録/プロンプト/【AI Agent 1】Discord予定抽出-プロンプト.md",
+          "google calendar登録/プロンプト/【AI Agent 1】Discord予定抽出-プロンプトシート.md",
+          "prompt - n8nワークフロー自動設計/CHANGELOG_v11.md",
+          "prompt - n8nワークフロー自動設計/CHANGELOG_v12.md",
+          "prompt - n8nワークフロー自動設計/CHANGELOG_v12_abstraction.md",
+          "prompt - n8nワークフロー自動設計/CHANGELOG_v12_spacing_adjustment.md",
+          "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計.md",
+          "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v10（Add sticky noteを追加）.md",
+          "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v11(Sticky Note詳細化).md",
+          "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v2.md",
+          "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v3.md",
+          "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v4（AIエージェント分離）.md",
+          "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v5（LLMの選択を自由にする）.md",
+          "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v6（ノード情報参照追加）.md",
+          "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v7（ai-agentツールの変更）.md",
+          "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v8（n8n-mcpは指定があるときのみ使用） copy.md",
+          "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v9（jsonに説明を追加）.md",
+          "prompt - n8nワークフロー自動設計/validation_report.md",
+          "prompt - n8nワークフロー自動設計/ナレッジ - n8nワークフロー自動設計.md",
+          "prompt - n8nワークフロー自動設計/ナレッジ - n8nワークフロー自動設計（AI-agent）.md",
+          "prompt - n8nワークフロー自動設計/ナレッジ - n8nワークフロー自動設計（n8n-MCP）.md",
+          "prompt - n8nワークフロー自動設計/プロンプト - n8nワークフロー自動設計v12(Sticky Noteにノード名を記述).md",
+          "prompt - n8nワークフロー自動設計/作成シート - n8nワークフロー自動設計.md",
+          "prompt - n8nワークフロー自動設計/説明 - n8nワークフロー自動設計.md"
+        ],
+        "branch": "feature/google-drive-m4a-minutes-generator",
+        "targetCommitHash": "1bcdf74a38a5c32f9564736e5b8f07624546301d",
+        "worktreePath": "/Users/dm/dev/dev/ObsidianMemo/05_Project/n8n",
+        "timestamp": 1762583836313,
+        "sortOrder": 0,
+        "lane": 1,
+        "branchColor": "#e84f7f",
+        "index": 1
+      },
+      {
+        "type": "staged",
+        "label": "ステージ済み (1)",
+        "files": [
+          "claude/settings.local.json"
+        ],
+        "branch": "feature/google-drive-m4a-minutes-generator",
+        "targetCommitHash": "1bcdf74a38a5c32f9564736e5b8f07624546301d",
+        "worktreePath": "/Users/dm/dev/dev/ObsidianMemo/05_Project/n8n",
+        "timestamp": 1762583836313,
+        "sortOrder": 1,
+        "lane": 1,
+        "branchColor": "#e84f7f",
+        "index": 2
+      },
+      {
+        "type": "commit",
+        "label": "feat: Google Drive M4A音声ファイル議事録自動生成ワークフロー設計完了 (Step0-7)",
+        "commit": {
+          "hash": "1bcdf74a38a5c32f9564736e5b8f07624546301d",
+          "subject": "feat: Google Drive M4A音声ファイル議事録自動生成ワークフロー設計完了 (Step0-7)",
+          "author": "daishiman",
+          "timestamp": 1762583834,
+          "parents": [],
+          "parent": null,
+          "refs": "HEAD -> feature/google-drive-m4a-minutes-generator",
+          "branches": [
+            "HEAD -> feature/google-drive-m4a-minutes-generator",
+            "feature/google-drive-m4a-minutes-generator"
+          ]
+        },
+        "commitHash": "1bcdf74a38a5c32f9564736e5b8f07624546301d",
+        "lane": 1,
+        "parentLinks": [],
+        "primaryBranchName": "feature/google-drive-m4a-minutes-generator",
+        "branchColor": "#e84f7f",
+        "branchTags": [
+          "feature/google-drive-m4a-minutes-generator"
+        ],
+        "worktrees": [
+          {
+            "path": "/Users/dm/dev/dev/ObsidianMemo/05_Project/n8n",
+            "head": "1bcdf74a38a5c32f9564736e5b8f07624546301d",
+            "branch": "feature/google-drive-m4a-minutes-generator",
+            "isMerged": false,
+            "mergeCommitHash": null,
+            "status": {
+              "staged": [
+                {
+                  "path": "claude/settings.local.json",
+                  "originalPath": null,
+                  "status": "modified",
+                  "rawPath": "claude/settings.local.json",
+                  "timestamp": 1762583835332
+                }
+              ],
+              "unstaged": [],
+              "untracked": [
+                {
+                  "path": ".DS_Store",
+                  "status": "untracked",
+                  "rawPath": ".DS_Store",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": ".kamui/model-versions-cache.json",
+                  "status": "untracked",
+                  "rawPath": ".kamui/model-versions-cache.json",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": ".kamui/prompt/merge-prompt.txt",
+                  "status": "untracked",
+                  "rawPath": ".kamui/prompt/merge-prompt.txt",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": ".kamui/system-graph-state.json",
+                  "status": "untracked",
+                  "rawPath": ".kamui/system-graph-state.json",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "Google Meet議事録自動化/Google Meet議事録自動化.json",
+                  "status": "untracked",
+                  "rawPath": "\"Google Meet議事録自動化/Google Meet議事録自動化.json\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "Google Meet議事録自動化/議事録自動化エラー通知.json",
+                  "status": "untracked",
+                  "rawPath": "\"Google Meet議事録自動化/議事録自動化エラー通知.json\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "arxiv.json",
+                  "status": "untracked",
+                  "rawPath": "arxiv.json",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "calendar-gpt.json",
+                  "status": "untracked",
+                  "rawPath": "calendar-gpt.json",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "calendar.json",
+                  "status": "untracked",
+                  "rawPath": "calendar.json",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/CORRECTION_REPORT.md",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/CORRECTION_REPORT.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/DIRECTORY_STRUCTURE.md",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/DIRECTORY_STRUCTURE.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/Discord設定ガイド.md",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/Discord設定ガイド.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/IMPROVEMENTS_v2.md",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/IMPROVEMENTS_v2.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/MANUAL_UPDATE_GUIDE.md",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/MANUAL_UPDATE_GUIDE.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/NATIVE_NODES_CORRECTION.md",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/NATIVE_NODES_CORRECTION.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/README_FINAL.md",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/README_FINAL.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/STICKY_NOTE_NODE_LIST_GUIDE.md",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/STICKY_NOTE_NODE_LIST_GUIDE.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/UPDATE_REPORT_v3.md",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/UPDATE_REPORT_v3.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/old/Discord連携Googleカレンダー自動予定管理.json",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/old/Discord連携Googleカレンダー自動予定管理.json\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/old/Discord連携Googleカレンダー自動予定管理_ErrorHandling.json",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/old/Discord連携Googleカレンダー自動予定管理_ErrorHandling.json\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/old/step7_complete_n8n_workflow.json",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/old/step7_complete_n8n_workflow.json\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/old/step7_complete_n8n_workflow_CORRECTED.json",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/old/step7_complete_n8n_workflow_CORRECTED.json\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/old/step7_complete_n8n_workflow_NATIVE_NODES.json",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/old/step7_complete_n8n_workflow_NATIVE_NODES.json\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/old/step7_complete_n8n_workflow_NATIVE_NODES_v2.json",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/old/step7_complete_n8n_workflow_NATIVE_NODES_v2.json\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/old/step7_complete_n8n_workflow_NATIVE_NODES_v3.json",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/old/step7_complete_n8n_workflow_NATIVE_NODES_v3.json\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/old/step8_error_workflow.json",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/old/step8_error_workflow.json\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/old/step8_error_workflow_CORRECTED.json",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/old/step8_error_workflow_CORRECTED.json\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/old/step8_error_workflow_CORRECTED_v2.json",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/old/step8_error_workflow_CORRECTED_v2.json\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/relative_date_converter.js",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/relative_date_converter.js\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/step0_ai_config.json",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/step0_ai_config.json\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/step10_final_package.md",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/step10_final_package.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/step1_business_requirements.md",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/step1_business_requirements.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/step2_layered_structure.md",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/step2_layered_structure.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/step3_task_breakdown.md",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/step3_task_breakdown.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/step4_pattern_application.md",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/step4_pattern_application.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/step5_n8n_design.md",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/step5_n8n_design.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/step6_ai_agent_deployment.md",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/step6_ai_agent_deployment.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/step7.5_connection_verification.md",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/step7.5_connection_verification.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/step7.5_validation_report.md",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/step7.5_validation_report.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/step7_complete_n8n_workflow_NATIVE_NODES_v4.json",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/step7_complete_n8n_workflow_NATIVE_NODES_v4.json\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/step7_workflow_implementation_guide.md",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/step7_workflow_implementation_guide.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/step8_connection_verification_report.md",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/step8_connection_verification_report.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/step8_correction_report.md",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/step8_correction_report.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/step8_error_workflow_CORRECTED_v3.json",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/step8_error_workflow_CORRECTED_v3.json\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/step8_error_workflow_documentation.md",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/step8_error_workflow_documentation.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/step9_implementation_guide.md",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/step9_implementation_guide.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/workflow_update_instructions.md",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/workflow_update_instructions.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/プロンプト/【AI Agent 1】Discord予定抽出-プロンプト.md",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/プロンプト/【AI Agent 1】Discord予定抽出-プロンプト.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "google calendar登録/プロンプト/【AI Agent 1】Discord予定抽出-プロンプトシート.md",
+                  "status": "untracked",
+                  "rawPath": "\"google calendar登録/プロンプト/【AI Agent 1】Discord予定抽出-プロンプトシート.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "prompt - n8nワークフロー自動設計/CHANGELOG_v11.md",
+                  "status": "untracked",
+                  "rawPath": "\"prompt - n8nワークフロー自動設計/CHANGELOG_v11.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "prompt - n8nワークフロー自動設計/CHANGELOG_v12.md",
+                  "status": "untracked",
+                  "rawPath": "\"prompt - n8nワークフロー自動設計/CHANGELOG_v12.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "prompt - n8nワークフロー自動設計/CHANGELOG_v12_abstraction.md",
+                  "status": "untracked",
+                  "rawPath": "\"prompt - n8nワークフロー自動設計/CHANGELOG_v12_abstraction.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "prompt - n8nワークフロー自動設計/CHANGELOG_v12_spacing_adjustment.md",
+                  "status": "untracked",
+                  "rawPath": "\"prompt - n8nワークフロー自動設計/CHANGELOG_v12_spacing_adjustment.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計.md",
+                  "status": "untracked",
+                  "rawPath": "\"prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v10（Add sticky noteを追加）.md",
+                  "status": "untracked",
+                  "rawPath": "\"prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v10（Add sticky noteを追加）.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v11(Sticky Note詳細化).md",
+                  "status": "untracked",
+                  "rawPath": "\"prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v11(Sticky Note詳細化).md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v2.md",
+                  "status": "untracked",
+                  "rawPath": "\"prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v2.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v3.md",
+                  "status": "untracked",
+                  "rawPath": "\"prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v3.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v4（AIエージェント分離）.md",
+                  "status": "untracked",
+                  "rawPath": "\"prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v4（AIエージェント分離）.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v5（LLMの選択を自由にする）.md",
+                  "status": "untracked",
+                  "rawPath": "\"prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v5（LLMの選択を自由にする）.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v6（ノード情報参照追加）.md",
+                  "status": "untracked",
+                  "rawPath": "\"prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v6（ノード情報参照追加）.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v7（ai-agentツールの変更）.md",
+                  "status": "untracked",
+                  "rawPath": "\"prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v7（ai-agentツールの変更）.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v8（n8n-mcpは指定があるときのみ使用） copy.md",
+                  "status": "untracked",
+                  "rawPath": "\"prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v8（n8n-mcpは指定があるときのみ使用） copy.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v9（jsonに説明を追加）.md",
+                  "status": "untracked",
+                  "rawPath": "\"prompt - n8nワークフロー自動設計/old/プロンプト - n8nワークフロー自動設計v9（jsonに説明を追加）.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "prompt - n8nワークフロー自動設計/validation_report.md",
+                  "status": "untracked",
+                  "rawPath": "\"prompt - n8nワークフロー自動設計/validation_report.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "prompt - n8nワークフロー自動設計/ナレッジ - n8nワークフロー自動設計.md",
+                  "status": "untracked",
+                  "rawPath": "\"prompt - n8nワークフロー自動設計/ナレッジ - n8nワークフロー自動設計.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "prompt - n8nワークフロー自動設計/ナレッジ - n8nワークフロー自動設計（AI-agent）.md",
+                  "status": "untracked",
+                  "rawPath": "\"prompt - n8nワークフロー自動設計/ナレッジ - n8nワークフロー自動設計（AI-agent）.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "prompt - n8nワークフロー自動設計/ナレッジ - n8nワークフロー自動設計（n8n-MCP）.md",
+                  "status": "untracked",
+                  "rawPath": "\"prompt - n8nワークフロー自動設計/ナレッジ - n8nワークフロー自動設計（n8n-MCP）.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "prompt - n8nワークフロー自動設計/プロンプト - n8nワークフロー自動設計v12(Sticky Noteにノード名を記述).md",
+                  "status": "untracked",
+                  "rawPath": "\"prompt - n8nワークフロー自動設計/プロンプト - n8nワークフロー自動設計v12(Sticky Noteにノード名を記述).md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "prompt - n8nワークフロー自動設計/作成シート - n8nワークフロー自動設計.md",
+                  "status": "untracked",
+                  "rawPath": "\"prompt - n8nワークフロー自動設計/作成シート - n8nワークフロー自動設計.md\"",
+                  "timestamp": 1762583835332
+                },
+                {
+                  "path": "prompt - n8nワークフロー自動設計/説明 - n8nワークフロー自動設計.md",
+                  "status": "untracked",
+                  "rawPath": "\"prompt - n8nワークフロー自動設計/説明 - n8nワークフロー自動設計.md\"",
+                  "timestamp": 1762583835332
+                }
+              ],
+              "capturedAt": 1762583835332
+            },
+            "normalizedPath": "/Users/dm/dev/dev/ObsidianMemo/05_Project/n8n",
+            "lane": 1
+          }
+        ],
+        "index": 3
+      },
+      {
+        "type": "empty",
+        "label": "初期状態 (初回コミット以前)",
+        "files": [],
+        "marker": "pre-history",
+        "index": 4
+      }
+    ]
+  },
+  "projectRoot": "/Users/dm/dev/dev/ObsidianMemo/05_Project/n8n",
+  "savedAt": 1762583837365
+}

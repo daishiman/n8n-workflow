@@ -1,0 +1,1248 @@
+{
+  "name": "Discord経由カレンダー予定自動登録システム",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "discord-calendar",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "a1b2c3d4-e5f6-4a1b-8c9d-0e1f2a3b4c5d",
+      "name": "Discord Webhook受信",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [
+        250,
+        300
+      ],
+      "webhookId": "discord-calendar-webhook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "message",
+              "value": "={{ $json.body.content }}",
+              "type": "string"
+            },
+            {
+              "id": "2",
+              "name": "channel_id",
+              "value": "={{ $json.body.channel_id }}",
+              "type": "string"
+            },
+            {
+              "id": "3",
+              "name": "author",
+              "value": "={{ $json.body.author.username }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b2c3d4e5-f6a7-4b2c-9d0e-1f2a3b4c5d6e",
+      "name": "Webhookデータ抽出",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        450,
+        300
+      ],
+      "notesInFlow": false,
+      "notes": "Discord Webhookペイロードからメッセージを抽出"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "id": "1",
+              "value1": "={{ $json.message }}",
+              "operation": "regex",
+              "value2": "^[1-5]$"
+            }
+          ]
+        }
+      },
+      "id": "c3d4e5f6-a7b8-4c3d-0e1f-2a3b4c5d6e7f",
+      "name": "メッセージタイプ判定",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        650,
+        300
+      ],
+      "notes": "数字のみ（1-5）→候補選択、それ以外→新規予定入力"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// AI: xAI Grok (grok-4-fast)\n// 責務: Discordメッセージから予定情報を抽出\n// 目標: 日時、タイトル、参加者を構造化\n\nconst API_KEY = $env('XAI_API_KEY');\nconst message = $input.first().json.message;\n\nconst systemPrompt = `あなたは予定情報を抽出するアシスタントです。\nユーザーのメッセージから以下を抽出してJSONで返してください：\n- datetime: 日時（\"明日14時\"のような相対表現のまま）\n- title: 予定のタイトル\n- participants: 参加者のメールアドレス（配列）\n- location: 場所（あれば）\n- description: 説明（あれば）\n\nJSON形式のみで返してください。`;\n\nconst response = await fetch('https://api.x.ai/v1/chat/completions', {\nmethod: 'POST',\nheaders: {\n'Content-Type': 'application/json',\n'Authorization': `Bearer ${API_KEY}`\n},\nbody: JSON.stringify({\nmodel: 'grok-beta',\nmessages: [\n{ role: 'system', content: systemPrompt },\n{ role: 'user', content: message }\n],\nmax_tokens: 500\n})\n});\n\nconst data = await response.json();\nconst extractedText = data.choices[0].message.content;\nconst extracted = JSON.parse(extractedText);\n\nreturn [{\njson: {\noriginal_message: message,\nextracted: extracted\n}\n}];"
+      },
+      "id": "d4e5f6a7-b8c9-4d5e-1f2a-3b4c5d6e7f8a",
+      "name": "Discord予定抽出（AI: grok-4-fast）",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        850,
+        200
+      ],
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "notes": "【AI】xAI Grok\n【責務】予定情報抽出のみ\n※環境変数XAI_API_KEY必須"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const extracted = $input.first().json.extracted;\n\n// 必須項目チェック\nif (!extracted.datetime || !extracted.title) {\nthrow new Error('必須項目（日時、タイトル）が抽出できませんでした');\n}\n\n// 参加者がない場合は空配列\nif (!extracted.participants) {\nextracted.participants = [];\n}\n\nreturn [{ json: extracted }];"
+      },
+      "id": "e5f6a7b8-c9d0-4e6f-2a3b-4c5d6e7f8a9b",
+      "name": "抽出結果検証",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1050,
+        200
+      ],
+      "onError": "continueErrorOutput",
+      "notes": "必須項目の存在確認のみ"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const { DateTime } = require('luxon');\nconst extracted = $input.first().json;\nconst datetimeStr = extracted.datetime;\n\n// 「明日」「今日」などの相対表現をパース\nlet targetDate = DateTime.now().setZone('Asia/Tokyo');\n\nif (datetimeStr.includes('明日')) {\ntargetDate = targetDate.plus({ days: 1 });\n} else if (datetimeStr.includes('今日')) {\n// そのまま\n}\n\n// 時刻を抽出（例: \"14時\" → 14）\nconst hourMatch = datetimeStr.match(/(\\d+)時/);\nif (hourMatch) {\nconst hour = parseInt(hourMatch[1]);\ntargetDate = targetDate.set({ hour: hour, minute: 0, second: 0 });\n}\n\n// 分を抽出（例: \"14時30分\" → 30）\nconst minuteMatch = datetimeStr.match(/時(\\d+)分/);\nif (minuteMatch) {\nconst minute = parseInt(minuteMatch[1]);\ntargetDate = targetDate.set({ minute: minute });\n}\n\nconst startISO = targetDate.toISO();\nconst endISO = targetDate.plus({ hours: 1 }).toISO();\n\nreturn [{\njson: {\n...extracted,\nstart_datetime: startISO,\nend_datetime: endISO\n}\n}];"
+      },
+      "id": "f6a7b8c9-d0e1-4f7a-3b4c-5d6e7f8a9b0c",
+      "name": "日時ISO変換",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1250,
+        200
+      ],
+      "onError": "continueErrorOutput",
+      "notes": "相対日時→ISO8601形式変換"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendarId": "primary",
+        "returnAll": false,
+        "limit": 10,
+        "options": {
+          "timeMin": "={{ $json.start_datetime }}",
+          "timeMax": "={{ $json.end_datetime }}"
+        }
+      },
+      "id": "a7b8c9d0-e1f2-4a8b-4c5d-6e7f8a9b0c1d",
+      "name": "Googleカレンダー検索",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [
+        1450,
+        200
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "google_calendar_oauth",
+          "name": "Google Calendar OAuth"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "notes": "指定時間帯のカレンダーイベントを検索"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "id": "1",
+              "value1": "={{ $input.all().length }}",
+              "operation": "equal",
+              "value2": 0
+            }
+          ]
+        }
+      },
+      "id": "b8c9d0e1-f2a3-4b9c-5d6e-7f8a9b0c1d2e",
+      "name": "重複判定",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1650,
+        200
+      ],
+      "notes": "検索結果0件→重複なし、1件以上→重複あり"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "calendarId": "primary",
+        "start": "={{ $('日時ISO変換').first().json.start_datetime }}",
+        "end": "={{ $('日時ISO変換').first().json.end_datetime }}",
+        "summary": "={{ $('日時ISO変換').first().json.title }}",
+        "options": {
+          "attendees": "={{ $('日時ISO変換').first().json.participants.join(',') }}",
+          "description": "={{ $('日時ISO変換').first().json.description || '' }}",
+          "location": "={{ $('日時ISO変換').first().json.location || '' }}"
+        }
+      },
+      "id": "c9d0e1f2-a3b4-4c0d-6e7f-8a9b0c1d2e3f",
+      "name": "Googleカレンダー予定登録（重複なし）",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [
+        1850,
+        100
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "google_calendar_oauth",
+          "name": "Google Calendar OAuth"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "notes": "カレンダーイベント作成"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// AI: Anthropic Claude (claude-sonnet-4-20250514)\n// 責務: 通知メール本文を生成\n// 目標: ビジネスメールとして適切な文章\n\nconst API_KEY = $env('ANTHROPIC_API_KEY');\nconst eventData = $input.first().json;\n\nconst prompt = `以下の予定について、参加者に送る通知メールを作成してください。\n\n予定情報：\n- タイトル: ${eventData.summary}\n- 日時: ${eventData.start} 〜 ${eventData.end}\n- 場所: ${eventData.location || '未定'}\n- 説明: ${eventData.description || 'なし'}\n\n件名と本文を以下の形式で返してください：\n{\n\"subject\": \"件名\",\n\"body\": \"本文\"\n}`;\n\nconst response = await fetch('https://api.anthropic.com/v1/messages', {\nmethod: 'POST',\nheaders: {\n'Content-Type': 'application/json',\n'x-api-key': API_KEY,\n'anthropic-version': '2023-06-01'\n},\nbody: JSON.stringify({\nmodel: 'claude-sonnet-4-20250514',\nmax_tokens: 1000,\nmessages: [\n{ role: 'user', content: prompt }\n]\n})\n});\n\nconst data = await response.json();\nconst emailContent = JSON.parse(data.content[0].text);\n\nreturn [{\njson: {\n...eventData,\nemail_subject: emailContent.subject,\nemail_body: emailContent.body\n}\n}];"
+      },
+      "id": "d0e1f2a3-b4c5-4d1e-7f8a-9b0c1d2e3f4a",
+      "name": "通知メール文章生成（AI: claude-4.5-sonnet）",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2050,
+        100
+      ],
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "notes": "【AI】Anthropic Claude\n【責務】メール文章生成のみ\n※環境変数ANTHROPIC_API_KEY必須"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "sendTo": "={{ $json.attendees }}",
+        "subject": "={{ $json.email_subject }}",
+        "message": "={{ $json.email_body }}",
+        "options": {}
+      },
+      "id": "e1f2a3b4-c5d6-4e2f-8a9b-0c1d2e3f4a5b",
+      "name": "Gmail通知送信",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2250,
+        100
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail_oauth",
+          "name": "Gmail OAuth"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "notes": "参加者全員にメール送信"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const eventData = $input.first().json;\nconst { DateTime } = require('luxon');\n\nconst startTime = DateTime.fromISO(eventData.start).setZone('Asia/Tokyo').toFormat('yyyy/MM/dd HH:mm');\n\nconst message = `✅ 予定を登録しました！\n\n📅 日時: ${startTime}\n📝 タイトル: ${eventData.summary}\n👥 参加者: ${eventData.attendees || 'なし'}\n📧 通知メールを送信しました`;\n\nreturn [{\njson: {\ncontent: message\n}\n}];"
+      },
+      "id": "f2a3b4c5-d6e7-4f3a-9b0c-1d2e3f4a5b6c",
+      "name": "Discord成功通知メッセージ作成",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2450,
+        100
+      ],
+      "notes": "Discord投稿用メッセージ整形"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "webhookUrl": "={{ $env('DISCORD_WEBHOOK_URL') }}",
+        "content": "={{ $json.content }}"
+      },
+      "id": "a3b4c5d6-e7f8-4a4b-0c1d-2e3f4a5b6c7d",
+      "name": "Discord成功通知送信",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        2650,
+        100
+      ],
+      "notes": "Discordに登録完了通知"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "today",
+              "value": "={{ $now.toFormat('yyyy-MM-dd') }}",
+              "type": "string"
+            },
+            {
+              "id": "2",
+              "name": "tomorrow",
+              "value": "={{ $now.plus({ days: 1 }).toFormat('yyyy-MM-dd') }}",
+              "type": "string"
+            },
+            {
+              "id": "3",
+              "name": "original_event",
+              "value": "={{ JSON.stringify($('日時ISO変換').first().json) }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "b4c5d6e7-f8a9-4b5c-1d2e-3f4a5b6c7d8e",
+      "name": "今日の日付取得",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        1850,
+        300
+      ],
+      "notes": "今日と明日の日付を計算"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendarId": "primary",
+        "returnAll": true,
+        "options": {
+          "timeMin": "={{ $json.today }}T00:00:00+09:00",
+          "timeMax": "={{ $json.tomorrow }}T23:59:59+09:00"
+        }
+      },
+      "id": "c5d6e7f8-a9b0-4c6d-2e3f-4a5b6c7d8e9f",
+      "name": "2日分カレンダーイベント取得",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [
+        2050,
+        300
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "google_calendar_oauth",
+          "name": "Google Calendar OAuth"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "notes": "今日と明日の全イベントを取得"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const { DateTime } = require('luxon');\nconst dateInfo = $('今日の日付取得').first().json;\n\nconst slots = [];\nconst days = [dateInfo.today, dateInfo.tomorrow];\n\nfor (const day of days) {\nlet current = DateTime.fromISO(`${day}T09:00:00`, { zone: 'Asia/Tokyo' });\nconst endOfDay = DateTime.fromISO(`${day}T18:00:00`, { zone: 'Asia/Tokyo' });\n\nwhile (current < endOfDay) {\nslots.push({\nstart: current.toISO(),\nend: current.plus({ minutes: 30 }).toISO(),\ndisplay: current.toFormat('MM/dd HH:mm')\n});\ncurrent = current.plus({ minutes: 30 });\n}\n}\n\nreturn [{\njson: {\nslots: slots,\noriginal_event: JSON.parse(dateInfo.original_event)\n}\n}];"
+      },
+      "id": "d6e7f8a9-b0c1-4d7e-3f4a-5b6c7d8e9f0a",
+      "name": "時間帯スロット生成",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2250,
+        300
+      ],
+      "notes": "09:00-18:00を30分単位で分割（2日分）"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const { DateTime } = require('luxon');\nconst slotsData = $input.first().json;\nconst existingEvents = $('2日分カレンダーイベント取得').all();\n\nconst availableSlots = [];\n\nfor (const slot of slotsData.slots) {\nconst slotStart = DateTime.fromISO(slot.start);\nconst slotEnd = DateTime.fromISO(slot.end);\n\nlet isAvailable = true;\n\nfor (const event of existingEvents) {\nconst eventStart = DateTime.fromISO(event.json.start.dateTime || event.json.start.date);\nconst eventEnd = DateTime.fromISO(event.json.end.dateTime || event.json.end.date);\n\n// 重複チェック\nif (slotStart < eventEnd && slotEnd > eventStart) {\nisAvailable = false;\nbreak;\n}\n}\n\nif (isAvailable) {\navailableSlots.push(slot);\n}\n}\n\nreturn [{\njson: {\navailable_slots: availableSlots,\noriginal_event: slotsData.original_event\n}\n}];"
+      },
+      "id": "e7f8a9b0-c1d2-4e8f-4a5b-6c7d8e9f0a1b",
+      "name": "既存予定との照合",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2450,
+        300
+      ],
+      "notes": "各スロットが既存イベントと重複しているかチェック"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const data = $input.first().json;\nconst availableSlots = data.available_slots;\n\n// 連続60分以上の空き時間を抽出\nconst { DateTime } = require('luxon');\nconst candidates = [];\n\nfor (let i = 0; i < availableSlots.length - 1; i++) {\nconst slot1 = availableSlots[i];\nconst slot2 = availableSlots[i + 1];\n\nconst end1 = DateTime.fromISO(slot1.end);\nconst start2 = DateTime.fromISO(slot2.start);\n\n// 連続している場合（60分の空き時間）\nif (end1.equals(start2)) {\ncandidates.push({\nstart: slot1.start,\nend: slot2.end,\ndisplay: `${slot1.display} - ${slot2.display}`\n});\n}\n}\n\nreturn [{\njson: {\ncandidates: candidates,\noriginal_event: data.original_event\n}\n}];"
+      },
+      "id": "f8a9b0c1-d2e3-4f9a-5b6c-7d8e9f0a1b2c",
+      "name": "空き時間抽出",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2650,
+        300
+      ],
+      "notes": "連続60分以上の空き時間を特定"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "id": "1",
+              "value1": "={{ $json.candidates.length }}",
+              "operation": "largerEqual",
+              "value2": 5
+            }
+          ]
+        }
+      },
+      "id": "a9b0c1d2-e3f4-4a0b-6c7d-8e9f0a1b2c3d",
+      "name": "空き時間十分性チェック",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2850,
+        300
+      ],
+      "notes": "空き時間が5つ以上あるか確認"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// AI: Google Gemini (gemini-2.5-pro)\n// 責務: 空き時間から最適な5候補を選定\n// 目標: 業務時間帯を考慮した候補選定\n\nconst API_KEY = $env('GOOGLE_API_KEY');\nconst data = $input.first().json;\nconst candidates = data.candidates;\n\nconst prompt = `以下の空き時間候補から、業務に適した5つを選定してください。\n優先順序：\n1. 午前10時〜12時、午後14時〜17時を優先\n2. 早朝・夕方は避ける\n3. できるだけ分散させる\n\n候補リスト:\n${candidates.map((c, i) => `${i + 1}. ${c.display}`).join('\\n')}\n\n選定した5つの候補番号をJSON配列で返してください（例: [1, 5, 10, 15, 20]）`;\n\nconst response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${API_KEY}`, {\nmethod: 'POST',\nheaders: {\n'Content-Type': 'application/json'\n},\nbody: JSON.stringify({\ncontents: [{\nparts: [{ text: prompt }]\n}],\ngenerationConfig: {\nmaxOutputTokens: 500\n}\n})\n});\n\nconst apiData = await response.json();\nconst selectedIndices = JSON.parse(apiData.candidates[0].content.parts[0].text);\n\nconst selectedCandidates = selectedIndices.map(idx => candidates[idx - 1]);\n\nreturn [{\njson: {\nselected_candidates: selectedCandidates,\noriginal_event: data.original_event\n}\n}];"
+      },
+      "id": "b0c1d2e3-f4a5-4b1c-7d8e-9f0a1b2c3d4e",
+      "name": "空き時間候補5つ選定（AI: gemini-2.5-pro）",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3050,
+        300
+      ],
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "notes": "【AI】Google Gemini\n【責務】候補選定のみ\n※環境変数GOOGLE_API_KEY必須"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// AI: Google Gemini (gemini-2.5-pro)\n// 責務: 候補を自然な文章で提案\n// 目標: Discord投稿用のフレンドリーな提案文\n\nconst API_KEY = $env('GOOGLE_API_KEY');\nconst data = $input.first().json;\nconst candidates = data.selected_candidates;\n\nconst candidatesList = candidates.map((c, i) => `${i + 1}️⃣ ${c.display}`).join('\\n');\n\nconst prompt = `ユーザーの予定が重複しています。以下の空き時間候補をフレンドリーに提案してください。\n\n候補:\n${candidatesList}\n\nDiscordに投稿する形式で、絵文字を使って親しみやすい文章を作成してください。`;\n\nconst response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${API_KEY}`, {\nmethod: 'POST',\nheaders: {\n'Content-Type': 'application/json'\n},\nbody: JSON.stringify({\ncontents: [{\nparts: [{ text: prompt }]\n}],\ngenerationConfig: {\nmaxOutputTokens: 500\n}\n})\n});\n\nconst apiData = await response.json();\nconst proposalText = apiData.candidates[0].content.parts[0].text;\n\nreturn [{\njson: {\nproposal_text: proposalText,\nselected_candidates: candidates,\noriginal_event: data.original_event\n}\n}];"
+      },
+      "id": "c1d2e3f4-a5b6-4c2d-8e9f-0a1b2c3d4e5f",
+      "name": "提案文生成（AI: gemini-2.5-pro）",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3250,
+        300
+      ],
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "notes": "【AI】Google Gemini\n【責務】提案文生成のみ\n※環境変数GOOGLE_API_KEY必須"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "saved_candidates",
+              "value": "={{ JSON.stringify($json.selected_candidates) }}",
+              "type": "string"
+            },
+            {
+              "id": "2",
+              "name": "saved_event",
+              "value": "={{ JSON.stringify($json.original_event) }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "d2e3f4a5-b6c7-4d3e-9f0a-1b2c3d4e5f6a",
+      "name": "候補データ一時保存",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        3450,
+        300
+      ],
+      "notes": "次回実行で参照できるよう候補を保存"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "webhookUrl": "={{ $env('DISCORD_WEBHOOK_URL') }}",
+        "content": "={{ $('提案文生成（AI: gemini-2.5-pro）').first().json.proposal_text }}"
+      },
+      "id": "e3f4a5b6-c7d8-4e4f-0a1b-2c3d4e5f6a7b",
+      "name": "Discord重複通知送信",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        3650,
+        300
+      ],
+      "notes": "候補提案をDiscordに送信"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// AI: xAI Grok (grok-4-fast)\n// 責務: メッセージから選択番号を抽出\n// 目標: 1-5の数字を特定\n\nconst API_KEY = $env('XAI_API_KEY');\nconst message = $input.first().json.message;\n\nconst prompt = `ユーザーのメッセージから選択された候補番号（1-5）を抽出してください。\nメッセージ: \"${message}\"\n\n数字のみを返してください（例: 3）`;\n\nconst response = await fetch('https://api.x.ai/v1/chat/completions', {\nmethod: 'POST',\nheaders: {\n'Content-Type': 'application/json',\n'Authorization': `Bearer ${API_KEY}`\n},\nbody: JSON.stringify({\nmodel: 'grok-beta',\nmessages: [\n{ role: 'user', content: prompt }\n],\nmax_tokens: 50\n})\n});\n\nconst data = await response.json();\nconst selectedNumber = parseInt(data.choices[0].message.content.trim());\n\nreturn [{\njson: {\nselected_number: selectedNumber\n}\n}];"
+      },
+      "id": "f4a5b6c7-d8e9-4f5a-1b2c-3d4e5f6a7b8c",
+      "name": "候補番号抽出（AI: grok-4-fast）",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        850,
+        400
+      ],
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "notes": "【AI】xAI Grok\n【責務】番号抽出のみ\n※環境変数XAI_API_KEY必須"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const selectedNumber = $input.first().json.selected_number;\n\nif (selectedNumber < 1 || selectedNumber > 5 || isNaN(selectedNumber)) {\nthrow new Error('無効な選択番号です。1-5の番号を入力してください。');\n}\n\nreturn [{ json: { selected_number: selectedNumber } }];"
+      },
+      "id": "a5b6c7d8-e9f0-4a6b-2c3d-4e5f6a7b8c9d",
+      "name": "選択番号検証",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1050,
+        400
+      ],
+      "onError": "continueErrorOutput",
+      "notes": "選択番号が1-5の範囲内か確認"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "candidates",
+              "value": "={{ JSON.parse($('候補データ一時保存').first().json.saved_candidates) }}",
+              "type": "object"
+            },
+            {
+              "id": "2",
+              "name": "event",
+              "value": "={{ JSON.parse($('候補データ一時保存').first().json.saved_event) }}",
+              "type": "object"
+            },
+            {
+              "id": "3",
+              "name": "selected_number",
+              "value": "={{ $json.selected_number }}",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "id": "b6c7d8e9-f0a1-4b7c-3d4e-5f6a7b8c9d0e",
+      "name": "保存済み候補データ取得",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        1250,
+        400
+      ],
+      "notes": "T022で保存した候補データを取得"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const data = $input.first().json;\nconst selectedNumber = data.selected_number;\nconst candidates = data.candidates;\n\nconst selectedCandidate = candidates[selectedNumber - 1];\n\nreturn [{\njson: {\nstart_datetime: selectedCandidate.start,\nend_datetime: selectedCandidate.end,\ndisplay: selectedCandidate.display,\noriginal_event: data.event\n}\n}];"
+      },
+      "id": "c7d8e9f0-a1b2-4c8d-4e5f-6a7b8c9d0e1f",
+      "name": "選択された時間情報抽出",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1450,
+        400
+      ],
+      "notes": "選択番号に対応する候補の日時を取得"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "title",
+              "value": "={{ $json.original_event.title }}",
+              "type": "string"
+            },
+            {
+              "id": "2",
+              "name": "participants",
+              "value": "={{ $json.original_event.participants }}",
+              "type": "array"
+            },
+            {
+              "id": "3",
+              "name": "start_datetime",
+              "value": "={{ $json.start_datetime }}",
+              "type": "string"
+            },
+            {
+              "id": "4",
+              "name": "end_datetime",
+              "value": "={{ $json.end_datetime }}",
+              "type": "string"
+            },
+            {
+              "id": "5",
+              "name": "location",
+              "value": "={{ $json.original_event.location || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "6",
+              "name": "description",
+              "value": "={{ $json.original_event.description || '' }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "d8e9f0a1-b2c3-4d9e-5f6a-7b8c9d0e1f2a",
+      "name": "元の予定情報取得",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        1650,
+        400
+      ],
+      "notes": "T022で保存したタイトル・参加者情報を取得"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "summary",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "2",
+              "name": "start",
+              "value": "={{ $json.start_datetime }}",
+              "type": "string"
+            },
+            {
+              "id": "3",
+              "name": "end",
+              "value": "={{ $json.end_datetime }}",
+              "type": "string"
+            },
+            {
+              "id": "4",
+              "name": "attendees",
+              "value": "={{ $json.participants.join(',') }}",
+              "type": "string"
+            },
+            {
+              "id": "5",
+              "name": "location",
+              "value": "={{ $json.location }}",
+              "type": "string"
+            },
+            {
+              "id": "6",
+              "name": "description",
+              "value": "={{ $json.description }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "e9f0a1b2-c3d4-4e0f-6a7b-8c9d0e1f2a3b",
+      "name": "予定情報統合",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        1850,
+        400
+      ],
+      "notes": "選択された時間 + 元のタイトル・参加者を統合"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "calendarId": "primary",
+        "start": "={{ $json.start }}",
+        "end": "={{ $json.end }}",
+        "summary": "={{ $json.summary }}",
+        "options": {
+          "attendees": "={{ $json.attendees }}",
+          "location": "={{ $json.location }}",
+          "description": "={{ $json.description }}"
+        }
+      },
+      "id": "f0a1b2c3-d4e5-4f1a-7b8c-9d0e1f2a3b4c",
+      "name": "Googleカレンダー予定登録（選択後）",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [
+        2050,
+        400
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "google_calendar_oauth",
+          "name": "Google Calendar OAuth"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "notes": "統合した予定情報でカレンダーイベントを作成"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// T010と同じAIコード（再利用）\nconst API_KEY = $env('ANTHROPIC_API_KEY');\nconst eventData = $input.first().json;\n\nconst prompt = `以下の予定について、参加者に送る通知メールを作成してください。\n\n予定情報：\n- タイトル: ${eventData.summary}\n- 日時: ${eventData.start} 〜 ${eventData.end}\n- 場所: ${eventData.location || '未定'}\n- 説明: ${eventData.description || 'なし'}\n\n件名と本文を以下の形式で返してください：\n{\n\"subject\": \"件名\",\n\"body\": \"本文\"\n}`;\n\nconst response = await fetch('https://api.anthropic.com/v1/messages', {\nmethod: 'POST',\nheaders: {\n'Content-Type': 'application/json',\n'x-api-key': API_KEY,\n'anthropic-version': '2023-06-01'\n},\nbody: JSON.stringify({\nmodel: 'claude-sonnet-4-20250514',\nmax_tokens: 1000,\nmessages: [\n{ role: 'user', content: prompt }\n]\n})\n});\n\nconst data = await response.json();\nconst emailContent = JSON.parse(data.content[0].text);\n\nreturn [{\njson: {\n...eventData,\nemail_subject: emailContent.subject,\nemail_body: emailContent.body\n}\n}];"
+      },
+      "id": "a1b2c3d4-e5f6-4a2b-8c9d-0e1f2a3b4c5d",
+      "name": "通知メール文章生成2（AI: claude-4.5-sonnet）",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2250,
+        400
+      ],
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "notes": "【AI】Anthropic Claude\n※T010と同じロジック"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "sendTo": "={{ $json.attendees }}",
+        "subject": "={{ $json.email_subject }}",
+        "message": "={{ $json.email_body }}",
+        "options": {}
+      },
+      "id": "b2c3d4e5-f6a7-4b3c-9d0e-1f2a3b4c5d6e",
+      "name": "Gmail通知送信2",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2450,
+        400
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail_oauth",
+          "name": "Gmail OAuth"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "notes": "参加者全員にメール送信"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const eventData = $input.first().json;\nconst { DateTime } = require('luxon');\n\nconst startTime = DateTime.fromISO(eventData.start).setZone('Asia/Tokyo').toFormat('yyyy/MM/dd HH:mm');\n\nconst message = `✅ 予定を登録しました！\n\n📅 日時: ${startTime}\n📝 タイトル: ${eventData.summary}\n👥 参加者: ${eventData.attendees || 'なし'}\n📧 通知メールを送信しました`;\n\nreturn [{\njson: {\ncontent: message\n}\n}];"
+      },
+      "id": "c3d4e5f6-a7b8-4c4d-0e1f-2a3b4c5d6e7f",
+      "name": "Discord成功通知メッセージ作成2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2650,
+        400
+      ],
+      "notes": "Discord投稿用メッセージ整形"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "webhookUrl": "={{ $env('DISCORD_WEBHOOK_URL') }}",
+        "content": "={{ $json.content }}"
+      },
+      "id": "d4e5f6a7-b8c9-4d5e-1f2a-3b4c5d6e7f8a",
+      "name": "Discord成功通知送信2",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        2850,
+        400
+      ],
+      "notes": "Discordに登録完了通知"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "execution_status",
+              "value": "completed",
+              "type": "string"
+            },
+            {
+              "id": "2",
+              "name": "timestamp",
+              "value": "={{ $now.toISO() }}",
+              "type": "string"
+            },
+            {
+              "id": "3",
+              "name": "workflow_name",
+              "value": "={{ $workflow.name }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "e5f6a7b8-c9d0-4e6f-2a3b-4c5d6e7f8a9b",
+      "name": "実行ログ記録",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        3050,
+        200
+      ],
+      "notes": "全実行結果を記録（3つのパスが集約）"
+    }
+  ],
+  "connections": {
+    "Discord Webhook受信": {
+      "main": [
+        [
+          {
+            "node": "Webhookデータ抽出",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhookデータ抽出": {
+      "main": [
+        [
+          {
+            "node": "メッセージタイプ判定",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "メッセージタイプ判定": {
+      "main": [
+        [
+          {
+            "node": "候補番号抽出（AI: grok-4-fast）",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Discord予定抽出（AI: grok-4-fast）",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord予定抽出（AI: grok-4-fast）": {
+      "main": [
+        [
+          {
+            "node": "抽出結果検証",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "抽出結果検証": {
+      "main": [
+        [
+          {
+            "node": "日時ISO変換",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "日時ISO変換": {
+      "main": [
+        [
+          {
+            "node": "Googleカレンダー検索",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Googleカレンダー検索": {
+      "main": [
+        [
+          {
+            "node": "重複判定",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "重複判定": {
+      "main": [
+        [
+          {
+            "node": "Googleカレンダー予定登録（重複なし）",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "今日の日付取得",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Googleカレンダー予定登録（重複なし）": {
+      "main": [
+        [
+          {
+            "node": "通知メール文章生成（AI: claude-4.5-sonnet）",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "通知メール文章生成（AI: claude-4.5-sonnet）": {
+      "main": [
+        [
+          {
+            "node": "Gmail通知送信",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail通知送信": {
+      "main": [
+        [
+          {
+            "node": "Discord成功通知メッセージ作成",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord成功通知メッセージ作成": {
+      "main": [
+        [
+          {
+            "node": "Discord成功通知送信",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord成功通知送信": {
+      "main": [
+        [
+          {
+            "node": "実行ログ記録",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "今日の日付取得": {
+      "main": [
+        [
+          {
+            "node": "2日分カレンダーイベント取得",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2日分カレンダーイベント取得": {
+      "main": [
+        [
+          {
+            "node": "時間帯スロット生成",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "時間帯スロット生成": {
+      "main": [
+        [
+          {
+            "node": "既存予定との照合",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "既存予定との照合": {
+      "main": [
+        [
+          {
+            "node": "空き時間抽出",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "空き時間抽出": {
+      "main": [
+        [
+          {
+            "node": "空き時間十分性チェック",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "空き時間十分性チェック": {
+      "main": [
+        [
+          {
+            "node": "空き時間候補5つ選定（AI: gemini-2.5-pro）",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "空き時間候補5つ選定（AI: gemini-2.5-pro）": {
+      "main": [
+        [
+          {
+            "node": "提案文生成（AI: gemini-2.5-pro）",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "提案文生成（AI: gemini-2.5-pro）": {
+      "main": [
+        [
+          {
+            "node": "候補データ一時保存",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "候補データ一時保存": {
+      "main": [
+        [
+          {
+            "node": "Discord重複通知送信",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord重複通知送信": {
+      "main": [
+        [
+          {
+            "node": "実行ログ記録",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "候補番号抽出（AI: grok-4-fast）": {
+      "main": [
+        [
+          {
+            "node": "選択番号検証",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "選択番号検証": {
+      "main": [
+        [
+          {
+            "node": "保存済み候補データ取得",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "保存済み候補データ取得": {
+      "main": [
+        [
+          {
+            "node": "選択された時間情報抽出",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "選択された時間情報抽出": {
+      "main": [
+        [
+          {
+            "node": "元の予定情報取得",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "元の予定情報取得": {
+      "main": [
+        [
+          {
+            "node": "予定情報統合",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "予定情報統合": {
+      "main": [
+        [
+          {
+            "node": "Googleカレンダー予定登録（選択後）",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Googleカレンダー予定登録（選択後）": {
+      "main": [
+        [
+          {
+            "node": "通知メール文章生成2（AI: claude-4.5-sonnet）",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "通知メール文章生成2（AI: claude-4.5-sonnet）": {
+      "main": [
+        [
+          {
+            "node": "Gmail通知送信2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail通知送信2": {
+      "main": [
+        [
+          {
+            "node": "Discord成功通知メッセージ作成2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord成功通知メッセージ作成2": {
+      "main": [
+        [
+          {
+            "node": "Discord成功通知送信2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord成功通知送信2": {
+      "main": [
+        [
+          {
+            "node": "実行ログ記録",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "timezone": "Asia/Tokyo"
+  },
+  "staticData": null,
+  "tags": [],
+  "pinData": {},
+  "versionId": "workflow-v1-uuid"
+}

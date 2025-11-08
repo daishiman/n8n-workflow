@@ -1,0 +1,381 @@
+{
+  "name": "Discord Calendar Manager - Error Handling",
+  "meta": {
+    "templateCreatedBy": "n8n AI Workflow Designer v9 - Error Workflow (Corrected)",
+    "description": "Discord Calendar Manager用のエラーハンドリング専用ワークフロー。エラー発生時にDiscord通知を送信し、詳細ログを記録",
+    "version": "1.1.0",
+    "linkedWorkflow": "Discord Calendar Manager - Google Calendar Integration (Corrected)",
+    "corrections": "Write Fileノードのパラメータ修正、HTTP Requestノードの認証設定追加"
+  },
+  "nodes": [
+    {
+      "_comment": "Error Trigger: メインワークフローでエラーが発生した際に自動実行",
+      "parameters": {},
+      "id": "error_trigger_001",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "notes": "処理内容: メインワークフローのエラーを検知\nトリガー条件: 任意のノードでエラー発生\n取得情報:\n- エラーメッセージ\n- エラー発生ノード名\n- 実行ID\n- タイムスタンプ\n- エラースタックトレース"
+    },
+    {
+      "_comment": "エラー情報整形: エラー詳細を読みやすい形式に整形",
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// エラー情報を取得\nconst error = $input.first().json;\n\n// エラー発生ノード名を取得\nconst errorNodeName = error.node?.name || 'Unknown Node';\n\n// エラーメッセージを取得\nconst errorMessage = error.error?.message || error.message || 'Unknown Error';\n\n// エラースタックトレースを取得（最初の5行のみ）\nconst errorStack = error.error?.stack || error.stack || '';\nconst stackLines = errorStack.split('\\n').slice(0, 5).join('\\n');\n\n// 実行IDを取得\nconst executionId = $execution.id || 'Unknown';\n\n// タイムスタンプを日本時間で取得\nconst timestamp = new Date().toLocaleString('ja-JP', {\n  timeZone: 'Asia/Tokyo',\n  year: 'numeric',\n  month: '2-digit',\n  day: '2-digit',\n  hour: '2-digit',\n  minute: '2-digit',\n  second: '2-digit'\n});\n\n// エラーの重要度を判定\nlet severity = 'ERROR';\nif (errorMessage.includes('timeout') || errorMessage.includes('ETIMEDOUT')) {\n  severity = 'WARNING';\n} else if (errorMessage.includes('validation') || errorMessage.includes('Invalid')) {\n  severity = 'WARNING';\n} else if (errorMessage.includes('API') || errorMessage.includes('authentication')) {\n  severity = 'CRITICAL';\n}\n\n// 入力データを取得（エラー発生時のコンテキスト）\nconst inputData = error.itemData || {};\nconst userId = inputData.user_id || 'Unknown';\nconst messageContent = inputData.message_content || 'Unknown';\nconst callbackUrl = inputData.callback_url || null;\n\nreturn [{\n  json: {\n    // エラー基本情報\n    error_node_name: errorNodeName,\n    error_message: errorMessage,\n    error_stack: stackLines,\n    severity: severity,\n    \n    // 実行コンテキスト\n    execution_id: executionId,\n    timestamp: timestamp,\n    workflow_name: 'Discord Calendar Manager',\n    \n    // ユーザーコンテキスト\n    user_id: userId,\n    message_content: messageContent,\n    callback_url: callbackUrl,\n    \n    // Discord通知用フォーマット済みメッセージ\n    discord_message: `🚨 **エラー発生** [${severity}]\\n\\n` +\n      `**ワークフロー**: Discord Calendar Manager\\n` +\n      `**エラー発生ノード**: ${errorNodeName}\\n` +\n      `**エラーメッセージ**: ${errorMessage}\\n` +\n      `**実行ID**: ${executionId}\\n` +\n      `**発生時刻**: ${timestamp}\\n` +\n      `**ユーザーID**: ${userId}\\n` +\n      `**メッセージ内容**: ${messageContent.substring(0, 100)}${messageContent.length > 100 ? '...' : ''}\\n\\n` +\n      `**スタックトレース**:\\n\\`\\`\\`\\n${stackLines}\\n\\`\\`\\`\\n\\n` +\n      `管理者に報告してください。`,\n    \n    // ログ記録用詳細情報\n    log_entry: {\n      timestamp: timestamp,\n      severity: severity,\n      workflow: 'Discord Calendar Manager',\n      execution_id: executionId,\n      error_node: errorNodeName,\n      error_message: errorMessage,\n      error_stack: errorStack,\n      user_id: userId,\n      message_content: messageContent,\n      input_data: inputData\n    }\n  }\n}];"
+      },
+      "id": "code_002",
+      "name": "エラー情報整形",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300],
+      "notes": "処理内容: エラー情報を整形して通知とログに使用\n抽出情報:\n- エラー発生ノード名\n- エラーメッセージとスタックトレース\n- 重要度判定 (CRITICAL/ERROR/WARNING)\n- 実行コンテキスト（実行ID、タイムスタンプ）\n- ユーザーコンテキスト（user_id, message_content）\n出力:\n- discord_message: Discord通知用フォーマット済みメッセージ\n- log_entry: ログ記録用詳細情報"
+    },
+    {
+      "_comment": "重要度で分岐: CRITICAL/ERRORは即時通知、WARNINGはログのみ",
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition_1",
+              "leftValue": "={{ $json.severity }}",
+              "rightValue": "WARNING",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ]
+        }
+      },
+      "id": "if_003",
+      "name": "重要度判定",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 300],
+      "notes": "処理内容: エラー重要度で処理を分岐\n分岐1 (CRITICAL/ERROR): Discord管理者通知 + ユーザー通知 + ログ記録\n分岐2 (WARNING): ログ記録のみ\n判定基準:\n- CRITICAL: 認証エラー、API障害\n- ERROR: 一般的なエラー\n- WARNING: タイムアウト、バリデーションエラー"
+    },
+    {
+      "_comment": "Discord管理者通知: CRITICAL/ERRORの場合に管理者チャンネルに通知",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.callback_url || 'YOUR_ADMIN_DISCORD_WEBHOOK_URL' }}",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"content\": \"{{ $json.discord_message }}\"\n}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "http_004",
+      "name": "Discord管理者通知",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [800, 200],
+      "continueOnFail": true,
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1000,
+      "notes": "処理内容: 管理者用Discordチャンネルにエラー詳細を通知\n通知内容:\n- エラー重要度（絵文字付き）\n- エラー発生ノード名\n- エラーメッセージ\n- 実行ID（デバッグ用）\n- ユーザー情報\n- スタックトレース（最初の5行）\n設定: YOUR_ADMIN_DISCORD_WEBHOOK_URLを管理者チャンネルのWebhook URLに置き換えてください"
+    },
+    {
+      "_comment": "Discordユーザー通知: callback_urlがある場合はユーザーにもエラーを通知",
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition_1",
+              "leftValue": "={{ $json.callback_url }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            },
+            {
+              "id": "condition_2",
+              "leftValue": "={{ $json.callback_url }}",
+              "rightValue": "YOUR_ADMIN_DISCORD_WEBHOOK_URL",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if_005",
+      "name": "ユーザー通知要否判定",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [920, 200],
+      "notes": "処理内容: ユーザーへのエラー通知が必要かを判定\n判定条件:\n1. callback_urlが存在する\n2. callback_urlが管理者チャンネルと異なる\n分岐1 (true): ユーザーにもエラー通知を送信\n分岐2 (false): ユーザー通知スキップ"
+    },
+    {
+      "_comment": "Discordユーザーエラー通知: ユーザー向けの簡潔なエラーメッセージ",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.callback_url }}",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"content\": \"❌ エラーが発生しました\\n\\n予定の登録に失敗しました。\\nエラー内容: {{ $json.error_message }}\\n\\n管理者に報告済みです。しばらく待ってから再度お試しください。\\n\\n実行ID: {{ $json.execution_id }}\"\n}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "http_006",
+      "name": "Discordユーザーエラー通知",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1040, 100],
+      "continueOnFail": true,
+      "retryOnFail": false,
+      "notes": "処理内容: ユーザーに簡潔なエラーメッセージを通知\n通知内容:\n- エラー絵文字\n- 簡単なエラー説明\n- 実行ID（問い合わせ時の参照用）\n- 対処方法の案内\n特徴: 技術的な詳細は含めず、ユーザーフレンドリーな表現"
+    },
+    {
+      "_comment": "エラーログ記録: 全エラーをJSONファイルに記録",
+      "parameters": {
+        "operation": "append",
+        "fileName": "/tmp/n8n_discord_calendar_errors.jsonl",
+        "fileContent": "={{ JSON.stringify($json.log_entry) + '\\n' }}",
+        "options": {
+          "encoding": "utf8"
+        }
+      },
+      "id": "file_007",
+      "name": "エラーログ記録",
+      "type": "n8n-nodes-base.writeFile",
+      "typeVersion": 1,
+      "position": [1040, 300],
+      "continueOnFail": true,
+      "notes": "処理内容: エラー詳細をJSONL形式でファイルに追記\nファイルパス: /tmp/n8n_discord_calendar_errors.jsonl\nフォーマット: 1行1エラー（JSON Lines形式）\n記録内容:\n- タイムスタンプ\n- エラー重要度\n- ワークフロー名\n- 実行ID\n- エラー発生ノード\n- エラーメッセージとスタックトレース\n- ユーザーコンテキスト\n用途: 後でログ分析、統計、デバッグに使用"
+    },
+    {
+      "_comment": "Slack通知（オプション）: Slackを使用している場合の通知",
+      "parameters": {
+        "method": "POST",
+        "url": "YOUR_SLACK_WEBHOOK_URL",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"text\": \"🚨 n8n Discord Calendar Manager - エラー発生\",\n  \"blocks\": [\n    {\n      \"type\": \"header\",\n      \"text\": {\n        \"type\": \"plain_text\",\n        \"text\": \"🚨 エラー発生 [{{ $json.severity }}]\"\n      }\n    },\n    {\n      \"type\": \"section\",\n      \"fields\": [\n        {\n          \"type\": \"mrkdwn\",\n          \"text\": \"*ワークフロー:*\\nDiscord Calendar Manager\"\n        },\n        {\n          \"type\": \"mrkdwn\",\n          \"text\": \"*実行ID:*\\n{{ $json.execution_id }}\"\n        },\n        {\n          \"type\": \"mrkdwn\",\n          \"text\": \"*エラーノード:*\\n{{ $json.error_node_name }}\"\n        },\n        {\n          \"type\": \"mrkdwn\",\n          \"text\": \"*発生時刻:*\\n{{ $json.timestamp }}\"\n        }\n      ]\n    },\n    {\n      \"type\": \"section\",\n      \"text\": {\n        \"type\": \"mrkdwn\",\n        \"text\": \"*エラーメッセージ:*\\n```{{ $json.error_message }}```\"\n      }\n    },\n    {\n      \"type\": \"section\",\n      \"text\": {\n        \"type\": \"mrkdwn\",\n        \"text\": \"*ユーザー情報:*\\nUser ID: {{ $json.user_id }}\\nMessage: {{ $json.message_content }}\"\n      }\n    },\n    {\n      \"type\": \"divider\"\n    },\n    {\n      \"type\": \"context\",\n      \"elements\": [\n        {\n          \"type\": \"mrkdwn\",\n          \"text\": \"詳細は n8n 実行ログを確認してください\"\n        }\n      ]\n    }\n  ]\n}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "http_008",
+      "name": "Slack通知（オプション）",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [800, 400],
+      "continueOnFail": true,
+      "retryOnFail": false,
+      "notes": "処理内容: Slackにエラー通知を送信（オプション）\n設定方法:\n1. Slack Incoming Webhook URLを取得\n2. YOUR_SLACK_WEBHOOK_URLを実際のURLに置き換え\n3. このノードを有効化\n通知内容:\n- リッチフォーマット（Slack Blocks使用）\n- エラー詳細\n- ユーザー情報\n- 実行IDへのリンク\n注意: 使用しない場合はこのノードを削除してください"
+    },
+    {
+      "_comment": "エラーログ集計（オプション）: WARNINGエラーの統計情報",
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// WARNINGエラーの場合のみ統計を更新\nconst staticData = this.getWorkflowStaticData('global');\n\nif (!staticData.errorStats) {\n  staticData.errorStats = {\n    total_warnings: 0,\n    total_errors: 0,\n    total_critical: 0,\n    last_warning: null,\n    last_error: null,\n    last_critical: null,\n    error_by_node: {}\n  };\n}\n\nconst severity = $input.first().json.severity;\nconst errorNode = $input.first().json.error_node_name;\nconst timestamp = $input.first().json.timestamp;\n\n// 重要度別カウント\nif (severity === 'WARNING') {\n  staticData.errorStats.total_warnings++;\n  staticData.errorStats.last_warning = timestamp;\n} else if (severity === 'ERROR') {\n  staticData.errorStats.total_errors++;\n  staticData.errorStats.last_error = timestamp;\n} else if (severity === 'CRITICAL') {\n  staticData.errorStats.total_critical++;\n  staticData.errorStats.last_critical = timestamp;\n}\n\n// ノード別カウント\nif (!staticData.errorStats.error_by_node[errorNode]) {\n  staticData.errorStats.error_by_node[errorNode] = 0;\n}\nstaticData.errorStats.error_by_node[errorNode]++;\n\nreturn [{\n  json: {\n    ...($input.first().json),\n    statistics: staticData.errorStats\n  }\n}];"
+      },
+      "id": "code_009",
+      "name": "エラー統計更新（オプション）",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 500],
+      "notes": "処理内容: エラー統計情報を更新（グローバルステート使用）\n統計項目:\n- 重要度別カウント（WARNING/ERROR/CRITICAL）\n- 最終発生時刻（重要度別）\n- ノード別エラーカウント\n用途:\n- エラー傾向分析\n- 問題の多いノードの特定\n- 定期レポート生成の基礎データ\n注意: 使用しない場合はこのノードを削除してください"
+    },
+    {
+      "_comment": "エラーワークフロー終了",
+      "parameters": {},
+      "id": "noop_010",
+      "name": "Error Workflow完了",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1260, 300],
+      "notes": "処理内容: エラーワークフロー正常終了\n到達パターン:\n1. 管理者通知 → ユーザー通知 → ログ記録 → 終了\n2. 管理者通知 → ログ記録 → 終了（ユーザー通知スキップ）\n3. ログ記録のみ → 終了（WARNING）\n全パターンでエラーログは必ず記録される"
+    }
+  ],
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "エラー情報整形",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "エラー情報整形": {
+      "main": [
+        [
+          {
+            "node": "重要度判定",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "エラー統計更新（オプション）",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "重要度判定": {
+      "main": [
+        [
+          {
+            "node": "Discord管理者通知",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "エラーログ記録",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord管理者通知": {
+      "main": [
+        [
+          {
+            "node": "ユーザー通知要否判定",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Slack通知（オプション）",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ユーザー通知要否判定": {
+      "main": [
+        [
+          {
+            "node": "Discordユーザーエラー通知",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "エラーログ記録",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discordユーザーエラー通知": {
+      "main": [
+        [
+          {
+            "node": "エラーログ記録",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "エラーログ記録": {
+      "main": [
+        [
+          {
+            "node": "Error Workflow完了",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack通知（オプション）": {
+      "main": [
+        [
+          {
+            "node": "エラーログ記録",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "エラー統計更新（オプション）": {
+      "main": [
+        [
+          {
+            "node": "Error Workflow完了",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "timezone": "Asia/Tokyo",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": 60
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "id": "error_handling",
+      "name": "Error Handling"
+    }
+  ],
+  "pinData": {},
+  "versionId": "1.1"
+}

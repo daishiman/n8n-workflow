@@ -1,0 +1,165 @@
+{
+  "name": "Discord経由カレンダー予定自動登録システム_ErrorHandling",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "error-trigger-001",
+      "name": "エラートリガー",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ],
+      "notes": "メインワークフローのエラーを検知"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const error = $input.first();\nconst { DateTime } = require('luxon');\n\n// エラー情報を整形\nconst errorInfo = {\n  workflow_name: error.json.workflow?.name || 'Unknown',\n  workflow_id: error.json.workflow?.id || 'Unknown',\n  execution_id: error.json.execution?.id || 'Unknown',\n  execution_mode: error.json.execution?.mode || 'Unknown',\n  node_name: error.json.node?.name || 'Unknown',\n  node_type: error.json.node?.type || 'Unknown',\n  error_message: error.json.error?.message || 'Unknown error',\n  error_stack: error.json.error?.stack || '',\n  timestamp: DateTime.now().setZone('Asia/Tokyo').toFormat('yyyy/MM/dd HH:mm:ss'),\n  timestamp_iso: DateTime.now().setZone('Asia/Tokyo').toISO()\n};\n\nreturn [{\n  json: errorInfo\n}];"
+      },
+      "id": "error-format-002",
+      "name": "エラー情報整形",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        450,
+        300
+      ],
+      "notes": "エラー情報を構造化して整形"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const errorInfo = $input.first().json;\n\n// Discord用のエラーメッセージを作成\nconst discordMessage = `🚨 **ワークフローエラー発生**\n\n**ワークフロー**: ${errorInfo.workflow_name}\n**実行ID**: ${errorInfo.execution_id}\n**エラー箇所**: ${errorInfo.node_name} (${errorInfo.node_type})\n**エラー内容**: ${errorInfo.error_message}\n**発生時刻**: ${errorInfo.timestamp}\n\n---\n**詳細スタック**:\n\\`\\`\\`\n${errorInfo.error_stack.substring(0, 500)}${errorInfo.error_stack.length > 500 ? '...' : ''}\n\\`\\`\\`\n\n**対応方法**:\n1. n8n実行履歴で詳細を確認\n2. エラーノードの設定を確認\n3. 必要に応じて再実行`;\n\nreturn [{\n  json: {\n    ...errorInfo,\n    discord_message: discordMessage\n  }\n}];"
+      },
+      "id": "error-discord-format-003",
+      "name": "Discord通知メッセージ作成",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        650,
+        300
+      ],
+      "notes": "Discord投稿用にエラーメッセージを整形"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "webhookUrl": "={{ $env('DISCORD_ERROR_WEBHOOK_URL') }}",
+        "content": "={{ $json.discord_message }}"
+      },
+      "id": "error-discord-send-004",
+      "name": "Discord通知送信",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        850,
+        300
+      ],
+      "onError": "continueErrorOutput",
+      "notes": "Discordにエラー通知を送信"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "error_logged",
+              "value": "true",
+              "type": "boolean"
+            },
+            {
+              "id": "2",
+              "name": "logged_at",
+              "value": "={{ $now.toISO() }}",
+              "type": "string"
+            },
+            {
+              "id": "3",
+              "name": "workflow_name",
+              "value": "={{ $('エラー情報整形').first().json.workflow_name }}",
+              "type": "string"
+            },
+            {
+              "id": "4",
+              "name": "error_message",
+              "value": "={{ $('エラー情報整形').first().json.error_message }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "error-log-005",
+      "name": "エラーログ記録",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        1050,
+        300
+      ],
+      "notes": "エラー情報をn8n実行履歴に記録"
+    }
+  ],
+  "connections": {
+    "エラートリガー": {
+      "main": [
+        [
+          {
+            "node": "エラー情報整形",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "エラー情報整形": {
+      "main": [
+        [
+          {
+            "node": "Discord通知メッセージ作成",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord通知メッセージ作成": {
+      "main": [
+        [
+          {
+            "node": "Discord通知送信",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord通知送信": {
+      "main": [
+        [
+          {
+            "node": "エラーログ記録",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "timezone": "Asia/Tokyo"
+  },
+  "staticData": null,
+  "tags": [
+    "error-handling",
+    "notifications"
+  ],
+  "pinData": {},
+  "versionId": "error-workflow-v1-uuid"
+}

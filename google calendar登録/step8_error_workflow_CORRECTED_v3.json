@@ -1,0 +1,397 @@
+{
+  "name": "Discord Calendar Manager - Error Handling",
+  "meta": {
+    "templateCreatedBy": "n8n AI Workflow Designer v12 - with Node Lists and Optimized Spacing",
+    "description": "Discord Calendar Manager用のエラーハンドリング専用ワークフロー。エラー発生時にDiscord通知を送信し、詳細ログを記録。Sticky Noteで各グループの目的と処理フローを明確化",
+    "version": "3.0.0",
+    "linkedWorkflow": "Discord Calendar Manager - Google Calendar Integration (Native Nodes)",
+    "improvements": "Sticky Noteにノード名リスト追加、ノード間隔を約半分に最適化（水平75px、垂直60px）、Discord専用ノード使用、Slack通知削除"
+  },
+  "nodes": [
+    {
+      "_comment": "【Sticky Note: エラーワークフロー全体説明】このワークフローの目的と重要性を説明",
+      "parameters": {
+        "height": 460,
+        "width": 680,
+        "color": 2,
+        "content": "# 【Error Workflow - エラーハンドリング】\n\n## このワークフローに含まれる全ノード（9個）\n📌 **Error Trigger** (Error Trigger)\n📌 **エラー情報整形** (Code)\n📌 **重要度判定** (IF)\n📌 **Discord管理者通知** (Discord)\n📌 **ユーザー通知要否判定** (IF)\n📌 **Discordユーザーエラー通知** (Discord)\n📌 **エラーログ記録** (Write File)\n📌 **エラー統計更新（オプション）** (Code)\n📌 **Error Workflow完了** (NoOp)\n\n## このワークフローの目的\nメインワークフローでエラーが発生した際に自動的に起動され、エラー情報を整形して関係者に通知します。\n\n## 背景\n本番環境では、エラーを見逃すとビジネスに深刻な影響を与える可能性があります:\n- ユーザーが予定登録に失敗したことに気づかない\n- システム障害が放置される\n- データ損失や重複エラーが蓄積する\n\n自動通知により、24時間365日の監視体制を実現します。\n\n## 全体の流れ\n1. エラー検知: メインワークフローのエラーを自動検知\n2. エラー整形: 技術的な情報を読みやすく変換\n3. 重要度判定: CRITICAL/ERROR/WARNINGで処理を分岐\n4. 通知送信: Discord管理者チャンネル + ユーザー通知\n5. ログ記録: 全エラーをファイルに永続化\n\n## 達成したいこと\nエラー発生から1分以内に関係者に通知が届き、5分以内に対応を開始できる体制を構築すること。\n\n## 重要性\n本番環境では必須のセーフティネット機能"
+      },
+      "id": "sticky_note_error_overview",
+      "name": "Sticky Note - エラーワークフロー説明",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        50,
+        150
+      ]
+    },
+    {
+      "_comment": "【Sticky Note: グループ1 - エラー検知グループ】メインワークフローのエラーを検知し、詳細情報を取得",
+      "parameters": {
+        "height": 360,
+        "width": 480,
+        "color": 2,
+        "content": "# 【グループ1: エラー検知】\n\n## このグループに含まれるノード\n📌 **Error Trigger** (Error Trigger)\n\n## 目的\nメインワークフローで発生したエラーを漏れなく捕捉し、詳細情報を取得します。\n\n## 背景\nError Triggerは、メインワークフローの設定（errorWorkflow）で紐付けられており、任意のノードでエラーが発生すると自動的に起動されます。\n\n## 取得する情報\n- エラーメッセージ: 何が問題だったのか\n- スタックトレース: エラーの詳細な発生箇所\n- 実行時刻: いつ発生したのか\n- ワークフロー名: どのワークフローか\n- ノード名: どのノードで発生したか\n- 実行ID: デバッグ用の一意識別子\n- ユーザーコンテキスト: 誰のリクエストか\n\n## 達成したいこと\nエラーの詳細情報を確実に取得し、原因特定に必要な情報をすべて収集する\n\n## 次のステップ\n→ エラー情報整形グループへ"
+      },
+      "id": "sticky_note_error_group1",
+      "name": "Sticky Note - エラー検知",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        175,
+        300
+      ]
+    },
+    {
+      "_comment": "Error Trigger: メインワークフローでエラーが発生した際に自動実行されるトリガー",
+      "parameters": {},
+      "id": "error_trigger_001",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        250,
+        400
+      ],
+      "notes": "【エラー検知トリガー】\n\n処理内容: メインワークフロー（Discord Calendar Manager）のエラーを自動検知\n\nトリガー条件:\n- メインワークフローの任意のノードでエラーが発生\n- settings.errorWorkflowで紐付けられている\n\n取得情報（n8nが自動提供）:\n- error.message: エラーメッセージ\n- error.stack: スタックトレース\n- node.name: エラー発生ノード名\n- execution.id: 実行ID\n- itemData: エラー発生時の入力データ\n\n出力: エラーの生情報（technical format）\n\n役割: メインワークフローとエラーワークフローを接続する橋渡し\n\n重要性: このトリガーがないと、エラーが発生しても誰も気づかない\n\nメインワークフローとの紐付け:\nメインワークフローのsettings.errorWorkflow = \"Discord Calendar Manager - Error Handling\""
+    },
+    {
+      "_comment": "【Sticky Note: グループ2 - エラー情報整形グループ】生のエラー情報を人間が理解できる形式に変換",
+      "parameters": {
+        "height": 380,
+        "width": 500,
+        "color": 4,
+        "content": "# 【グループ2: エラー情報整形】\n\n## このグループに含まれるノード\n📌 **エラー情報整形** (Code)\n\n## 目的\n技術的なエラー情報を、非エンジニアでも理解できる明確なメッセージに変換します。\n\n## 背景\nn8nのエラー情報は技術的で冗長なため、そのまま通知すると対応に時間がかかります。必要な情報だけを抽出し、見やすく整形することで、迅速な対応を可能にします。\n\n## 処理内容\n1. エラー基本情報抽出: メッセージ、ノード名、スタックトレース\n2. 重要度判定: CRITICAL/ERROR/WARNINGの3段階\n3. 実行コンテキスト取得: 実行ID、タイムスタンプ\n4. ユーザーコンテキスト取得: user_id, message_content\n5. Discord通知用メッセージ生成: 絵文字付き、見やすいフォーマット\n6. ログ記録用データ生成: 詳細な構造化JSON\n\n## 達成したいこと\nエラー通知を見た瞬間に、何が問題で、どのノードで発生し、次に何をすべきかが分かるようにする\n\n## 次のステップ\n→ 重要度判定 → 通知送信グループへ"
+      },
+      "id": "sticky_note_error_group2",
+      "name": "Sticky Note - エラー情報整形",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        425,
+        300
+      ]
+    },
+    {
+      "_comment": "エラー情報整形: エラー詳細を読みやすい形式に整形し、重要度を判定",
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// エラー情報を取得\nconst error = $input.first().json;\n\n// エラー発生ノード名を取得\nconst errorNodeName = error.node?.name || 'Unknown Node';\n\n// エラーメッセージを取得\nconst errorMessage = error.error?.message || error.message || 'Unknown Error';\n\n// エラースタックトレースを取得（最初の5行のみ）\nconst errorStack = error.error?.stack || error.stack || '';\nconst stackLines = errorStack.split('\\n').slice(0, 5).join('\\n');\n\n// 実行IDを取得\nconst executionId = $execution.id || 'Unknown';\n\n// タイムスタンプを日本時間で取得\nconst timestamp = new Date().toLocaleString('ja-JP', {\n  timeZone: 'Asia/Tokyo',\n  year: 'numeric',\n  month: '2-digit',\n  day: '2-digit',\n  hour: '2-digit',\n  minute: '2-digit',\n  second: '2-digit'\n});\n\n// エラーの重要度を判定\nlet severity = 'ERROR';\nif (errorMessage.includes('timeout') || errorMessage.includes('ETIMEDOUT')) {\n  severity = 'WARNING';\n} else if (errorMessage.includes('validation') || errorMessage.includes('Invalid')) {\n  severity = 'WARNING';\n} else if (errorMessage.includes('API') || errorMessage.includes('authentication')) {\n  severity = 'CRITICAL';\n}\n\n// 入力データを取得（エラー発生時のコンテキスト）\nconst inputData = error.itemData || {};\nconst userId = inputData.user_id || 'Unknown';\nconst messageContent = inputData.message_content || 'Unknown';\nconst callbackUrl = inputData.callback_url || null;\n\nreturn [{\n  json: {\n    // エラー基本情報\n    error_node_name: errorNodeName,\n    error_message: errorMessage,\n    error_stack: stackLines,\n    severity: severity,\n    \n    // 実行コンテキスト\n    execution_id: executionId,\n    timestamp: timestamp,\n    workflow_name: 'Discord Calendar Manager',\n    \n    // ユーザーコンテキスト\n    user_id: userId,\n    message_content: messageContent,\n    callback_url: callbackUrl,\n    \n    // Discord通知用フォーマット済みメッセージ\n    discord_message: `🚨 **エラー発生** [${severity}]\\n\\n` +\n      `**ワークフロー**: Discord Calendar Manager\\n` +\n      `**エラー発生ノード**: ${errorNodeName}\\n` +\n      `**エラーメッセージ**: ${errorMessage}\\n` +\n      `**実行ID**: ${executionId}\\n` +\n      `**発生時刻**: ${timestamp}\\n` +\n      `**ユーザーID**: ${userId}\\n` +\n      `**メッセージ内容**: ${messageContent.substring(0, 100)}${messageContent.length > 100 ? '...' : ''}\\n\\n` +\n      `**スタックトレース**:\\n\\`\\`\\`\\n${stackLines}\\n\\`\\`\\`\\n\\n` +\n      `管理者に報告してください。`,\n    \n    // ログ記録用詳細情報\n    log_entry: {\n      timestamp: timestamp,\n      severity: severity,\n      workflow: 'Discord Calendar Manager',\n      execution_id: executionId,\n      error_node: errorNodeName,\n      error_message: errorMessage,\n      error_stack: errorStack,\n      user_id: userId,\n      message_content: messageContent,\n      input_data: inputData\n    }\n  }\n}];"
+      },
+      "id": "code_002",
+      "name": "エラー情報整形",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        400
+      ],
+      "notes": "【エラーデータ変換】\n\n処理内容: n8nの生エラー情報を人間が読みやすい形式に整形\n\n抽出・変換する情報:\n\n1. エラー基本情報:\n   - error_node_name: エラー発生ノード名\n   - error_message: エラーメッセージ本文\n   - error_stack: スタックトレース（最初の5行のみ）\n\n2. 重要度判定（自動）:\n   - CRITICAL: 認証エラー、APIエラー → 即座の対応必須\n   - ERROR: 一般的なエラー → 早急な対応が必要\n   - WARNING: タイムアウト、バリデーションエラー → 監視が必要\n\n3. 実行コンテキスト:\n   - execution_id: n8nの実行ID（デバッグ用）\n   - timestamp: 発生時刻（日本時間、人間が読める形式）\n   - workflow_name: ワークフロー名\n\n4. ユーザーコンテキスト:\n   - user_id: どのユーザーのリクエストか\n   - message_content: ユーザーが入力したメッセージ\n   - callback_url: Discord返信用URL\n\n5. Discord通知用メッセージ（整形済み）:\n   - 絵文字で視覚的に強調\n   - 重要情報をボールドで表示\n   - スタックトレースをコードブロックで整形\n\n6. ログ記録用データ（JSON）:\n   - 全情報を構造化JSONに格納\n   - 後でログ分析やレポート生成に使用\n\n入力: n8nの生エラーオブジェクト（複雑な構造）\n\n出力: 6つのカテゴリに整理された情報\n\n役割: 技術的なエラー情報を、誰でも理解できる形式に変換\n\nなぜ必要: 生のエラー情報は専門的すぎて、深夜のエラー通知で即座に理解するのが困難"
+    },
+    {
+      "_comment": "【Sticky Note: グループ3 - 重要度判定・通知送信グループ】エラーの重要度に応じて適切な通知先を選択し、送信",
+      "parameters": {
+        "height": 400,
+        "width": 560,
+        "color": 5,
+        "content": "# 【グループ3: 重要度判定・通知送信】\n\n## このグループに含まれるノード\n📌 **重要度判定** (IF)\n📌 **Discord管理者通知** (Discord)\n📌 **ユーザー通知要否判定** (IF)\n📌 **Discordユーザーエラー通知** (Discord)\n\n## 目的\nエラーの重要度（CRITICAL/ERROR/WARNING）に応じて、適切な通知先と通知方法を選択します。\n\n## 背景\nすべてのエラーを同じように扱うと:\n- 重要なエラーが軽微なエラーに埋もれる\n- 深夜に不要な通知で起こされる\n- 対応の優先順位が不明確\n\n重要度で分類することで、適切なレベルの対応を実現します。\n\n## 処理の流れ\n1. 重要度判定: severity = CRITICAL/ERROR/WARNING\n2. 分岐1（CRITICAL/ERROR）:\n   - Discord管理者通知: 管理者チャンネルに詳細を送信\n   - ユーザー通知要否判定: callback_urlがあるかチェック\n   - Discordユーザーエラー通知: ユーザーに簡潔な通知\n3. 分岐2（WARNING）:\n   - ログ記録のみ（通知なし）\n\n## 通知先\n- Discord管理者チャンネル: 技術的な詳細情報\n- Discordユーザー: 簡潔で分かりやすいメッセージ\n\n## 達成したいこと\nCRITICAL/ERRORは1分以内にスマートフォンに通知が届き、WARNINGは定期レポートで確認できる体制\n\n## 次のステップ\n→ ログ記録グループへ"
+      },
+      "id": "sticky_note_error_group3",
+      "name": "Sticky Note - 通知送信",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        675,
+        150
+      ]
+    },
+    {
+      "_comment": "重要度判定: エラーの重要度で処理を分岐",
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition_1",
+              "leftValue": "={{ $json.severity }}",
+              "rightValue": "WARNING",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ]
+        }
+      },
+      "id": "if_003",
+      "name": "重要度判定",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        750,
+        400
+      ],
+      "notes": "【重要度分岐】\n\n処理内容: エラー重要度（severity）で処理フローを分岐\n\n分岐:\n- true（上）: CRITICAL または ERROR\n  → Discord管理者通知 → ユーザー通知判定 → ログ記録\n  → 即座の対応が必要なエラー\n  \n- false（下）: WARNING\n  → ログ記録のみ（通知スキップ）\n  → 監視は必要だが即座の対応は不要\n\n判定基準:\n- CRITICAL: 認証エラー、APIキー無効、外部サービス障害\n  → ビジネスに即座に影響、至急対応必須\n  \n- ERROR: 一般的なエラー、予期しない例外\n  → 対応が必要だが、数時間以内でOK\n  \n- WARNING: タイムアウト、バリデーションエラー、一時的な問題\n  → 記録して傾向を監視、定期レポートで確認\n\n役割: エラーの緊急度に応じた適切な対応ルートを選択\n\n重要性: この判定により、重要なエラーを見逃さず、軽微なエラーで深夜に起こされることもない"
+    },
+    {
+      "_comment": "Discord管理者通知: CRITICAL/ERRORの場合に管理者チャンネルに詳細なエラー情報を送信（Discord専用ノード使用）",
+      "parameters": {
+        "operation": "sendMessage",
+        "channelId": "YOUR_ADMIN_CHANNEL_ID",
+        "content": "={{ $json.discord_message }}",
+        "options": {}
+      },
+      "id": "http_004",
+      "name": "Discord管理者通知",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        250
+      ],
+      "continueOnFail": true,
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1000,
+      "notes": "【管理者への詳細通知 - Discord専用ノード使用】\n\n処理内容: 管理者用Discordチャンネルにエラーの詳細情報を送信\n\n通知内容（discord_messageフィールド）:\n- 🚨 絵文字 + エラー重要度\n- ワークフロー名\n- エラー発生ノード名\n- エラーメッセージ本文\n- 実行ID（n8n管理画面でデバッグ用）\n- 発生時刻（日本時間）\n- ユーザーID（誰のリクエストか）\n- メッセージ内容（ユーザーの入力）\n- スタックトレース（最初の5行、コードブロック整形）\n\nDiscord設定:\n- Operation: Send Message\n- Channel ID: YOUR_ADMIN_CHANNEL_ID（要設定）\n- Content: discord_message（整形済み）\n- Retry: 2回（1秒間隔）\n\n入力: discord_message（整形済み）\n\n出力: 送信結果（成功/失敗）\n\ncontinueOnFail: true（通知失敗でもワークフローは継続）\n\n役割: 技術者に詳細情報を提供し、迅速なデバッグを可能にする\n\n設定必須: YOUR_ADMIN_CHANNEL_IDを実際の管理者チャンネルIDに置き換えてください\n\n重要性: 管理者がエラーの全貌を把握するための最重要通知"
+    },
+    {
+      "_comment": "ユーザー通知要否判定: callback_urlの存在と管理者URLとの相違で判定",
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition_1",
+              "leftValue": "={{ $json.callback_url }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            },
+            {
+              "id": "condition_2",
+              "leftValue": "={{ $json.callback_url }}",
+              "rightValue": "YOUR_ADMIN_DISCORD_WEBHOOK_URL",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if_005",
+      "name": "ユーザー通知要否判定",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1250,
+        250
+      ],
+      "notes": "【ユーザー通知判定】\n\n処理内容: ユーザーへのエラー通知が必要かを2つの条件で判定\n\n判定条件（AND条件）:\n1. callback_urlが存在する（空でない）\n2. callback_urlが管理者チャンネルURLと異なる\n\n分岐:\n- true（上）: ユーザーにもエラー通知を送信\n  → ユーザーが「予定登録失敗」を認識できる\n  \n- false（下）: ユーザー通知スキップ → ログ記録へ\n  → callback_urlがないか、管理者チャンネルと同じ場合\n\n役割: 重複通知を防ぎつつ、必要なユーザーには確実に通知\n\nなぜこの条件:\n- callback_urlなし: 手動実行やテストの場合、ユーザー通知不要\n- 管理者と同じURL: 重複通知を避ける\n\n重要性: ユーザーが「送信したのに反応がない」という状況を防止"
+    },
+    {
+      "_comment": "Discordユーザーエラー通知: ユーザー向けの簡潔で分かりやすいエラーメッセージ（Discord専用ノード使用）",
+      "parameters": {
+        "operation": "sendMessage",
+        "channelId": "={{ $json.callback_url }}",
+        "content": "=❌ エラーが発生しました\\n\\n予定の登録に失敗しました。\\nエラー内容: {{ $json.error_message }}\\n\\n管理者に報告済みです。しばらく待ってから再度お試しください。\\n\\n実行ID: {{ $json.execution_id }}",
+        "options": {}
+      },
+      "id": "http_006",
+      "name": "Discordユーザーエラー通知",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        1500,
+        150
+      ],
+      "continueOnFail": true,
+      "retryOnFail": false,
+      "notes": "【ユーザーへの簡潔通知 - Discord専用ノード使用】\n\n処理内容: ユーザーに分かりやすい簡潔なエラーメッセージを通知\n\n通知内容:\n- ❌ エラー絵文字（視覚的に強調）\n- 簡潔な状況説明: 「予定の登録に失敗しました」\n- エラー内容: error_message（技術用語を避けた表現）\n- 安心情報: 「管理者に報告済みです」\n- 対処方法: 「しばらく待ってから再度お試しください」\n- 実行ID: 問い合わせ時の参照用\n\nDiscord設定:\n- Operation: Send Message\n- Channel ID: callback_url（ユーザーのチャンネル）\n- Content: エラーメッセージ（整形済み）\n- Retry: なし（ユーザー通知は1回のみ）\n\n入力: callback_url, error_message, execution_id\n\n出力: 送信結果\n\ncontinueOnFail: true（ユーザー通知失敗でもログは記録）\n\n特徴: 技術的な詳細は含めず、ユーザーフレンドリーな表現のみ\n\n役割: ユーザーに「何が起きたか」と「次に何をすべきか」を伝える\n\n重要性: ユーザーが混乱せず、適切に再試行または問い合わせできるようにする"
+    },
+    {
+      "_comment": "【Sticky Note: グループ4 - ログ記録・統計グループ】すべてのエラーをファイルに記録し、統計情報を更新",
+      "parameters": {
+        "height": 380,
+        "width": 520,
+        "color": 3,
+        "content": "# 【グループ4: ログ記録・統計】\n\n## このグループに含まれるノード\n📌 **エラーログ記録** (Write File)\n📌 **エラー統計更新（オプション）** (Code)\n📌 **Error Workflow完了** (NoOp)\n\n## 目的\nすべてのエラー（WARNING含む）を永続化し、統計情報を更新して長期的な分析を可能にします。\n\n## 背景\n通知だけでは:\n- エラーの傾向が分からない\n- 繰り返し発生するエラーを見逃す\n- 改善の優先順位が不明\n\nログファイルと統計により、データドリブンなシステム改善が可能になります。\n\n## 処理の流れ\n1. エラーログ記録: 全エラーをJSONL形式でファイルに追記\n2. エラー統計更新（オプション）: 重要度別・ノード別のカウント更新\n3. Error Workflow完了: エラーハンドリング完了\n\n## 記録される情報\n- エラー詳細: メッセージ、スタックトレース、ノード名\n- 実行コンテキスト: 実行ID、タイムスタンプ\n- ユーザーコンテキスト: user_id, message_content\n- 統計情報: 重要度別カウント、ノード別カウント\n\n## 用途\n- エラートレンド分析\n- 問題の多いノードの特定\n- 定期レポート生成\n- システム改善の優先順位決定\n\n## 達成したいこと\nエラーデータを蓄積し、継続的なシステム改善を実現する\n\n## 完了\nエラーハンドリング完了"
+      },
+      "id": "sticky_note_error_group4",
+      "name": "Sticky Note - ログ記録",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        925,
+        475
+      ]
+    },
+    {
+      "_comment": "エラー統計更新（オプション）: エラーの統計情報をグローバルステートで管理",
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Initialize global error stats storage\nif (!$vars.errorStats) {\n  $vars.errorStats = {\n    total_warnings: 0,\n    total_errors: 0,\n    total_critical: 0,\n    last_warning: null,\n    last_error: null,\n    last_critical: null,\n    error_by_node: {}\n  };\n}\n\nconst severity = $input.first().json.severity;\nconst errorNode = $input.first().json.error_node_name;\nconst timestamp = $input.first().json.timestamp;\n\n// 重要度別カウント\nif (severity === 'WARNING') {\n  $vars.errorStats.total_warnings++;\n  $vars.errorStats.last_warning = timestamp;\n} else if (severity === 'ERROR') {\n  $vars.errorStats.total_errors++;\n  $vars.errorStats.last_error = timestamp;\n} else if (severity === 'CRITICAL') {\n  $vars.errorStats.total_critical++;\n  $vars.errorStats.last_critical = timestamp;\n}\n\n// ノード別カウント\nif (!$vars.errorStats.error_by_node[errorNode]) {\n  $vars.errorStats.error_by_node[errorNode] = 0;\n}\n$vars.errorStats.error_by_node[errorNode]++;\n\nreturn [{\n  json: {\n    ...($input.first().json),\n    statistics: $vars.errorStats\n  }\n}];"
+      },
+      "id": "code_009",
+      "name": "エラー統計更新（オプション）",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        750,
+        600
+      ],
+      "notes": "【統計情報管理（オプション機能）】\n\n処理内容: エラー統計情報をグローバルステートで管理（メモリ内、n8n再起動でリセット）\n\n統計項目:\n\n1. 重要度別カウント:\n   - total_warnings: WARNING総数\n   - total_errors: ERROR総数\n   - total_critical: CRITICAL総数\n\n2. 最終発生時刻（重要度別）:\n   - last_warning: 最後のWARNING発生時刻\n   - last_error: 最後のERROR発生時刻\n   - last_critical: 最後のCRITICAL発生時刻\n\n3. ノード別エラーカウント:\n   - error_by_node: {\"AI抽出結果検証\": 5, \"タイムスタンプ計算\": 2, ...}\n\nデータ保存:\n- staticData.errorStats（グローバルステート）\n- n8n再起動またはワークフロー更新でリセット\n\n入力: severity, error_node_name, timestamp\n\n出力: 更新済み統計情報\n\n用途:\n1. エラー傾向分析: どのエラーが多いか\n2. 問題ノード特定: どのノードがエラーを起こしやすいか\n3. 定期レポート生成: 月次・週次レポートの基礎データ\n4. システム改善優先順位: カウントが多いノードから改善\n\n役割: エラーデータを集計し、データドリブンな改善を可能にする\n\n使用有無: 統計が不要な場合は、このノードを削除してください\n\n重要性（使用時）: エラーの定量的分析により、感覚ではなくデータに基づいた改善が可能"
+    },
+    {
+      "_comment": "エラーワークフロー終了: すべての処理パスの最終地点",
+      "parameters": {},
+      "id": "noop_010",
+      "name": "Error Workflow完了",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1750,
+        400
+      ],
+      "notes": "【エラーワークフロー完了】\n\n処理内容: エラーワークフロー正常終了（NoOpノード = 何もしない）\n\n到達パターン:\n1. CRITICAL/ERRORパス:\n   - 管理者通知 → ユーザー通知 → ログ記録 → 終了\n   - 管理者通知 → ログ記録 → 終了（ユーザー通知スキップ）\n\n2. WARNINGパス:\n   - ログ記録のみ → 終了\n   - 統計更新 → 終了\n\n全パターンで必ず到達:\n- エラーログは必ず記録される（重要度に関わらず）\n- 通知は重要度に応じて送信される\n\n役割: エラーワークフロー全体の終点を明示し、処理完了を保証\n\nなぜNoOp: すべてのパスが確実に終了することを視覚的に示す\n\n重要性: どのエラーパターンでも、必ず適切に処理されて終了することを保証"
+    }
+  ],
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "エラー情報整形",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "エラー情報整形": {
+      "main": [
+        [
+          {
+            "node": "重要度判定",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "エラー統計更新（オプション）",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "重要度判定": {
+      "main": [
+        [
+          {
+            "node": "Discord管理者通知",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "エラーログ記録",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord管理者通知": {
+      "main": [
+        [
+          {
+            "node": "ユーザー通知要否判定",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ユーザー通知要否判定": {
+      "main": [
+        [
+          {
+            "node": "Discordユーザーエラー通知",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "エラーログ記録",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discordユーザーエラー通知": {
+      "main": [
+        [
+          {
+            "node": "エラーログ記録",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "エラーログ記録": {
+      "main": [
+        [
+          {
+            "node": "Error Workflow完了",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "エラー統計更新（オプション）": {
+      "main": [
+        [
+          {
+            "node": "Error Workflow完了",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "timezone": "Asia/Tokyo",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": 60
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "id": "error_handling",
+      "name": "Error Handling"
+    }
+  ],
+  "pinData": {},
+  "versionId": "3"
+}

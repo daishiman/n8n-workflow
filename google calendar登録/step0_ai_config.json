@@ -1,0 +1,163 @@
+{
+  "step": "Step 0: n8n AIエージェント設定フェーズ",
+  "ai_agent_config": {
+    "provider": "OpenRouter",
+    "api_endpoint": "https://openrouter.ai/api/v1",
+    "authentication": {
+      "type": "API Key",
+      "header": "Authorization: Bearer YOUR_OPENROUTER_API_KEY",
+      "api_key_variable": "OPENROUTER_API_KEY"
+    },
+    "agents": [
+      {
+        "agent_id": "agent_1",
+        "name": "Discord予定抽出エージェント",
+        "responsibility": "Discordメッセージから予定情報（日時、件名、参加者メールアドレス）を抽出",
+        "goal": "自然言語のDiscordメッセージを構造化されたJSON形式に変換",
+        "chat_model": {
+          "node_type": "HTTP Request Node (OpenRouter互換)",
+          "model": "x-ai/grok-2-1212",
+          "display_name": "Grok 2 (via OpenRouter)",
+          "parameters": {
+            "temperature": 0.3,
+            "max_tokens": 1000,
+            "top_p": 0.9
+          },
+          "implementation": "HTTP Request to OpenRouter API"
+        },
+        "input": "Discord message text (自然言語)",
+        "output": {
+          "event_title": "string",
+          "event_datetime": "ISO 8601 format",
+          "duration_minutes": "number",
+          "attendee_emails": ["array of strings"],
+          "description": "string"
+        }
+      },
+      {
+        "agent_id": "agent_2",
+        "name": "カレンダー分析・候補提案エージェント",
+        "responsibility": "Googleカレンダーの予定を分析し、重複チェック、空き時間から最適な候補を提案",
+        "goal": "重複時は5つの代替候補を提案（今日・明日の2日分）",
+        "chat_model": {
+          "node_type": "HTTP Request Node (OpenRouter互換)",
+          "model": "google/gemini-2.0-flash-exp:free",
+          "display_name": "Gemini 2.0 Flash (via OpenRouter)",
+          "parameters": {
+            "temperature": 0.7,
+            "max_tokens": 2000,
+            "top_p": 0.95
+          },
+          "implementation": "HTTP Request to OpenRouter API"
+        },
+        "input": {
+          "requested_datetime": "ISO 8601",
+          "duration_minutes": "number",
+          "existing_events": "array of calendar events"
+        },
+        "output": {
+          "has_conflict": "boolean",
+          "conflict_details": "string (if applicable)",
+          "alternative_slots": [
+            {
+              "slot_datetime": "ISO 8601",
+              "reason": "string"
+            }
+          ]
+        }
+      },
+      {
+        "agent_id": "agent_3",
+        "name": "通知メール文章生成エージェント",
+        "responsibility": "予定の詳細情報から、参加者向けの丁寧で明確な通知メールを自動生成",
+        "goal": "件名、本文、参加者への配慮を含む完全なメール文章を作成",
+        "chat_model": {
+          "node_type": "HTTP Request Node (OpenRouter互換)",
+          "model": "anthropic/claude-3.5-sonnet:beta",
+          "display_name": "Claude 3.5 Sonnet (via OpenRouter)",
+          "parameters": {
+            "temperature": 0.8,
+            "max_tokens": 1500,
+            "top_p": 0.9
+          },
+          "implementation": "HTTP Request to OpenRouter API"
+        },
+        "input": {
+          "event_title": "string",
+          "event_datetime": "ISO 8601",
+          "duration_minutes": "number",
+          "attendee_emails": ["array"],
+          "organizer_name": "string",
+          "description": "string"
+        },
+        "output": {
+          "email_subject": "string",
+          "email_body_html": "string",
+          "email_body_plain": "string"
+        }
+      }
+    ],
+    "memory": {
+      "node_type": "Simple Memory (in-memory)",
+      "display_name": "Simple Memory",
+      "purpose": "ユーザーとのやり取り（重複時の候補提案→選択）を保持",
+      "parameters": {
+        "session_key": "={{ $('Discord Webhook').item.json.user_id }}",
+        "context_window_length": 5
+      },
+      "note": "Discord Botとのやり取りはステートレスなので、会話履歴が必要な場合はPostgreSQLに変更推奨"
+    },
+    "credential_setup": {
+      "openrouter": {
+        "type": "API Key Authentication",
+        "api_key_variable": "OPENROUTER_API_KEY",
+        "instructions": "1. https://openrouter.ai/ でアカウント作成\n2. Settings → Keys → Create New Key\n3. 生成されたキーをコピー\n4. n8nの認証情報に 'OpenRouter API' として登録",
+        "header_format": "Authorization: Bearer YOUR_API_KEY",
+        "models_access": [
+          "x-ai/grok-2-1212",
+          "google/gemini-2.0-flash-exp:free",
+          "anthropic/claude-3.5-sonnet:beta"
+        ]
+      },
+      "google_calendar": {
+        "type": "OAuth2 / Service Account",
+        "instructions": "1. Google Cloud Console → APIとサービス → 認証情報\n2. OAuth 2.0クライアントIDを作成\n3. スコープ: https://www.googleapis.com/auth/calendar\n4. n8nの認証情報に 'Google Calendar OAuth2' として登録"
+      },
+      "gmail": {
+        "type": "OAuth2 / Service Account",
+        "instructions": "1. Google Cloud Console → APIとサービス → 認証情報\n2. OAuth 2.0クライアントIDを作成（Calendarと同じでOK）\n3. スコープ: https://www.googleapis.com/auth/gmail.send\n4. n8nの認証情報に 'Gmail OAuth2' として登録"
+      },
+      "discord": {
+        "type": "Discord Bot Token",
+        "instructions": "1. Discord Developer Portal → Applications → New Application\n2. Bot → Add Bot\n3. Bot Tokenをコピー\n4. Pythonアプリに環境変数DISCORD_BOT_TOKENとして設定"
+      }
+    },
+    "n8n_implementation_note": "OpenRouterはOpenAI互換APIなので、n8nではHTTP Requestノードを使用して直接呼び出します。AI Agent Nodeは使用せず、カスタムHTTP実装で3つのLLMを使い分けます。"
+  },
+  "technical_architecture": {
+    "layer_1_discord_bot": {
+      "platform": "Railway (Python)",
+      "framework": "discord.py",
+      "responsibility": "Discordメッセージを受信し、n8n Webhookに転送",
+      "implementation": "Discord Bot → POST request to n8n Webhook URL"
+    },
+    "layer_2_n8n_workflow": {
+      "platform": "Railway (n8n)",
+      "responsibility": "Webhookトリガー → AI処理 → Googleカレンダー操作 → Gmail送信 → Discord返信",
+      "trigger": "Webhook Node (POST)",
+      "ai_implementation": "HTTP Request Nodes (3つ) → OpenRouter API"
+    },
+    "layer_3_external_services": {
+      "google_calendar": "予定の確認・登録",
+      "gmail": "通知メール送信",
+      "openrouter": "3つのLLMへのゲートウェイ"
+    }
+  },
+  "workflow_summary": {
+    "total_ai_agents": 3,
+    "ai_implementation": "HTTP Request (OpenRouter)",
+    "memory_type": "Simple Memory (会話履歴管理)",
+    "estimated_nodes": "35-45ノード",
+    "complexity": "高（複数LLM、条件分岐、ループ処理）"
+  }
+}
