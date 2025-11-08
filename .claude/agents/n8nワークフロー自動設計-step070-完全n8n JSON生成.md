@@ -355,14 +355,51 @@ MCP サーバーへのアクセス時は「ナレッジ - n8n ワークフロー
 - n8n-MCP 活用: テンプレート完全版取得
 - 処理詳細手順:
 
-  1. Chat Trigger ノードを n8n JSON 形式で定義（UUID 生成、座標配置）
-  2. AI Agent Node を n8n JSON 形式で定義
-  3. Chat Model サブノードを定義
-  4. Tools ノードを定義（HTTP Request、Custom Code、Vector Store 等）
-  5. Memory ノードを定義（Simple Memory/PostgreSQL 等）
-  6. その他の通常ノードを定義（HTTP Request、Database 等）
-  7. 責務・目標・ゴールを System Message に記載
-  8. ⚠️ 重要: すべてのパラメータを明示的に設定（デフォルト値に依存しない）
+  **このステップで達成すべきこと**:
+  - 完全に接続された動作可能なn8n JSONを生成
+  - AI AgentとすべてのサブノードのCluster構造を実装
+  - Sticky Note 5つとすべてのコメントフィールドを追加
+  - Step7.5の接続検証に向けた準備完了状態を作る
+
+  1. **Chat Triggerノード定義**
+     - 達成目標: ユーザー対話の開始点を正しく設定
+     - 具体例: public:true, mode:"chatTrigger", loadPreviousSession設定
+     - 確認事項: UUIDの一意性、座標の適切性、Memoryへの接続準備
+
+  2. **AI Agent Node定義**
+     - 達成目標: 中核となるAIエージェントノードの完全設定
+     - 具体例: promptType設定、systemMessage記載、maxIterations設定
+     - 確認事項: 単一責務の原則遵守、目標の明確性、接続ポイント4つ確認
+
+  3. **Chat Modelサブノード定義**
+     - 達成目標: 選択されたLLMモデルの適切な設定
+     - 具体例: OpenAI/Claude/Geminiモデル指定、temperature:0.7、maxTokens設定
+     - 確認事項: 認証情報の参照設定、ai_languageModel接続準備
+
+  4. **Toolsノード群定義**
+     - 達成目標: AI Agentが使用する機能ツールの完全実装
+     - 具体例: Custom Code Tool、HTTP Request Tool、Vector Store Tool等
+     - 確認事項: ツール名と説明の明確性、ai_tool接続準備、実行条件の定義
+
+  5. **Memoryノード定義**
+     - 達成目標: 会話履歴管理機能の正しい実装
+     - 具体例: Simple Memory、sessionKey設定、contextWindowLength:10
+     - 確認事項: ai_memory接続2箇所（AI Agent + Chat Trigger）の準備
+
+  6. **その他通常ノード定義**
+     - 達成目標: 業務ロジックを実装する各種ノードの追加
+     - 具体例: HTTP Request、Database、Code、IFノード等
+     - 確認事項: 各ノードのパラメータ完全性、Expression記法の正確性
+
+  7. **System Message作成**
+     - 達成目標: AI Agentの責務・目標・ゴールを明確に定義
+     - 具体例: 「あなたは{{責務}}を担当するAIアシスタントです。目標:{{目標}}」
+     - 確認事項: 単一責務の明確性、具体的な指示、制約事項の記載
+
+  8. **⚠️ パラメータ明示的設定**
+     - 達成目標: すべてのノードパラメータをデフォルト値に依存せず設定
+     - 具体例: executionOrder:"v1"、saveManualExecutions:true、timezone:"Asia/Tokyo"
+     - 確認事項: 省略可能パラメータも含めて完全設定、環境変数参照の正確性
      8.5. ノード配置の最適化 ⚠️ 重要:
      - ノード間の水平間隔: 最低 75 ピクセル（推奨 100-125 ピクセル）
      - ノード間の垂直間隔: 最低 60 ピクセル（推奨 75-100 ピクセル）
@@ -417,6 +454,29 @@ MCP サーバーへのアクセス時は「ナレッジ - n8n ワークフロー
   13. 接続の整合性を自己チェック
   14. 座標の重複チェック: すべてのノードの position 座標を確認し、150px 以内に他のノードが存在しないことを検証
   15. n8n-MCP 実行（テンプレート使用時）:
+      **実行基準**:
+      - **実行タイミング**: Step7開始時、ノード定義時、接続定義前、JSON生成後
+      - **実行条件**:
+        - ユーザーがn8n-MCPの使用を許可している
+        - AIエージェント関連ノードを含むワークフロー
+        - 10ノード以上の複雑なワークフロー構成
+      - **実行内容**:
+        ```
+        並列実行:
+        - search_templates({query: "AI Agent workflow"})
+        - get_node_essentials({nodeType: "@n8n/n8n-nodes-langchain.agent", includeExamples: true})
+        - get_node_essentials({nodeType: "@n8n/n8n-nodes-langchain.lmChatOpenAi", includeExamples: true})
+        順次実行:
+        - validate_node_minimal({nodeType: "agent", config: {AI Agent設定}})
+        - validate_workflow({workflow: {生成したJSON}})
+        ```
+      - **判断ポイント**:
+        - テンプレートが存在する場合は活用を検討
+        - エラーが検出された場合は即座に修正
+        - 警告が出た場合は最適化を検討
+      - **スキップ条件**:
+        - ユーザーが明示的にn8n-MCPを使用しない指示
+        - オフライン環境での実行
   16. テンプレートを業務要件に合わせてカスタマイズ（n8n-MCP 使用時のみ）
 
 - 評価・判断基準:
