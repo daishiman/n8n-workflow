@@ -402,6 +402,60 @@ MCP サーバーへのアクセス時は「ナレッジ - n8n ワークフロー
      - 具体例: Timeout→30000ms明示、Retry→3回明示、Keep Only Set→false明示
      - 確認事項: 必須パラメータの設定漏れ、デフォルト値依存の排除
 
+  8.5. **値の渡し方（Expression）と引数設計の確認** ⚠️ 重要
+       - 達成目標: ノード間のデータ受け渡しが正しく設計されているか確認する
+       - 具体例:
+         - 現在ノードのデータ: `{{ $json.fieldName }}`
+         - 特定ノードのデータ: `{{ $node["ノード名"].json.fieldName }}`
+         - 配列の要素アクセス: `{{ $json.items[0].name }}`
+         - 環境変数: `{{ $env.API_KEY }}`
+         - 日時: `{{ $now.toISO() }}`、`{{ $json.createdAt }}`
+         - 複雑な変換: `{{ $json.items.map(item => ({ id: item.id, name: item.name })) }}`
+       - 確認事項:
+         - **Expression構文**: すべての`{{ }}`記法が正しいか
+         - **データ存在確認**: データが存在しない場合の処理（`|| "デフォルト値"`）
+         - **型の一致**: APIが期待する型（string/number/boolean）と一致するか
+         - **配列処理**: 配列データの適切な処理（map/filter/reduce）
+         - **エラーハンドリング**: Expression評価エラー時の動作
+
+  8.6. **複数ノードからの情報統合設計** ⚠️ 重要
+       - 達成目標: 複数のノードからデータを取得して統合する設計が適切か確認する
+       - 具体例:
+         - **パターン1 - Mergeノード使用**:
+           ```
+           ノードA（並列） ┐
+           ノードB（並列） ├→ Mergeノード → 後続処理
+           ノードC（並列） ┘
+           ```
+         - **パターン2 - Code Node統合**:
+           ```javascript
+           // 複数ノードのデータを参照
+           const userInfo = $node["ユーザー情報取得"].json;
+           const apiData = $node["API呼び出し"].json;
+           const aiResult = $node["AI分析"].json;
+
+           return {
+             json: {
+               userId: userInfo.id,
+               userName: userInfo.name,
+               apiResponse: apiData.result,
+               analysis: aiResult.summary,
+               combinedScore: calculateScore(apiData, aiResult)
+             }
+           };
+           ```
+         - **パターン3 - 段階的統合**:
+           ```
+           ノードA → ノードB（A+B統合） → ノードC（A+B+C統合）
+           ```
+       - 確認事項:
+         - **情報網羅性**: 必要な情報がすべて揃っているか（1ノードだけでは不足）
+         - **複数ソース特定**: どのノードからどの情報を取得するか明確か
+         - **統合方法選択**: Merge/Code Node/段階的統合のどれが最適か
+         - **統合タイミング**: 統合が早すぎ（データ未取得）/遅すぎ（不要な処理）でないか
+         - **データ整合性**: 統合後のデータ構造が一貫しているか
+         - **Expression複雑度**: 複数ノード参照が複雑な場合、専用Code Nodeで整理すべきか
+
   9. n8n-MCP 実行（並列）:
 
      **実行基準**:
