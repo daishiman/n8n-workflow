@@ -444,7 +444,49 @@ MCP サーバーへのアクセス時は「ナレッジ - n8n ワークフロー
       最下部層（エラーパス）: Y座標 500〜600
       ```
 
-  11. 接続定義
+  11. **値の渡し方とExpression設計の確認**
+      - 達成目標: ノード間のデータ受け渡しが正しく設計されているか確認する
+      - 具体例:
+        - 単一ノード参照: `{{ $json.fieldName }}`（現在のノードのデータ）
+        - 前ノード参照: `{{ $node["ノード名"].json.fieldName }}`（特定ノードのデータ）
+        - 環境変数参照: `{{ $env.VARIABLE_NAME }}`
+        - 複雑な変換: `{{ $json.items.map(item => item.id) }}`（配列変換）
+      - 確認事項:
+        - すべてのExpressionが正しい構文か
+        - データが存在しない場合のデフォルト値設定
+        - 型変換の必要性（文字列→数値、日時→ISO8601等）
+
+  12. **複数ノードからの情報統合の確認**
+      - 達成目標: 複数のノードからデータを取得して統合する箇所を特定し、適切な実装を確保する
+      - 具体例:
+        - Mergeノード使用: `{{ $node["ノードA"].json }}` + `{{ $node["ノードB"].json }}`を統合
+        - Code Node統合: 複数ノードのデータを結合するJavaScriptコード
+        - 段階的統合: ノードA→ノードB→ノードCと順次データを追加
+      - 確認事項:
+        - **情報の網羅性**: 1つのノードだけでは情報が不足していないか
+        - **複数ソース統合**: 必要な情報が複数ノードに分散している場合、すべて取得できるか
+        - **データマージ方法**: Mergeノード（並列統合）かCode Node（カスタム統合）か
+        - **統合タイミング**: いつどこで統合するか（早すぎ/遅すぎの回避）
+        - **Expression複雑度**: 複数ノード参照が複雑な場合、Code Nodeで整理すべきか
+      - 実装パターン:
+        ```javascript
+        // Mergeノード後のCode Nodeでの統合例
+        const nodeA = $node["データ取得A"].json;
+        const nodeB = $node["データ取得B"].json;
+        const nodeC = $node["AI分析"].json;
+
+        return {
+          json: {
+            // 複数ノードから情報を統合
+            userId: nodeA.userId,
+            userProfile: nodeB.profile,
+            aiAnalysis: nodeC.result,
+            timestamp: new Date().toISOString()
+          }
+        };
+        ```
+
+  13. **接続定義**
       - Chat Trigger → AI Agent（main 接続）
       - Chat Model → AI Agent（ai_languageModel 接続）
       - Tools → AI Agent（ai_tool 接続）

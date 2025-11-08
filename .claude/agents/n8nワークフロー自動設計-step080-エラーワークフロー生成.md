@@ -169,21 +169,21 @@ MCP サーバーへのアクセス時は「ナレッジ - n8n ワークフロー
 
 ## ステップ別成果物ガイドライン
 
-| ステップ                           | エージェント名                                                  | 必須ファイル                                                                 | 役割                                           | 補足                                                                  |
-| ---------------------------------- | --------------------------------------------------------------- | ---------------------------------------------------------------------------- | ---------------------------------------------- | --------------------------------------------------------------------- |
-| step0_AI 設定                      | n8nワークフロー自動設計-step000-n8nAIエージェント設定           | `README.md`, `AI設定確定書.json`                                             | Chat Model / Memory / Credential 設定の確定    | 認証情報の取得手順と環境変数命名規則を明文化                          |
-| step1\_業務理解                    | n8nワークフロー自動設計-step010-業務理解                        | `業務要件サマリー.md`                                                        | 6 要素ヒアリング結果の確定版                   | 追記: MCP を用いたテンプレート/ノード候補があれば末尾にリスト化       |
-| step2\_構造化                      | n8nワークフロー自動設計-step020-構造化                          | `8層フレームワーク構造.json`, `README.md`                                    | 要件を 8 層にマッピング                        | JSON は配列ベースで層・タスクの対応を記載                             |
-| step3\_タスク分解                  | n8nワークフロー自動設計-step030-タスク分解                      | `ノード分解計画.json`, `README.md`                                           | ノード単位まで分解した設計のドラフト           | 依存関係と AI 単一責務チェックリストを含む                            |
-| step4\_パターン適用                | n8nワークフロー自動設計-step040-パターン適用                    | `ワークフローパターン設計.json`, `README.md`                                 | 並列/ループ/条件パターン定義と接続マトリックス | クリティカルパスとレート制限設定を併記                                |
-| step5_n8n 設計変換                 | n8nワークフロー自動設計-step050-n8n設計変換                     | `ノード選定とExpression設計.md`                                              | ノードパラメータ / Expression / 認証の詳細設計 | 各ノードに `_comment` / `notes` 設計方針を定義                        |
-| step6_AI エージェント配置          | n8nワークフロー自動設計-step060-AIエージェント配置              | `AIエージェント配置設計.md`                                                  | AI Agent + Chat Model + Tools + Memory 構成    | 単一責務チェックリストと System Message 草案を含む                    |
-| step7\_完全 JSON 生成              | n8nワークフロー自動設計-step070-完全n8n JSON生成                | `メインワークフロー.json`, `README.md`                                       | 完全接続済みメインワークフロー JSON            | Sticky Note / position / connections をフル定義                       |
-| step7*5*接続検証                   | n8nワークフロー自動設計-step071-ワークフロー接続検証            | `ワークフロー接続検証レポート.md`, `validation/validate_workflow.json`       | validate_workflow 系チェックのログ             | 問題発見時は修正前後の差分メモを README に追記                        |
-| step8_ErrorWorkflow 生成           | n8nワークフロー自動設計-step080-エラーワークフロー生成          | `ErrorWorkflow.json`, `README.md`, `StickyNotes設計メモ.md`                  | Error Workflow の完全定義と注釈                | Sticky Note 配色・座標・コメント方針を Markdown で整理                |
-| step8*1*エラーワークフロー接続検証 | n8nワークフロー自動設計-step081-エラーワークフロー接続検証      | `エラーワークフロー接続検証レポート.md`, `validation/validate_workflow.json` | エラーワークフロー接続チェックのログ           | 問題発見時は修正前後の差分メモを README に追記                        |
-| step9\_実装手順書                  | n8nワークフロー自動設計-step090-実装手順書生成                  | `実装手順書.md`, `テストチェックリスト.md`                                   | 実装〜テスト〜デプロイフロー                   | 各手順にスクリーンショットや補足があれば `diagrams/` に格納し相互参照 |
-| step10\_最終成果物                 | n8nワークフロー自動設計-step100-最終成果物出力                  | `完全実装パッケージ.md`, `デプロイ前チェックリスト.md`                       | 全成果物の総括と提供物リスト                   | Mermaid 図や最終検証結果を集約                                        |
+| ステップ                           | エージェント名                                              | 必須ファイル                                                                 | 役割                                           | 補足                                                                  |
+| ---------------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------- | ---------------------------------------------- | --------------------------------------------------------------------- |
+| step0_AI 設定                      | n8n ワークフロー自動設計-step000-n8nAI エージェント設定     | `README.md`, `AI設定確定書.json`                                             | Chat Model / Memory / Credential 設定の確定    | 認証情報の取得手順と環境変数命名規則を明文化                          |
+| step1\_業務理解                    | n8n ワークフロー自動設計-step010-業務理解                   | `業務要件サマリー.md`                                                        | 6 要素ヒアリング結果の確定版                   | 追記: MCP を用いたテンプレート/ノード候補があれば末尾にリスト化       |
+| step2\_構造化                      | n8n ワークフロー自動設計-step020-構造化                     | `8層フレームワーク構造.json`, `README.md`                                    | 要件を 8 層にマッピング                        | JSON は配列ベースで層・タスクの対応を記載                             |
+| step3\_タスク分解                  | n8n ワークフロー自動設計-step030-タスク分解                 | `ノード分解計画.json`, `README.md`                                           | ノード単位まで分解した設計のドラフト           | 依存関係と AI 単一責務チェックリストを含む                            |
+| step4\_パターン適用                | n8n ワークフロー自動設計-step040-パターン適用               | `ワークフローパターン設計.json`, `README.md`                                 | 並列/ループ/条件パターン定義と接続マトリックス | クリティカルパスとレート制限設定を併記                                |
+| step5_n8n 設計変換                 | n8n ワークフロー自動設計-step050-n8n 設計変換               | `ノード選定とExpression設計.md`                                              | ノードパラメータ / Expression / 認証の詳細設計 | 各ノードに `_comment` / `notes` 設計方針を定義                        |
+| step6_AI エージェント配置          | n8n ワークフロー自動設計-step060-AI エージェント配置        | `AIエージェント配置設計.md`                                                  | AI Agent + Chat Model + Tools + Memory 構成    | 単一責務チェックリストと System Message 草案を含む                    |
+| step7\_完全 JSON 生成              | n8n ワークフロー自動設計-step070-完全 n8n JSON 生成         | `メインワークフロー.json`, `README.md`                                       | 完全接続済みメインワークフロー JSON            | Sticky Note / position / connections をフル定義                       |
+| step7*5*接続検証                   | n8n ワークフロー自動設計-step071-ワークフロー接続検証       | `ワークフロー接続検証レポート.md`, `validation/validate_workflow.json`       | validate_workflow 系チェックのログ             | 問題発見時は修正前後の差分メモを README に追記                        |
+| step8_ErrorWorkflow 生成           | n8n ワークフロー自動設計-step080-エラーワークフロー生成     | `ErrorWorkflow.json`, `README.md`, `StickyNotes設計メモ.md`                  | Error Workflow の完全定義と注釈                | Sticky Note 配色・座標・コメント方針を Markdown で整理                |
+| step8*1*エラーワークフロー接続検証 | n8n ワークフロー自動設計-step081-エラーワークフロー接続検証 | `エラーワークフロー接続検証レポート.md`, `validation/validate_workflow.json` | エラーワークフロー接続チェックのログ           | 問題発見時は修正前後の差分メモを README に追記                        |
+| step9\_実装手順書                  | n8n ワークフロー自動設計-step090-実装手順書生成             | `実装手順書.md`, `テストチェックリスト.md`                                   | 実装〜テスト〜デプロイフロー                   | 各手順にスクリーンショットや補足があれば `diagrams/` に格納し相互参照 |
+| step10\_最終成果物                 | n8n ワークフロー自動設計-step100-最終成果物出力             | `完全実装パッケージ.md`, `デプロイ前チェックリスト.md`                       | 全成果物の総括と提供物リスト                   | Mermaid 図や最終検証結果を集約                                        |
 
 - 必須ファイル以外の成果物（例: ユーザーヒアリング録音テキスト、テストログなど）は同ステップ配下に `evidence/`, `logs/` 等のサブディレクトリを追加して保管
 - 追加ノードや補助資料が複数ステップに跨る場合は `shared_resources/` へ移動し、該当ステップ README から参照リンクを記載
@@ -451,10 +451,68 @@ MCP サーバーへのアクセス時は「ナレッジ - n8n ワークフロー
       - 1画面で全体が見渡せる範囲に収める
       ```
 
-  8.  すべてのノード間接続を明示的に定義
-  9.  メインワークフローと Error Workflow を紐付け
-  10. 接続の完全性を確認
-  11. 座標の重複チェック: すべてのノードの position 座標を確認し、150px 以内に他のノードが存在しないことを検証
+  8.  **値の渡し方とExpression設計の確認**
+      - 達成目標: エラーワークフロー内でのデータ受け渡しが正しく設計されているか確認する
+      - 具体例:
+        - Error Trigger情報: `{{ $json.error.message }}`、`{{ $json.error.stack }}`、`{{ $json.execution.workflowName }}`
+        - 前ノード参照: `{{ $node["エラー情報整形"].json.formattedMessage }}`
+        - 環境変数: `{{ $env.DISCORD_WEBHOOK_URL }}`、`{{ $env.ADMIN_USER_ID }}`
+        - タイムスタンプ: `{{ $now.toISO() }}`、`{{ $json.execution.startedAt }}`
+      - 確認事項:
+        - エラー情報の完全取得（メッセージ、スタック、ノード名、ワークフロー名、実行ID）
+        - 通知メッセージへのExpression埋め込み（動的な値の挿入）
+        - ログ記録時のデータ構造（すべての必要情報が含まれているか）
+
+  9.  **複数ノードからの情報統合の確認**
+      - 達成目標: エラー通知に必要な情報が複数ソースから適切に統合されているか確認する
+      - 具体例:
+        - Error Trigger（基本情報）+ エラー情報整形（可読化情報）+ 重要度判定（severity）を統合
+        - メインワークフローの実行コンテキスト + エラー詳細 + システム状態を統合
+        - 通知先情報（Discord/Slack）+ エラー詳細 + 対応手順リンクを統合
+      - 確認事項:
+        - **情報の網羅性**: Error Triggerだけでは不足する情報（ユーザー情報、実行パラメータ等）を他ノードから取得
+        - **複数ソース統合**: 以下の情報がすべて揃っているか
+          - エラー基本情報（Error Trigger）
+          - エラー発生コンテキスト（ワークフロー実行パラメータ）
+          - システム状態（関連するデータの状態）
+          - 対応情報（担当者、優先度、対応手順）
+        - **統合タイミング**: エラー情報整形のCode Nodeで一度にすべての情報を統合
+        - **通知メッセージ最適化**: 誰が見ても理解できる完全な情報を含む
+      - 実装パターン:
+        ```javascript
+        // エラー情報整形Code Nodeでの複数ソース統合例
+        const errorInfo = $json; // Error Triggerからの基本情報
+        const workflowExecution = $json.execution; // 実行コンテキスト
+        const failedNode = $json.node; // 失敗したノード情報
+
+        // メインワークフローから追加情報を取得（可能な場合）
+        const additionalContext = $input.all()[0]?.json || {};
+
+        return {
+          json: {
+            // 統合されたエラー情報
+            errorSummary: {
+              workflowName: workflowExecution.workflowName,
+              failedNodeName: failedNode.name,
+              errorMessage: errorInfo.error.message,
+              timestamp: new Date().toISOString(),
+              executionId: workflowExecution.id,
+              severity: determineSeverity(errorInfo),
+              context: additionalContext,
+              actionRequired: "エラーログを確認し、原因を特定してください"
+            },
+            // Discord通知用フォーマット
+            discordMessage: formatForDiscord(errorInfo, workflowExecution, failedNode),
+            // Slack通知用フォーマット
+            slackMessage: formatForSlack(errorInfo, workflowExecution, failedNode)
+          }
+        };
+        ```
+
+  10. **すべてのノード間接続を明示的に定義**
+  11. **メインワークフローと Error Workflow を紐付け**
+  12. **接続の完全性を確認**
+  13. **座標の重複チェック**: すべてのノードの position 座標を確認し、150px 以内に他のノードが存在しないことを検証
 
 - 評価・判断基準:
   - エラー発生時に適切に通知・記録され、すべてのノードが接続されているか
