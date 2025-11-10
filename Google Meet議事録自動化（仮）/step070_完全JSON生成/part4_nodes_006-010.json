@@ -1,0 +1,105 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const geminiOutput = $input.first().json;\nconst lines = Array.isArray(geminiOutput) ? geminiOutput : (geminiOutput.lines || []);\n\nconst chunkSize = 25;\nconst overlapSize = 6;\n\nconst chunks = [];\nfor (let i = 0; i < lines.length; i += chunkSize) {\n  const mainLines = lines.slice(i, i + chunkSize);\n  const overlapBefore = i > 0 ? lines.slice(Math.max(0, i - overlapSize), i) : null;\n  const overlapAfter = i + chunkSize < lines.length ? lines.slice(i + chunkSize, Math.min(lines.length, i + chunkSize + overlapSize)) : null;\n  \n  chunks.push({\n    chunk_id: Math.floor(i / chunkSize) + 1,\n    main_text: mainLines,\n    overlap_before: overlapBefore,\n    overlap_after: overlapAfter,\n    line_range: [mainLines[0].line_id, mainLines[mainLines.length - 1].line_id],\n    total_lines: mainLines.length\n  });\n}\n\nreturn chunks.map(chunk => ({ json: chunk }));"
+      },
+      "id": "node_006_uuid",
+      "name": "Code: チャンク分割+オーバーラップ",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1425, 300],
+      "notes": "Gemini文字起こし結果をチャンクに分割し、前後6行のオーバーラップを追加",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "batchSize": 5,
+        "options": {
+          "reset": false
+        }
+      },
+      "id": "node_007_uuid",
+      "name": "Split in Batches: チャンク並列処理",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1650, 300],
+      "notes": "チャンクを5個ずつのバッチに分割。⚠️ Output 0 (done) → node_010、Output 1 (loop) → node_008",
+      "notesInFlow": true,
+      "_comment": "【重要】Output 0=done（ループ完了後）、Output 1=loop（ループ内処理）"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "以下の文字起こしテキストを整形してください：\n\n【メインテキスト】\n{{ $json.main_text }}\n\n【前後の文脈（参考用）】\n前: {{ $json.overlap_before }}\n後: {{ $json.overlap_after }}\n\n【指示】\n1. フィラー語を除去\n2. 意味のある文章単位で箇条書き化\n3. 話者情報とタイムスタンプを保持\n4. メインテキストのみ整形して返す\n\n【出力形式】\nJSON配列：[{\"line_id\": 1, \"content\": \"整形後の文章\", \"speaker\": \"A\", \"timestamp\": \"00:01:20\"}, ...]",
+        "options": {
+          "systemMessage": "あなたは日本語の文字起こしテキストを整形する専門家です。フィラー語を除去し、読みやすい箇条書き形式に変換してください。"
+        },
+        "hasOutputParser": true
+      },
+      "id": "node_008_uuid",
+      "name": "AI Agent: Step1 文字起こし整形",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [1875, 500],
+      "notes": "フィラー語を除去し、箇条書き化する（並列実行5チャンク）",
+      "notesInFlow": true,
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 1,
+      "_comment": "【単一責務】フィラー除去と箇条書き化のみを実行"
+    },
+    {
+      "parameters": {
+        "mode": "loop"
+      },
+      "id": "node_009_uuid",
+      "name": "Loop Back: バッチ処理継続",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [2100, 500],
+      "notes": "全バッチ処理が完了するまでループバック → node_007",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const allChunks = $input.all();\nconst allLines = [];\n\nfor (const chunk of allChunks) {\n  const chunkData = chunk.json;\n  if (chunkData && Array.isArray(chunkData)) {\n    allLines.push(...chunkData);\n  }\n}\n\nallLines.sort((a, b) => a.line_id - b.line_id);\n\nconst uniqueLines = Array.from(\n  new Map(allLines.map(line => [line.line_id, line])).values()\n);\n\nreturn [{ json: { lines: uniqueLines, total_lines: uniqueLines.length } }];"
+      },
+      "id": "node_010_uuid",
+      "name": "Code: チャンク統合+重複除去",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1875, 100],
+      "notes": "全チャンクの整形結果を統合し、オーバーラップ部分の重複を除去",
+      "notesInFlow": true
+    }
+  ],
+  "subnodes": [
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-exp",
+        "options": {
+          "temperature": 0.4,
+          "maxTokens": 4000,
+          "topK": 40,
+          "topP": 0.9
+        }
+      },
+      "id": "subnode_008_01_uuid",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [1875, -100],
+      "credentials": {
+        "googleGeminiOAuth2Api": {
+          "id": "google_gemini_api_key_id",
+          "name": "Google Gemini API"
+        }
+      }
+    }
+  ]
+}

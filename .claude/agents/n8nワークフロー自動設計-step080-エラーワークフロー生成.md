@@ -201,111 +201,816 @@ MCP サーバーへのアクセス時は「ナレッジ - n8n ワークフロー
 
 ```json
 {
-  "artifact_directory_plan": {
-    "feature_name": "{{FEATURE_KEY}}",
-    "base_path": "./{{FEATURE_KEY}}/",
-    "steps": [
+  "template_metadata": {
+    "name": "{{workflow_name}}",
+    "description": "{{workflow_description}}",
+    "version": "1.0.0",
+    "pattern_type": "webhook_trigger_with_ai_agents",
+    "key_features": [
+      "Webhook input reception and data extraction",
+      "Multiple AI agents processing",
+      "Conditional branching and state management",
+      "External API integration (Calendar, Email, etc)",
+      "Error handling"
+    ]
+  },
+  "workflow_structure": {
+    "name": "{{workflow_name}}",
+    "nodes": [
       {
-        "id": "step0",
-        "dir": "step0_AI設定",
-        "mandatory_files": ["README.md", "AI設定確定書.json"],
-        "optional_dirs": ["validation/", "assets/"],
-        "handover": "Chat Model/Memor y確定情報と認証手順を整理"
+        "group": "Input Reception Group",
+        "pattern": "webhook_input_validation",
+        "nodes": [
+          {
+            "name": "{{webhook_node_name}}",
+            "type": "n8n-nodes-base.webhook",
+            "role": "Entry point - receives external HTTP POST requests",
+            "parameters": {
+              "httpMethod": "POST",
+              "path": "{{webhook_path}}",
+              "responseMode": "lastNode"
+            },
+            "output_fields": [
+              "{{field1}}",
+              "{{field2}}",
+              "{{field3}}"
+            ]
+          },
+          {
+            "name": "{{data_extraction_node_name}}",
+            "type": "n8n-nodes-base.set",
+            "role": "Extract required fields from webhook payload",
+            "parameters": {
+              "assignments": {
+                "assignments": [
+                  {
+                    "name": "{{extracted_field_1}}",
+                    "value": "={{$json.body.{{source_field_1}}}}",
+                    "type": "string"
+                  },
+                  {
+                    "name": "{{extracted_field_2}}",
+                    "value": "={{$json.body.{{source_field_2}}}}",
+                    "type": "string"
+                  }
+                ]
+              }
+            },
+            "dependencies": [
+              "{{webhook_node_name}}"
+            ]
+          },
+          {
+            "name": "{{state_check_node_name}}",
+            "type": "n8n-nodes-base.code",
+            "role": "Load state from global storage and set flow determination flag",
+            "parameters": {
+              "jsCode": "const staticData = $getWorkflowStaticData('global');\nif (!staticData.{{state_key}}) { staticData.{{state_key}} = {}; }\nconst userId = $input.first().json.{{user_id_field}};\nconst savedState = staticData.{{state_key}}[userId];\nreturn [{ json: { ...($input.first().json), is_{{flow_name}}_flow: !!savedState, saved_state: savedState || null } }];"
+            },
+            "output_fields": [
+              "is_{{flow_name}}_flow",
+              "saved_state"
+            ],
+            "dependencies": [
+              "{{data_extraction_node_name}}"
+            ]
+          },
+          {
+            "name": "{{flow_router_node_name}}",
+            "type": "n8n-nodes-base.if",
+            "role": "Branch between main flow and sub flow",
+            "parameters": {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{$json.is_{{flow_name}}_flow}}",
+                    "rightValue": false,
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "false"
+                    }
+                  }
+                ]
+              }
+            },
+            "branches": {
+              "true": "{{main_flow_start_node}}",
+              "false": "{{sub_flow_start_node}}"
+            },
+            "dependencies": [
+              "{{state_check_node_name}}"
+            ]
+          },
+          {
+            "name": "{{input_validation_node_name}}",
+            "type": "n8n-nodes-base.if",
+            "role": "Validate required fields existence",
+            "parameters": {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{$json.{{required_field_1}}}}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty"
+                    }
+                  },
+                  {
+                    "leftValue": "={{$json.{{required_field_2}}}}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            "branches": {
+              "true": "{{next_processing_node}}",
+              "false": "{{error_handling_node}}"
+            },
+            "dependencies": [
+              "{{flow_router_node_name}}"
+            ]
+          }
+        ]
       },
       {
-        "id": "step1",
-        "dir": "step1_業務理解",
-        "mandatory_files": ["業務要件サマリー.md"],
-        "optional_dirs": ["evidence/"],
-        "handover": "業務要件サマリーとテンプレート候補を次工程へ共有"
+        "group": "AI Processing Group 1",
+        "pattern": "ai_agent_with_chat_model_memory_parser",
+        "nodes": [
+          {
+            "name": "{{ai_agent_1_name}}",
+            "type": "@n8n/n8n-nodes-langchain.agent",
+            "role": "{{ai_role_description - e.g., transform natural language to structured data}}",
+            "parameters": {
+              "promptType": "define",
+              "text": "={{$json.{{input_field}}}}",
+              "hasOutputParser": true,
+              "options": {
+                "systemMessage": "{{system_prompt - define AI role and output format}}",
+                "maxIterations": 3
+              }
+            },
+            "sub_nodes": [
+              {
+                "name": "{{chat_model_node_name}}",
+                "type": "@n8n/n8n-nodes-langchain.model{{Provider}}",
+                "connection_type": "ai_languageModel",
+                "parameters": {
+                  "model": "{{model_name}}",
+                  "options": {
+                    "temperature": 0.3
+                  }
+                }
+              },
+              {
+                "name": "{{memory_node_name}}",
+                "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+                "connection_type": "ai_memory",
+                "parameters": {
+                  "sessionIdType": "customKey",
+                  "sessionKey": "={{$json.{{session_key_field}}}}"
+                }
+              },
+              {
+                "name": "{{output_parser_node_name}}",
+                "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+                "connection_type": "ai_outputParser",
+                "parameters": {
+                  "jsonSchemaExample": "{{json_schema_definition}}"
+                }
+              }
+            ],
+            "output_fields": [
+              "{{ai_output_field_1}}",
+              "{{ai_output_field_2}}",
+              "{{ai_output_field_3}}"
+            ],
+            "dependencies": [
+              "{{input_validation_node_name}}"
+            ]
+          },
+          {
+            "name": "{{ai_result_validation_node_name}}",
+            "type": "n8n-nodes-base.code",
+            "role": "Detailed validation of AI output (type and format)",
+            "parameters": {
+              "jsCode": "const data = $input.first().json;\nconst hasField1 = data.{{field1}} && typeof data.{{field1}} === '{{expected_type1}}';\nconst hasField2 = data.{{field2}} && {{validation_logic2}};\nconst isValid = hasField1 && hasField2;\nreturn [{ json: { ...data, validation_passed: isValid, validation_error: isValid ? null : '{{error_message}}' } }];"
+            },
+            "output_fields": [
+              "validation_passed",
+              "validation_error"
+            ],
+            "dependencies": [
+              "{{ai_agent_1_name}}"
+            ]
+          },
+          {
+            "name": "{{validation_branch_node_name}}",
+            "type": "n8n-nodes-base.if",
+            "role": "Branch on validation success/failure",
+            "parameters": {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{$json.validation_passed}}",
+                    "rightValue": true,
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true"
+                    }
+                  }
+                ]
+              }
+            },
+            "branches": {
+              "true": "{{next_processing_group}}",
+              "false": "{{error_handling_node}}"
+            },
+            "dependencies": [
+              "{{ai_result_validation_node_name}}"
+            ]
+          }
+        ]
       },
       {
-        "id": "step2",
-        "dir": "step2_構造化",
-        "mandatory_files": ["8層フレームワーク構造.json", "README.md"],
-        "handover": "8層構造をタスク分解チームへ引き継ぎ"
+        "group": "External API Processing Group",
+        "pattern": "external_api_with_data_transformation",
+        "nodes": [
+          {
+            "name": "{{data_transformation_node_name}}",
+            "type": "n8n-nodes-base.code",
+            "role": "Transform and calculate data for API call",
+            "parameters": {
+              "jsCode": "const input = $input.first().json;\nconst transformed = { {{transformation_logic}} };\nreturn [{ json: { ...input, ...transformed } }];"
+            },
+            "output_fields": [
+              "{{transformed_field_1}}",
+              "{{transformed_field_2}}"
+            ],
+            "dependencies": [
+              "{{validation_branch_node_name}}"
+            ]
+          },
+          {
+            "name": "{{external_api_call_node_name}}",
+            "type": "n8n-nodes-base.{{apiNodeType}}",
+            "role": "Retrieve or register data with external service",
+            "parameters": {
+              "resource": "{{resource_type}}",
+              "operation": "{{operation_type}}",
+              "{{parameter_1}}": "={{$json.{{field_1}}}}",
+              "{{parameter_2}}": "={{$json.{{field_2}}}}"
+            },
+            "credentials": {
+              "id": "{{credential_id}}",
+              "name": "{{credential_name}}"
+            },
+            "output_fields": [
+              "{{api_response_field_1}}",
+              "{{api_response_field_2}}"
+            ],
+            "dependencies": [
+              "{{data_transformation_node_name}}"
+            ]
+          },
+          {
+            "name": "{{api_response_formatting_node_name}}",
+            "type": "n8n-nodes-base.code",
+            "role": "Convert API response to suitable format for subsequent processing",
+            "parameters": {
+              "jsCode": "const response = $input.first().json;\nconst formatted = { {{formatting_logic}} };\nreturn [{ json: formatted }];"
+            },
+            "dependencies": [
+              "{{external_api_call_node_name}}"
+            ]
+          },
+          {
+            "name": "{{condition_check_node_name}}",
+            "type": "n8n-nodes-base.code",
+            "role": "Determine condition based on retrieved data",
+            "parameters": {
+              "jsCode": "const data = $input.first().json;\nconst condition = {{condition_logic}};\nreturn [{ json: { ...data, {{condition_flag}}: condition } }];"
+            },
+            "output_fields": [
+              "{{condition_flag}}"
+            ],
+            "dependencies": [
+              "{{api_response_formatting_node_name}}"
+            ]
+          },
+          {
+            "name": "{{condition_branch_node_name}}",
+            "type": "n8n-nodes-base.if",
+            "role": "Branch processing flow based on condition",
+            "parameters": {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{$json.{{condition_flag}}}}",
+                    "rightValue": true,
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true"
+                    }
+                  }
+                ]
+              }
+            },
+            "branches": {
+              "true": "{{branch_a_processing}}",
+              "false": "{{branch_b_processing}}"
+            },
+            "dependencies": [
+              "{{condition_check_node_name}}"
+            ]
+          }
+        ]
       },
       {
-        "id": "step3",
-        "dir": "step3_タスク分解",
-        "mandatory_files": ["README.md", "ノード分解計画.json"],
-        "handover": "ノード粒度と依存関係をパターン設計へ連携"
+        "group": "Data Registration and Notification Group",
+        "pattern": "registration_with_conditional_notification",
+        "nodes": [
+          {
+            "name": "{{data_registration_node_name}}",
+            "type": "n8n-nodes-base.{{registrationNodeType}}",
+            "role": "Create and register main data",
+            "parameters": {
+              "resource": "{{resource_type}}",
+              "operation": "create",
+              "{{field_1}}": "={{$json.{{source_field_1}}}}",
+              "{{field_2}}": "={{$json.{{source_field_2}}}}"
+            },
+            "credentials": {
+              "id": "{{credential_id}}",
+              "name": "{{credential_name}}"
+            },
+            "dependencies": [
+              "{{condition_branch_node_name}}"
+            ]
+          },
+          {
+            "name": "{{notification_check_node_name}}",
+            "type": "n8n-nodes-base.if",
+            "role": "Determine if notification sending is necessary",
+            "parameters": {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{$json.{{notification_trigger_field}}.length}}",
+                    "rightValue": 0,
+                    "operator": {
+                      "type": "number",
+                      "operation": "larger"
+                    }
+                  }
+                ]
+              }
+            },
+            "branches": {
+              "true": "{{notification_generation_processing}}",
+              "false": "{{skip_notification_success_response}}"
+            },
+            "dependencies": [
+              "{{data_registration_node_name}}"
+            ]
+          },
+          {
+            "name": "{{ai_agent_2_name_notification_generation}}",
+            "type": "@n8n/n8n-nodes-langchain.agent",
+            "role": "{{automatic_generation_of_notification_content}}",
+            "parameters": {
+              "promptType": "define",
+              "text": "={{JSON.stringify($json)}}",
+              "hasOutputParser": true,
+              "options": {
+                "systemMessage": "{{notification_generation_prompt}}",
+                "maxIterations": 3
+              }
+            },
+            "sub_nodes": [
+              {
+                "name": "{{chat_model_2_node_name}}",
+                "type": "@n8n/n8n-nodes-langchain.model{{Provider}}",
+                "connection_type": "ai_languageModel"
+              },
+              {
+                "name": "{{memory_2_node_name}}",
+                "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+                "connection_type": "ai_memory"
+              },
+              {
+                "name": "{{parser_2_node_name}}",
+                "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+                "connection_type": "ai_outputParser"
+              }
+            ],
+            "dependencies": [
+              "{{notification_check_node_name}}"
+            ]
+          },
+          {
+            "name": "{{notification_send_node_name}}",
+            "type": "n8n-nodes-base.{{notificationNodeType}}",
+            "role": "Send email or message",
+            "parameters": {
+              "resource": "{{resource_type}}",
+              "operation": "send",
+              "{{recipient_field}}": "={{$json.{{recipients}}}}",
+              "{{subject_field}}": "={{$json.{{subject}}}}",
+              "{{body_field}}": "={{$json.{{body}}}}"
+            },
+            "credentials": {
+              "id": "{{credential_id}}",
+              "name": "{{credential_name}}"
+            },
+            "dependencies": [
+              "{{ai_agent_2_name_notification_generation}}"
+            ]
+          },
+          {
+            "name": "{{success_response_node_name}}",
+            "type": "n8n-nodes-base.{{responseNodeType}}",
+            "role": "Notify processing success to webhook origin",
+            "parameters": {
+              "resource": "message",
+              "operation": "send",
+              "{{channel_field}}": "={{$json.{{channel_id}}}}",
+              "{{content_field}}": "{{success_message}}"
+            },
+            "dependencies": [
+              "{{notification_send_node_name}}"
+            ]
+          }
+        ]
       },
       {
-        "id": "step4",
-        "dir": "step4_パターン適用",
-        "mandatory_files": ["README.md", "ワークフローパターン設計.json"],
-        "handover": "並列/ループ/条件パターンと接続マトリックスを共有"
+        "group": "AI Alternative Generation Group (Conditional Branch B)",
+        "pattern": "ai_alternatives_with_state_management",
+        "nodes": [
+          {
+            "name": "{{ai_agent_3_name_alternative_generation}}",
+            "type": "@n8n/n8n-nodes-langchain.agent",
+            "role": "{{automatic_generation_of_alternatives - e.g., 5 available time slots}}",
+            "parameters": {
+              "promptType": "define",
+              "text": "={{JSON.stringify($json)}}",
+              "hasOutputParser": true,
+              "options": {
+                "systemMessage": "{{alternative_generation_prompt}}",
+                "maxIterations": 5
+              }
+            },
+            "sub_nodes": [
+              {
+                "name": "{{chat_model_3_node_name}}",
+                "type": "@n8n/n8n-nodes-langchain.model{{Provider}}",
+                "connection_type": "ai_languageModel"
+              },
+              {
+                "name": "{{memory_3_node_name}}",
+                "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+                "connection_type": "ai_memory"
+              },
+              {
+                "name": "{{parser_3_node_name}}",
+                "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+                "connection_type": "ai_outputParser"
+              }
+            ],
+            "dependencies": [
+              "{{condition_branch_node_name}}"
+            ]
+          },
+          {
+            "name": "{{state_save_node_name}}",
+            "type": "n8n-nodes-base.code",
+            "role": "Save state to global storage (for next selection flow)",
+            "parameters": {
+              "jsCode": "const staticData = $getWorkflowStaticData('global');\nif (!staticData.{{state_key}}) { staticData.{{state_key}} = {}; }\nconst userId = $input.first().json.{{user_id_field}};\nstaticData.{{state_key}}[userId] = { {{saved_data_structure}} };\nreturn [$input.first()];"
+            },
+            "dependencies": [
+              "{{ai_agent_3_name_alternative_generation}}"
+            ]
+          },
+          {
+            "name": "{{alternatives_presentation_response_node_name}}",
+            "type": "n8n-nodes-base.{{responseNodeType}}",
+            "role": "Present alternatives to user",
+            "parameters": {
+              "resource": "message",
+              "operation": "send",
+              "{{channel_field}}": "={{$json.{{channel_id}}}}",
+              "{{content_field}}": "{{alternatives_presentation_message}}"
+            },
+            "dependencies": [
+              "{{state_save_node_name}}"
+            ]
+          }
+        ]
       },
       {
-        "id": "step5",
-        "dir": "step5_n8n設計変換",
-        "mandatory_files": ["ノード選定とExpression設計.md"],
-        "handover": "n8n ノード設定詳細を AI 配置工程へ渡す"
+        "group": "Sub Flow Processing Group (Selection Flow)",
+        "pattern": "state_recovery_and_selection_processing",
+        "nodes": [
+          {
+            "name": "{{state_load_node_name}}",
+            "type": "n8n-nodes-base.code",
+            "role": "Restore data from saved state",
+            "parameters": {
+              "jsCode": "const input = $input.first().json;\nconst savedState = input.saved_state;\nif (!savedState) { throw new Error('No saved state found'); }\nreturn [{ json: { ...input, ...savedState } }];"
+            },
+            "dependencies": [
+              "{{flow_router_node_name}}"
+            ]
+          },
+          {
+            "name": "{{user_selection_parse_node_name}}",
+            "type": "n8n-nodes-base.code",
+            "role": "Parse user selection number",
+            "parameters": {
+              "jsCode": "const input = $input.first().json;\nconst selectedIndex = parseInt(input.{{user_input_field}}) - 1;\nconst selectedItem = input.{{alternatives_array}}[selectedIndex];\nreturn [{ json: { ...input, selected_index: selectedIndex, selected_item: selectedItem, is_valid_selection: !!selectedItem } }];"
+            },
+            "dependencies": [
+              "{{state_load_node_name}}"
+            ]
+          },
+          {
+            "name": "{{selection_validation_node_name}}",
+            "type": "n8n-nodes-base.if",
+            "role": "Validate if selection is valid",
+            "parameters": {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{$json.is_valid_selection}}",
+                    "rightValue": true,
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true"
+                    }
+                  }
+                ]
+              }
+            },
+            "branches": {
+              "true": "{{state_clear_then_registration}}",
+              "false": "{{error_response}}"
+            },
+            "dependencies": [
+              "{{user_selection_parse_node_name}}"
+            ]
+          },
+          {
+            "name": "{{state_clear_node_name}}",
+            "type": "n8n-nodes-base.code",
+            "role": "Clear state after processing completion",
+            "parameters": {
+              "jsCode": "const staticData = $getWorkflowStaticData('global');\nconst userId = $input.first().json.{{user_id_field}};\nif (staticData.{{state_key}} && staticData.{{state_key}}[userId]) { delete staticData.{{state_key}}[userId]; }\nreturn [$input.first()];"
+            },
+            "dependencies": [
+              "{{selection_validation_node_name}}"
+            ]
+          }
+        ]
       },
       {
-        "id": "step6",
-        "dir": "step6_AIエージェント配置",
-        "mandatory_files": ["AIエージェント配置設計.md"],
-        "handover": "AI Agent クラスタ構成と System Message を JSON 生成工程へ"
+        "group": "Error Handling Group",
+        "pattern": "unified_error_handling",
+        "nodes": [
+          {
+            "name": "{{error_response_node_name}}",
+            "type": "n8n-nodes-base.{{responseNodeType}}",
+            "role": "Notify user of error",
+            "parameters": {
+              "resource": "message",
+              "operation": "send",
+              "{{channel_field}}": "={{$json.{{channel_id}}}}",
+              "{{content_field}}": "{{error_message_template}}"
+            },
+            "dependencies": [
+              "{{input_validation_node_name}}",
+              "{{validation_branch_node_name}}",
+              "{{selection_validation_node_name}}"
+            ]
+          },
+          {
+            "name": "{{workflow_end_node_name}}",
+            "type": "n8n-nodes-base.noOp",
+            "role": "Processing endpoint (common for success and error)",
+            "dependencies": [
+              "{{success_response_node_name}}",
+              "{{alternatives_presentation_response_node_name}}",
+              "{{error_response_node_name}}"
+            ]
+          }
+        ]
       },
       {
-        "id": "step7",
-        "dir": "step7_完全JSON生成",
-        "mandatory_files": ["README.md", "メインワークフロー.json"],
-        "optional_dirs": ["validation/"],
-        "handover": "完全 JSON と Sticky Note 設計を接続検証工程へ"
-      },
-      {
-        "id": "step7.5",
-        "dir": "step7_5_接続検証",
-        "mandatory_files": ["ワークフロー接続検証レポート.md"],
-        "optional_dirs": ["validation/"],
-        "handover": "検証結果と修正事項を Error Workflow 工程へ"
-      },
-      {
-        "id": "step8",
-        "dir": "step8_ErrorWorkflow生成",
-        "mandatory_files": [
-          "README.md",
-          "ErrorWorkflow.json",
-          "StickyNotes設計メモ.md"
-        ],
-        "handover": "Error Workflow JSON をエラーワークフロー接続検証工程へ"
-      },
-      {
-        "id": "step8.1",
-        "dir": "step8_1_エラーワークフロー接続検証",
-        "mandatory_files": ["エラーワークフロー接続検証レポート.md"],
-        "optional_dirs": ["validation/"],
-        "handover": "エラーワークフロー検証結果と修正事項を実装手順書工程へ"
-      },
-      {
-        "id": "step9",
-        "dir": "step9_実装手順書",
-        "mandatory_files": ["実装手順書.md", "テストチェックリスト.md"],
-        "handover": "導入手順とテスト観点を最終成果物工程へ"
-      },
-      {
-        "id": "step10",
-        "dir": "step10_最終成果物",
-        "mandatory_files": [
-          "完全実装パッケージ.md",
-          "デプロイ前チェックリスト.md"
-        ],
-        "handover": "全成果物一覧と最終チェックリストを納品"
+        "group": "Error Workflow Group",
+        "pattern": "global_error_catching",
+        "nodes": [
+          {
+            "name": "{{error_trigger_node_name}}",
+            "type": "n8n-nodes-base.errorTrigger",
+            "role": "Catch unexpected errors in workflow",
+            "parameters": {}
+          },
+          {
+            "name": "{{error_info_formatting_node_name}}",
+            "type": "n8n-nodes-base.code",
+            "role": "Structure error details",
+            "parameters": {
+              "jsCode": "const error = $input.first().json;\nreturn [{ json: { error_type: error.name, error_message: error.message, node_name: error.node?.name, timestamp: new Date().toISOString() } }];"
+            },
+            "dependencies": [
+              "{{error_trigger_node_name}}"
+            ]
+          },
+          {
+            "name": "{{severity_check_node_name}}",
+            "type": "n8n-nodes-base.if",
+            "role": "Determine error severity",
+            "parameters": {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{$json.error_type}}",
+                    "rightValue": "{{critical_error_type}}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              }
+            },
+            "branches": {
+              "true": "{{admin_notification}}",
+              "false": "{{log_only}}"
+            },
+            "dependencies": [
+              "{{error_info_formatting_node_name}}"
+            ]
+          },
+          {
+            "name": "{{admin_notification_node_name}}",
+            "type": "n8n-nodes-base.{{notificationNodeType}}",
+            "role": "Notify administrator of critical error",
+            "parameters": {
+              "resource": "message",
+              "operation": "send",
+              "{{recipient_field}}": "{{admin_notification_channel}}",
+              "{{content_field}}": "{{admin_alert_message}}"
+            },
+            "dependencies": [
+              "{{severity_check_node_name}}"
+            ]
+          }
+        ]
       }
     ],
-    "shared_resources": [
-      "data_samples/",
-      "credentials_placeholders/",
-      "diagrams/"
-    ],
-    "metadata": {
-      "timezone": "Asia/Tokyo",
-      "review_log_format": "✅ ステップ完了: YYYY-MM-DD / 担当: 名前",
-      "validation_recording": "必要に応じて validation/ ディレクトリへ n8n-MCP の結果 JSON を保存"
+    "connections": {
+      "description": "Define connections between nodes",
+      "connection_types": {
+        "main": "Main data flow",
+        "ai_languageModel": "LLM model connection to AI Agent",
+        "ai_memory": "Memory connection to AI Agent",
+        "ai_outputParser": "Output Parser connection to AI Agent"
+      },
+      "pattern_examples": [
+        {
+          "pattern": "linear_flow",
+          "example": "{{NodeA}} → main → {{NodeB}} → main → {{NodeC}}"
+        },
+        {
+          "pattern": "conditional_branch",
+          "example": "{{IF_node}} → main[0] → {{TrueBranch}}, {{IF_node}} → main[1] → {{FalseBranch}}"
+        },
+        {
+          "pattern": "ai_agent_composition",
+          "example": "{{ChatModel}} → ai_languageModel → {{AIAgent}}, {{Memory}} → ai_memory → {{AIAgent}}, {{Parser}} → ai_outputParser → {{AIAgent}}"
+        },
+        {
+          "pattern": "merge_flow",
+          "example": "{{NodeA}} → main → {{MergeNode}}, {{NodeB}} → main → {{MergeNode}} → main → {{NextNode}}"
+        }
+      ],
+      "key_connections": [
+        {
+          "from": "{{webhook_node_name}}",
+          "to": "{{data_extraction_node_name}}",
+          "type": "main"
+        },
+        {
+          "from": "{{data_extraction_node_name}}",
+          "to": "{{state_check_node_name}}",
+          "type": "main"
+        },
+        {
+          "from": "{{state_check_node_name}}",
+          "to": "{{flow_router_node_name}}",
+          "type": "main"
+        },
+        {
+          "from": "{{flow_router_node_name}}",
+          "to": [
+            "{{input_validation_node_name}}",
+            "{{state_load_node_name}}"
+          ],
+          "type": "main",
+          "note": "IF node branch - main[0]=true, main[1]=false"
+        },
+        {
+          "from": "{{chat_model_node_name}}",
+          "to": "{{ai_agent_1_name}}",
+          "type": "ai_languageModel"
+        },
+        {
+          "from": "{{memory_node_name}}",
+          "to": "{{ai_agent_1_name}}",
+          "type": "ai_memory"
+        },
+        {
+          "from": "{{output_parser_node_name}}",
+          "to": "{{ai_agent_1_name}}",
+          "type": "ai_outputParser"
+        }
+      ]
     }
+  },
+  "implementation_guidelines": {
+    "variable_naming_convention": {
+      "description": "Variable names enclosed in {{}} using descriptive names that AI can infer",
+      "examples": [
+        "{{user_id}} - User identifier",
+        "{{event_datetime}} - Event datetime",
+        "{{webhook_payload}} - Complete webhook payload"
+      ]
+    },
+    "dependency_tracking": {
+      "description": "Specify preceding node in dependencies field of each node",
+      "importance": "Essential to guarantee workflow execution order"
+    },
+    "state_management": {
+      "pattern": "global_static_data",
+      "usage": "Access via $getWorkflowStaticData('global')",
+      "structure": {
+        "{{state_key}}": {
+          "{{user_id}}": {
+            "{{saved_field_1}}": "{{value}}",
+            "{{saved_field_2}}": "{{value}}"
+          }
+        }
+      }
+    },
+    "error_handling_strategy": {
+      "inline_validation": "Validate with IF node immediately after each processing",
+      "global_error_workflow": "Catch unexpected errors with Error Trigger",
+      "user_feedback": "Always return user-friendly message on error"
+    },
+    "ai_agent_best_practices": {
+      "temperature": "0.3 for accuracy focus, 0.7-0.9 for creativity focus",
+      "output_parser": "Always strictly define output format with JSON schema",
+      "memory": "Connect Memory node when conversation history is needed",
+      "validation": "Always perform detailed validation of AI output with Code node"
+    },
+    "performance_optimization": {
+      "batch_processing": "Leverage n8n array processing instead of loops for multiple items",
+      "conditional_execution": "Skip unnecessary processing early with IF node",
+      "api_rate_limiting": "Set appropriate intervals for external API calls"
+    }
+  },
+  "usage_notes": {
+    "how_to_use_this_template": [
+      "1. Define overall workflow picture in template_metadata",
+      "2. Design node structure for each group in workflow_structure.nodes",
+      "3. Replace {{variable_name}} with actual values",
+      "4. Verify dependencies in connections",
+      "5. Retrieve additional node information with MCP tools and extend"
+    ],
+    "extending_with_mcp": [
+      "Search new node types with mcp__n8n-mcp__search_nodes",
+      "Retrieve detailed parameters with mcp__n8n-mcp__get_node_info",
+      "Validate configuration with mcp__n8n-mcp__validate_node_operation"
+    ],
+    "key_patterns_preserved": [
+      "Webhook reception → Data extraction → State management → Flow branching",
+      "AI Agent + Chat Model + Memory + Output Parser combination",
+      "External API call → Data formatting → Condition determination → Branching",
+      "Multi-turn processing via global state save and load",
+      "Unified error handling (inline + global)"
+    ],
+    "minimal_required_elements": [
+      "At least 1 trigger node (Webhook or Trigger)",
+      "Data extraction and validation node",
+      "Main processing node (AI Agent or API call)",
+      "Conditional branch node (IF)",
+      "Response/end node",
+      "Error handling node"
+    ]
   }
 }
 ```

@@ -1,0 +1,263 @@
+{
+  "connections": {
+    "Google Drive Trigger": {
+      "main": [
+        [
+          {
+            "node": "Google Drive: Get File Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive: Get File Info": {
+      "main": [
+        [
+          {
+            "node": "Google Drive: M4Aダウンロード",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive: M4Aダウンロード": {
+      "main": [
+        [
+          {
+            "node": "Filter: M4A検証",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter: M4A検証": {
+      "main": [
+        [
+          {
+            "node": "Google Gemini: Transcribe Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini: Transcribe Audio": {
+      "main": [
+        [
+          {
+            "node": "Code: チャンク分割+オーバーラップ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: チャンク分割+オーバーラップ": {
+      "main": [
+        [
+          {
+            "node": "Split in Batches: チャンク並列処理",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split in Batches: チャンク並列処理": {
+      "main": [
+        [
+          {
+            "node": "Code: チャンク統合+重複除去",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent: Step1 文字起こし整形",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ],
+      "_comment": "Output 0 (done) → Code統合、Output 1 (loop) → AI Agent Step1"
+    },
+    "AI Agent: Step1 文字起こし整形": {
+      "main": [
+        [
+          {
+            "node": "Loop Back: バッチ処理継続",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Back: バッチ処理継続": {
+      "main": [
+        [
+          {
+            "node": "Split in Batches: チャンク並列処理",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: チャンク統合+重複除去": {
+      "main": [
+        [
+          {
+            "node": "AI Agent: Step2 議題抽出",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent: Step2 議題抽出": {
+      "main": [
+        [
+          {
+            "node": "Code: 議題ごとのデータ再構成",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: 議題ごとのデータ再構成": {
+      "main": [
+        [
+          {
+            "node": "Split in Batches: 議題並列処理",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split in Batches: 議題並列処理": {
+      "main": [
+        [
+          {
+            "node": "AI Agent: Step4 フォーマット変換",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent: Step3 議題分析",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ],
+      "_comment": "Output 0 (done) → AI Agent Step4、Output 1 (loop) → AI Agent Step3"
+    },
+    "AI Agent: Step3 議題分析": {
+      "main": [
+        [
+          {
+            "node": "Loop Back: バッチ処理継続",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent: Step4 フォーマット変換": {
+      "main": [
+        [
+          {
+            "node": "AI Agent: Step5 品質保証",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent: Step5 品質保証": {
+      "main": [
+        [
+          {
+            "node": "IF: 品質保証ステータス判定",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: 品質保証ステータス判定": {
+      "main": [
+        [
+          {
+            "node": "Google Drive: 議事録保存",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ],
+      "_comment": "Output 0 (True) → 議事録保存、Output 1 (False) → Error Workflow（空配列）"
+    },
+    "Google Drive: 議事録保存": {
+      "main": [
+        [
+          {
+            "node": "Google Drive: M4Aファイル移動",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive: M4Aファイル移動": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request: Discord Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request: Discord Webhook": {
+      "main": []
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent: Step1 文字起こし整形",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent: Step2 議題抽出",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "_summary": {
+    "total_connections": 20,
+    "main_connections": 18,
+    "ai_connections": 2,
+    "loop_connections": 2,
+    "split_in_batches_outputs": 2
+  }
+}

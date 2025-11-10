@@ -431,12 +431,18 @@ MCP サーバーへのアクセス時は「ナレッジ - n8n ワークフロー
        - すべてのノードタイプが確定しており、パラメータも明確な場合
        - 完全カスタム設計でテンプレートや実装例が不要な場合
   10. 取得した実装例を参考に各ノードの設定を計画（n8n-MCP 使用時のみ）
-  11. 合計ノード数を 10-50 に調整
+  11. **タスクを最適なグループに分類**
+      - 達成目標: Sticky Noteに対応する論理的なグループ構造を設計する
+      - 具体例: Group1（トリガー&ダウンロード）、Group2（文字起こし&チャンク化）、Group3（AI並列処理）等
+      - 確認事項: 各グループの目的が明確か、グループ間のデータフローが明確か、Sticky Note色分けが適切か
+  12. 合計ノード数を 10-50 に調整
 
 - 評価・判断基準:
   - ノード数が適切で、各ノードの責務が明確か
   - AI エージェントを使うノードは 1 つの責務のみを持つか
   - 複雑な処理が適切に分解されているか
+  - グループ分けが論理的で、Sticky Note配置に対応しているか
+  - サブノード（Chat Model/Memory/Parser）が明示的に定義されているか
 - 出力テンプレート:
 
 ```json
@@ -444,30 +450,75 @@ MCP サーバーへのアクセス時は「ナレッジ - n8n ワークフロー
   "workflow_metadata": {
     "name": "{{WORKFLOW_NAME}}",
     "total_nodes": {{TOTAL_NODE_COUNT}},
+    "total_groups": {{TOTAL_GROUP_COUNT}},
     "ai_nodes": {{AI_NODE_COUNT}},
     "chat_model": "{{SELECTED_CHAT_MODEL}}",
     "estimated_time": "{{ESTIMATED_EXECUTION_TIME}}",
     "complexity": "{{WORKFLOW_COMPLEXITY}}",
     "data_volume": "{{EXPECTED_DATA_VOLUME}}"
   },
-  "tasks": [
+  "groups": [
     {
-      "id": "{{TASK_ID}}",
-      "name": "{{TASK_NAME}}",
-      "description": "{{TASK_DESCRIPTION}}",
-      "layer": "{{LAYER_TYPE}}",
-      "node_type": "{{N8N_NODE_TYPE}}",
-      "execution_mode": "{{EXECUTION_MODE}}",
-      "dependencies": [{{DEPENDENCY_TASK_IDS}}],
-      "ai_required": {{AI_REQUIRED_BOOLEAN}},
-      "ai_responsibility": "{{AI_RESPONSIBILITY_IF_APPLICABLE}}",
-      "estimated_duration": "{{TASK_DURATION}}",
-      "data_transformation": "{{DATA_TRANSFORMATION_LOGIC}}",
-      "error_handling": {
-        "strategy": "{{ERROR_STRATEGY}}",
-        "fallback": "{{FALLBACK_ACTION}}"
-      },
-      {{N8N_MCP_INFO_OPTIONAL}}
+      "group_id": "{{GROUP_ID}}",
+      "group_name": "{{GROUP_NAME}}",
+      "group_purpose": "{{GROUP_PURPOSE}}",
+      "group_description": "{{GROUP_DESCRIPTION}}",
+      "sticky_note_color": {{STICKY_NOTE_COLOR}},
+      "estimated_duration": "{{GROUP_ESTIMATED_DURATION}}",
+      "execution_pattern": "{{sequential|parallel|loop|conditional}}",
+      "tasks": [
+        {
+          "id": "{{TASK_ID}}",
+          "name": "{{TASK_NAME}}",
+          "description": "{{TASK_DESCRIPTION}}",
+          "layer": "{{LAYER_TYPE}}",
+          "node_type": "{{N8N_NODE_TYPE}}",
+          "execution_mode": "{{EXECUTION_MODE}}",
+          "dependencies": [{{DEPENDENCY_TASK_IDS}}],
+          "ai_required": {{AI_REQUIRED_BOOLEAN}},
+          "ai_responsibility": "{{AI_RESPONSIBILITY_IF_APPLICABLE}}",
+          "estimated_duration": "{{TASK_DURATION}}",
+          "data_transformation": "{{DATA_TRANSFORMATION_LOGIC}}",
+          "error_handling": {
+            "strategy": "{{ERROR_STRATEGY}}",
+            "fallback": "{{FALLBACK_ACTION}}"
+          },
+          "subnodes": [
+            {
+              "subnode_id": "{{SUBNODE_ID}}",
+              "subnode_name": "{{SUBNODE_NAME}}",
+              "subnode_type": "{{SUBNODE_TYPE}}",
+              "connection_type": "{{ai_languageModel|ai_memory|ai_outputParser|ai_tool}}",
+              "parameters": {
+                "model": "{{MODEL_NAME}}",
+                "temperature": {{TEMPERATURE}},
+                "maxTokens": {{MAX_TOKENS}},
+                "sessionIdType": "{{SESSION_ID_TYPE}}",
+                "sessionKey": "={{{{SESSION_KEY_EXPRESSION}}}}",
+                "contextWindowLength": {{CONTEXT_WINDOW_LENGTH}},
+                "schemaType": "{{SCHEMA_TYPE}}",
+                "inputSchema": "{{INPUT_SCHEMA}}",
+                "{{OTHER_PARAMETERS}}": "{{OTHER_VALUES}}"
+              },
+              "description": "{{SUBNODE_DESCRIPTION}}"
+            }
+          ],
+          "parameters": {
+            "{{PARAM_KEY_1}}": "={{{{EXPRESSION_1}}}}",
+            "{{PARAM_KEY_2}}": {{PARAM_VALUE_2}},
+            "{{PARAM_KEY_N}}": {{PARAM_VALUE_N}}
+          },
+          {{N8N_MCP_INFO_OPTIONAL}}
+        }
+      ]
+    }
+  ],
+  "group_connections": [
+    {
+      "from_group": "{{SOURCE_GROUP_ID}}",
+      "to_group": "{{TARGET_GROUP_ID}}",
+      "connection_description": "{{CONNECTION_DESCRIPTION}}",
+      "data_flow": "{{DATA_FLOW_SUMMARY}}"
     }
   ],
   {{N8N_MCP_RESOURCES_OPTIONAL}}
@@ -475,16 +526,21 @@ MCP サーバーへのアクセス時は「ナレッジ - n8n ワークフロー
 
 ## タスク分解サマリー
 - 総ノード数: {{TOTAL_NODE_COUNT}}個（適正範囲: 10-50）
+- 総グループ数: {{TOTAL_GROUP_COUNT}}個（Sticky Note対応）
 - AI使用ノード数: {{AI_NODE_COUNT}}個
+- サブノード数: {{SUBNODE_COUNT}}個（Chat Model/Memory/Parser）
 - 推定実行時間: {{ESTIMATED_EXECUTION_TIME}}
 - データ処理規模: {{EXPECTED_DATA_VOLUME}}
+
+## グループ別内訳
+{{GROUP_BREAKDOWN}}
 
 ## レイヤー別内訳
 {{LAYER_BREAKDOWN}}
 
 {{N8N_MCP_SUMMARY_OPTIONAL}}
 
-✅ ユーザー確認: このタスク分解で問題ありませんか？
+✅ ユーザー確認: このタスク分解（グループ構造化）で問題ありませんか？
 
 問題なければ、指定のディレクトリに成果物のドキュメントを出力しますね。
 ```

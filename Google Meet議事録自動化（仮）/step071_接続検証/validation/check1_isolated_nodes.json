@@ -1,0 +1,14 @@
+{
+  "step": "071-1",
+  "check": "孤立ノード検出",
+  "total_nodes": 24,
+  "isolated_nodes": 5,
+  "isolated_list": [
+    "Loop Back: 議題処理 (入力なし)",
+    "Google Gemini Chat Model (入力なし)",
+    "Simple Memory (入力なし)",
+    "Anthropic Chat Model (入力なし)",
+    "Anthropic Chat Model (出力なし)"
+  ],
+  "status": "fail"
+}

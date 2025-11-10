@@ -1,0 +1,75 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "以下の整形済み文字起こしから、会議の議題を抽出してください：\n\n{{ $json.lines }}\n\n【指示】\n1. 会話の流れから自然な議題の区切りを見つける\n2. 各議題に適切なタイトルを付ける\n3. 各議題に該当する行番号（line_id）を配列で記録\n4. 会議名も推測して抽出\n\n【出力形式】\nJSON：{\"meeting_name\": \"会議名\", \"agendas\": [{\"agenda_id\": 1, \"title\": \"議題\", \"line_ids\": [1,2,3]}, ...]}",
+        "options": {
+          "systemMessage": "あなたは会議の議事録作成の専門家です。文字起こしから議題を自動抽出し、構造化された形式で提供してください。"
+        },
+        "hasOutputParser": true
+      },
+      "id": "node_011_uuid",
+      "name": "AI Agent: Step2 議題抽出",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [2100, 100],
+      "notes": "統合された文字起こしから会議の議題を自動抽出",
+      "notesInFlow": true,
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 1,
+      "_comment": "【単一責務】議題抽出のみ。議題の分析や要約は含まない。"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const step2Output = $input.first().json;\nconst allLines = $('Code: チャンク統合+重複除去').first().json.lines;\n\nconst agendas = step2Output.agendas;\nconst reconstructedAgendas = [];\n\nfor (const agenda of agendas) {\n  const lines = agenda.line_ids.map(id => {\n    return allLines.find(line => line.line_id === id);\n  }).filter(line => line !== undefined);\n  \n  let duration = '0秒';\n  if (lines.length > 0 && lines[0].start_time !== undefined && lines[lines.length - 1].end_time !== undefined) {\n    const durationSeconds = Math.floor(lines[lines.length - 1].end_time - lines[0].start_time);\n    const minutes = Math.floor(durationSeconds / 60);\n    const seconds = durationSeconds % 60;\n    duration = minutes > 0 ? `${minutes}分${seconds}秒` : `${seconds}秒`;\n  }\n  \n  reconstructedAgendas.push({\n    agenda_id: agenda.agenda_id,\n    title: agenda.title,\n    lines: lines,\n    context: {\n      total_lines: lines.length,\n      duration: duration,\n      line_ids: agenda.line_ids\n    }\n  });\n}\n\nreturn reconstructedAgendas.map(agenda => ({ json: agenda }));"
+      },
+      "id": "node_012_uuid",
+      "name": "Code: 議題ごとのデータ再構成",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2325, 100],
+      "notes": "各議題のline_idsに対応する文字起こしを統合JSONから抽出",
+      "notesInFlow": true
+    }
+  ],
+  "subnodes": [
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-exp",
+        "options": {
+          "temperature": 0.4,
+          "maxTokens": 4000,
+          "topK": 40,
+          "topP": 0.9
+        }
+      },
+      "id": "subnode_011_01_uuid",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [2100, -100],
+      "credentials": {
+        "googleGeminiOAuth2Api": {
+          "id": "google_gemini_api_key_id",
+          "name": "Google Gemini API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "step2_memory",
+        "contextWindowLength": 10
+      },
+      "id": "subnode_011_02_uuid",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [2100, -250]
+    }
+  ]
+}

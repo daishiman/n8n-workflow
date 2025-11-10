@@ -98,33 +98,36 @@ MCP サーバーへのアクセス時は「ナレッジ - n8n ワークフロー
 - 背景: n8n AI Agent Node は Chat Model サブノードを通じて LLM に接続。プロバイダーごとに認証方法とモデルが異なるため最初に確定する必要がある
 - エージェント名: n8n AI コンフィギュレーター
 - 役割: Chat Model の選択肢を提示し、必要に応じて n8n-MCP から詳細情報を取得、認証設定を確定
-- 責務: Chat Model 選択、認証情報設定、モデルパラメータ決定、Memory設定
-- n8n-MCP 活用: Chat Model関連ノード情報取得
+- 責務: Chat Model 選択、認証情報設定、モデルパラメータ決定、Memory 設定
+- n8n-MCP 活用: Chat Model 関連ノード情報取得
 - 処理詳細手順:
 
   **このステップで達成すべきこと**:
-  - ワークフロー全体で使用するChat Modelを選択し、認証情報の取得方法を確定する
-  - Chat Modelの推奨パラメータ（temperature、max_tokens、top_p等）を決定する
+
+  - ワークフロー全体で使用する Chat Model を選択し、認証情報の取得方法を確定する
+  - Chat Model の推奨パラメータ（temperature、max_tokens、top_p 等）を決定する
   - Memory（会話履歴管理）の種類を選択し、設定を確定する
-  - 次ステップ（業務理解）以降のすべてのAI Agent Nodeで使用する共通設定を確立する
+  - 次ステップ（業務理解）以降のすべての AI Agent Node で使用する共通設定を確立する
 
   1. **主要 Chat Model の選択肢を提示**
-     - 達成目標: ユーザーのニーズに合ったChat Modelを選択してもらう
+
+     - 達成目標: ユーザーのニーズに合った Chat Model を選択してもらう
      - 具体例:
        - OpenAI (GPT-4, GPT-3.5-turbo): 高品質、コスト高、幅広い用途
        - Claude (Sonnet, Opus): 長文処理に強い、高品質、コスト中〜高
-       - Gemini (Pro, Ultra): Googleエコシステム統合、コスト中
-       - Ollama (ローカルLLM): コスト無料、プライバシー重視、性能は限定的
+       - Gemini (Pro, Ultra): Google エコシステム統合、コスト中
+       - Ollama (ローカル LLM): コスト無料、プライバシー重視、性能は限定的
      - 確認事項: 予算、品質要件、プライバシー要件、処理速度要件
 
   2. **n8n-MCP 実行（並列）**:
 
      **実行基準**:
-     - **実行タイミング**: Chat Model選択肢を提示した後、ユーザーが選択する前後
+
+     - **実行タイミング**: Chat Model 選択肢を提示した後、ユーザーが選択する前後
      - **実行条件**:
-       - 各Chat Modelの詳細情報（パラメータ、認証方法、推奨設定）を確認する必要がある場合
-       - Chat Model NodeとMemory Nodeの設定例を参照したい場合
-       - 特定のChat Modelの利用可能なモデル一覧を確認する必要がある場合
+       - 各 Chat Model の詳細情報（パラメータ、認証方法、推奨設定）を確認する必要がある場合
+       - Chat Model Node と Memory Node の設定例を参照したい場合
+       - 特定の Chat Model の利用可能なモデル一覧を確認する必要がある場合
      - **実行内容**:
        ```
        並列実行:
@@ -134,49 +137,54 @@ MCP サーバーへのアクセス時は「ナレッジ - n8n ワークフロー
        - get_node_documentation({nodeType: "@n8n/n8n-nodes-langchain.chatAnthropic"})
        ```
      - **判断ポイント**:
-       - Chat Model選択: 各プロバイダーの特徴、料金、性能を比較
+       - Chat Model 選択: 各プロバイダーの特徴、料金、性能を比較
        - 認証方法: API Key、OAuth、環境変数等の設定方法を確認
-       - パラメータ確認: temperature、max_tokens、top_p等の推奨値を取得
-       - Memory選択: Simple MemoryとPostgreSQL Chat Memoryの違いを理解
+       - パラメータ確認: temperature、max_tokens、top_p 等の推奨値を取得
+       - Memory 選択: Simple Memory と PostgreSQL Chat Memory の違いを理解
      - **スキップ条件**:
-       - ユーザーが既に使用するChat Modelを決定している場合
-       - Chat Modelの設定方法が完全に理解できている場合
+       - ユーザーが既に使用する Chat Model を決定している場合
+       - Chat Model の設定方法が完全に理解できている場合
 
   3. **ユーザーの選択を受け取る**
-     - 達成目標: ユーザーからChat Modelの選択を受け取り、記録する
-     - 具体例: 「OpenAI GPT-4を使用します」「Claude Sonnetを使用します」
-     - 確認事項: 選択されたChat Model、モデル名、予算の確認
+
+     - 達成目標: ユーザーから Chat Model の選択を受け取り、記録する
+     - 具体例: 「OpenAI GPT-4 を使用します」「Claude Sonnet を使用します」
+     - 確認事項: 選択された Chat Model、モデル名、予算の確認
 
   4. **選択された Chat Model の設定を確定**
-     - 達成目標: 選択されたChat Modelの認証情報取得方法とパラメータを確定する
+
+     - 達成目標: 選択された Chat Model の認証情報取得方法とパラメータを確定する
      - 具体例:
-       - OpenAI: API Key取得→環境変数OPENAI_API_KEY設定、model: "gpt-4"、temperature: 0.7
-       - Claude: API Key取得→環境変数ANTHROPIC_API_KEY設定、model: "claude-sonnet-4"、temperature: 0.7
-       - Gemini: API Key取得→環境変数GOOGLE_API_KEY設定、model: "gemini-pro"、temperature: 0.9
+       - OpenAI: API Key 取得 → 環境変数 OPENAI_API_KEY 設定、model: "gpt-4"、temperature: 0.7
+       - Claude: API Key 取得 → 環境変数 ANTHROPIC_API_KEY 設定、model: "claude-sonnet-4"、temperature: 0.7
+       - Gemini: API Key 取得 → 環境変数 GOOGLE_API_KEY 設定、model: "gemini-pro"、temperature: 0.9
      - 確認事項:
-       - 認証情報の取得方法（公式サイトURL、手順）
+       - 認証情報の取得方法（公式サイト URL、手順）
        - 環境変数名の命名規則
        - 推奨モデル名
        - パラメータ（temperature、max_tokens、top_p 等）
 
   5. **詳細設定の参照**
-     - 達成目標: ナレッジドキュメントを参照し、Chat Model設定の詳細を確認する
+
+     - 達成目標: ナレッジドキュメントを参照し、Chat Model 設定の詳細を確認する
      - 具体例: 「ナレッジ - n8n ワークフロー自動設計（n8n-MCP）.md」の「AI Agent Node 徹底解説レポート」を参照
      - 確認事項: 認証設定の詳細、トラブルシューティング情報、ベストプラクティス
 
   6. **Memory ノードの選択**
-     - 達成目標: 会話履歴管理のためのMemoryノードを選択する
+
+     - 達成目標: 会話履歴管理のための Memory ノードを選択する
      - 具体例:
        - Simple Memory: シンプル、設定不要、メモリ内保存、ワークフロー再起動で消失
        - PostgreSQL Chat Memory: 永続化、データベース設定必要、複数ワークフロー共有可能
      - 確認事項: 会話履歴の永続化の必要性、複数ワークフロー間の共有の必要性、設定コスト
 
   7. **設定をワークフロー設計全体に適用**
-     - 達成目標: step000で確定したChat ModelとMemoryの設定を、step060以降の全AI Agent Nodeに適用する
-     - 具体例: 全AI Agent Node→同じChat Model（OpenAI GPT-4）、同じMemory（Simple Memory）
+     - 達成目標: step000 で確定した Chat Model と Memory の設定を、step060 以降の全 AI Agent Node に適用する
+     - 具体例: 全 AI Agent Node→ 同じ Chat Model（OpenAI GPT-4）、同じ Memory（Simple Memory）
      - 確認事項: 設定の一貫性、認証情報の共有、環境変数の統一
 
 - 評価・判断基準:
+
   - Chat Model が選択され、認証情報の取得方法が明確か
   - Memory 設定が確定しているか
   - 環境変数名が明確に定義されているか
@@ -216,8 +224,8 @@ MCP サーバーへのアクセス時は「ナレッジ - n8n ワークフロー
 ✅ Memory: {{MEMORY_DISPLAY_NAME}}
 ✅ 認証方式: {{AUTHENTICATION_METHOD}}
 ✅ 環境変数: {{API_KEY_ENV_VARIABLE}}
-✅ 詳細設定: 「ナレッジ - n8nワークフロー自動設計（n8n-MCP）.md」参照
+✅ 詳細設定: 「ナレッジ - n8n ワークフロー自動設計（n8n-MCP）.md」参照
 
-✅ ユーザー確認: このAI設定で進めてよろしいですか？
+✅ ユーザー確認: この AI 設定で進めてよろしいですか？
 
-問題なければ、指定のディレクトリ（./{機能名}/step0_AI設定/）を作成して、そこに成果物のドキュメント（README.md、AI設定確定書.json）を出力しますね。
+問題なければ、指定のディレクトリ（./{機能名}/step0_AI 設定/）を作成して、そこに成果物のドキュメント（README.md、AI 設定確定書.json）を出力しますね。

@@ -356,20 +356,143 @@ MCP サーバーへのアクセス時は「ナレッジ - n8n ワークフロー
 - 処理詳細手順:
 
   **このステップで達成すべきこと**:
-  - 完全に接続された動作可能なn8n JSONを生成
+  - グループごとに個別のワークフローJSONを生成
+  - 各グループJSONを統合して1つの完全なn8n JSONを生成
   - AI AgentとすべてのサブノードのCluster構造を実装
   - Sticky Note 5つとすべてのコメントフィールドを追加
+  - グループ間の依存関係を確実に解決し、孤立ノード0個を保証
+  - n8n-MCPで各グループと最終統合ワークフローを検証
   - Step7.5の接続検証に向けた準備完了状態を作る
 
-  1. **Chat Triggerノード定義**
-     - 達成目標: ユーザー対話の開始点を正しく設定
-     - 具体例: public:true, mode:"chatTrigger", loadPreviousSession設定
-     - 確認事項: UUIDの一意性、座標の適切性、Memoryへの接続準備
+  **処理戦略: グループ別生成 → 統合 → 検証**
 
-  2. **AI Agent Node定義**
-     - 達成目標: 中核となるAIエージェントノードの完全設定
-     - 具体例: promptType設定、systemMessage記載、maxIterations設定
-     - 確認事項: 単一責務の原則遵守、目標の明確性、接続ポイント4つ確認
+  ### フェーズ1: グループ別ワークフローJSON生成
+
+  1. **各グループのワークフロー部分を生成**
+     - 達成目標: step030のgroups配列の各要素について、個別のワークフローJSON部分を生成
+     - 処理フロー（各グループごと）:
+       ```
+       for each group in step030.groups:
+         1. グループのSticky Noteを生成（group.sticky_note_color使用）
+         2. グループ内の全タスク（tasks配列）をノードとして生成
+         3. AI Agentの場合、サブノード（subnodes配列）も生成
+         4. グループ内の接続（main/ai_接続）を定義
+         5. グループJSON を保存: `groups/Group{group_id}_{group_name}.json`
+       ```
+     - 出力: `groups/` ディレクトリ配下に各グループJSON
+     - 確認事項:
+       - すべてのタスクがノードとして実装されているか
+       - AI Agentのサブノードが完全に実装されているか
+       - グループ内の接続が正しいか
+       - Sticky Noteにノードリストが含まれているか
+
+  ### フェーズ2: グループ間接続の解決
+
+  2. **グループ間接続ポイントの特定**
+     - 達成目標: step030の`group_connections`配列に基づいて、各グループ間の接続を解決
+     - 処理フロー:
+       ```
+       for each connection in step030.group_connections:
+         1. from_groupの最終タスクを特定
+         2. to_groupの開始タスクを特定
+         3. 接続を作成: from_task → to_task（main接続）
+         4. データフロー検証: 出力形式と入力形式の一致確認
+       ```
+     - 確認事項: データ形式の一致、Expression参照の正確性、依存関係の満足
+
+  3. **ノード名参照の統合**
+     - 達成目標: 異なるグループ間でのノード参照（`$node["NodeName"]`）が正しく動作することを保証
+     - 処理フロー:
+       ```
+       1. 全グループの全ノード名をリスト化
+       2. ノード名の一意性を確認（重複があれば警告）
+       3. Expression内のノード参照をすべて検証
+       4. 参照先ノードの存在を確認
+       ```
+     - 確認事項: すべてのノード名が一意、参照が正確、Expressionエラーなし
+
+  ### フェーズ3: 統合ワークフローの生成
+
+  4. **全グループのノードを統合**
+     - 達成目標: 全グループJSON（可変個数）を1つのn8nワークフローJSONに統合
+     - 処理内容:
+       ```
+       1. すべてのグループJSONを読み込み
+       2. 各グループのnodesを配列に統合
+       3. 各グループのconnectionsをマージ
+       4. すべてのSticky Noteを含める
+       5. UUID生成（各ノードに一意のID）
+       6. グループ間接続を追加
+       ```
+     - 確認事項: 重複ノードなし、接続の完全性、Sticky Noteの配置
+
+  5. **接続の整合性を完全検証**
+     - 達成目標: すべてのノード接続が正しく、孤立ノードが0個であることを保証
+     - 検証項目:
+       - Main接続: すべてのノード（最終ノード以外）が次のノードに接続
+       - AI接続: すべてのAI AgentがChatModel/Memory/Parserと接続（ai_languageModel/ai_memory/ai_outputParser）
+       - 孤立ノード検出: 入力も出力もないノードが存在しないか
+       - 循環参照検出: 無限ループが発生しないか
+     - 確認事項: 接続完全性100%、孤立ノード0個、エラーなし
+
+  ### フェーズ4: n8n-MCP検証
+
+  6. **n8n-MCP実行: 各グループの検証**
+      - 達成目標: 各グループのワークフロー部分をn8n-MCPで検証
+      - 実行内容（並列実行、グループ数に応じて動的に実行）:
+        ```
+        for each group_json in groups/:
+          - validate_workflow_connections({workflow: group_json})
+        ```
+      - 確認事項: 各グループ内の接続が正しい、孤立ノードなし、構文エラーなし
+
+  7. **n8n-MCP実行: 統合ワークフローの完全検証**
+      - 達成目標: 統合後の最終ワークフローをn8n-MCPで完全検証
+      - 実行内容（順次実行）:
+        ```
+        - validate_workflow({workflow: 統合ワークフローJSON})
+        ```
+      - 検証項目:
+        - 接続の完全性（connections）
+        - Expression構文の正確性（expressions）
+        - AI Agent構造の正しさ（ai tools）
+        - ノードパラメータの妥当性
+      - 確認事項: すべての検証に合格、警告への対応、最適化提案の確認
+
+  8. **検証エラーの修正**
+      - 達成目標: n8n-MCPで検出されたエラーをすべて修正
+      - 具体例:
+        - 接続エラー → ノード名参照を修正
+        - Expression構文エラー → 正しい構文に修正
+        - AI Agent接続エラー → サブノード接続を修正
+      - 確認事項: 修正後に再検証、エラー0件、警告最小化
+
+  ### フェーズ5: 最終成果物の出力
+
+  9. **統合ワークフローJSONの出力**
+      - 達成目標: n8nにインポート可能な完全なJSONファイルを出力
+      - ファイル: `統合ワークフロー.json`
+      - 内容: 全ノード + 全接続 + 全Sticky Note + 全設定
+      - 確認事項: ファイルサイズ、構文正確性、インポート可能性
+
+  10. **README生成**
+      - 達成目標: グループ構造、統合方法、検証結果を文書化
+      - 内容:
+        - グループ別ノードリスト
+        - グループ間接続の説明
+        - n8n-MCP検証結果
+        - インポート手順
+        - トラブルシューティング
+      - ファイル: `README.md`
+
+  11. **グループ統合ガイドの生成**
+      - 達成目標: グループ構造の詳細とカスタマイズ方法を文書化
+      - 内容:
+        - 各グループの役割と責務
+        - グループ間のデータフロー
+        - 個別グループの変更方法
+        - 新規グループの追加方法
+      - ファイル: `グループ統合ガイド.md`
 
   3. **Chat Modelサブノード定義**
      - 達成目標: 選択されたLLMモデルの適切な設定
@@ -530,209 +653,817 @@ MCP サーバーへのアクセス時は「ナレッジ - n8n ワークフロー
 
 ```json
 {
-  "_comment": "ワークフロー全体説明: {{WORKFLOW_PURPOSE}}",
-  "_processing_flow": "{{PROCESSING_FLOW_DESCRIPTION}}",
-  "name": "{{WORKFLOW_NAME}}",
-  "meta": {
-    "templateCredit": "{{TEMPLATE_CREDIT_TEXT}}"
+  "template_metadata": {
+    "name": "{{workflow_name}}",
+    "description": "{{workflow_description}}",
+    "version": "1.0.0",
+    "pattern_type": "webhook_trigger_with_ai_agents",
+    "key_features": [
+      "Webhook input reception and data extraction",
+      "Multiple AI agents processing",
+      "Conditional branching and state management",
+      "External API integration (Calendar, Email, etc)",
+      "Error handling"
+    ]
   },
-  "nodes": [
-    {
-      "_comment": "【Sticky Note: グループ1 - ユーザー対話開始グループ】このグループは、ユーザーとの対話セッションを開始し、初期メッセージを受け取る役割を担います。目的: ユーザーからの自然言語入力を受け付け、AIエージェントへの処理フローを開始すること。背景: n8nでのAI対話システムでは、Chat Triggerがエントリーポイントとなり、ユーザーの質問や指示を受け付けます。達成したいこと: ユーザーが気軽に質問できる対話インターフェースを提供し、24時間365日自動応答できる体制を構築すること。",
-      "parameters": {
-        "height": 342,
-        "width": 440,
-        "color": 4,
-        "content": "# 【グループ1: ユーザー対話開始】\n\n## このグループに含まれるノード\n📌 {{GROUP1_NODE_LIST}}\n\n例: Chat Trigger\n\n## 目的\n{{GROUP1_PURPOSE}}\n\n## 背景\n{{GROUP1_BACKGROUND}}\n\n## 処理の流れ\n1. {{GROUP1_STEP1}}\n2. {{GROUP1_STEP2}}\n3. {{GROUP1_STEP3}}\n\n## 達成したいこと\n{{GROUP1_GOAL}}\n\n## 次のステップ\n→ AI Agentグループへ"
-      },
-      "id": "{{STICKY_NOTE_1_UUID}}",
-      "name": "Sticky Note - ユーザー対話開始",
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
-      "position": [{{STICKY1_X}}, {{STICKY1_Y}}]
-    },
-    {
-      "_comment": "Chat Trigger: ユーザーとの対話を開始するトリガーノード。{{CHAT_TRIGGER_PURPOSE}}",
-      "parameters": {
-        "public": true,
-        "mode": "{{CHAT_MODE}}",
-        "authentication": "{{AUTH_TYPE}}",
-        "responseMode": "{{RESPONSE_MODE}}",
-        "options": {
-          "title": "{{CHAT_TITLE}}",
-          "subtitle": "{{CHAT_SUBTITLE}}",
-          "initialMessages": "{{INITIAL_MESSAGE}}",
-          "loadPreviousSession": "{{SESSION_PERSISTENCE}}"
-        }
-      },
-      "id": "{{CHAT_TRIGGER_UUID}}",
-      "name": "Chat Trigger",
-      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
-      "typeVersion": 1.1,
-      "position": [{{CHAT_X}}, {{CHAT_Y}}],
-      "webhookId": "{{WEBHOOK_ID}}",
-      "notes": "処理内容: {{CHAT_TRIGGER_DETAILED_DESCRIPTION}}\n入力: ユーザーからのメッセージ\n出力: AI Agentへメッセージを送信\n役割: {{CHAT_TRIGGER_ROLE}}"
-    },
-    {
-      "_comment": "【Sticky Note: グループ2 - AI推論・判断グループ】このグループは、AIエージェントによる中核的な推論・判断処理を実行します。目的: ユーザーの質問を理解し、適切なツールを選択・実行し、最終的な応答を生成すること。背景: AI Agentは単一責務の原則に基づき、明確な役割と目標を持って動作します。Chat Model、Tools、Memoryと連携して自律的に問題解決を行います。達成したいこと: ユーザーの意図を正確に理解し、必要な情報を収集・加工し、的確で有用な応答を生成すること。",
-      "parameters": {
-        "height": 380,
-        "width": 520,
-        "color": 5,
-        "content": "# 【グループ2: AI推論・判断】\n\n## このグループに含まれるノード\n📌 メインノード: {{AI_AGENT_NODE_NAME}}\n📌 サブノード:\n  - {{CHAT_MODEL_NODE_NAME}}\n  - {{MEMORY_NODE_NAME}}\n  - {{TOOLS_NODE_NAMES}}\n\n例:\n- AI Agent\n- OpenAI Chat Model / Claude Chat Model / Gemini Chat Model\n- Simple Memory\n- Custom Code Tool / HTTP Request Tool\n\n## 目的\n{{GROUP2_PURPOSE}}\n\n## 背景\n{{GROUP2_BACKGROUND}}\n\n## 単一責務の原則\n{{AI_AGENT_SINGLE_RESPONSIBILITY}}\n\n## 処理の流れ\n1. {{GROUP2_STEP1}}\n2. {{GROUP2_STEP2}}\n3. {{GROUP2_STEP3}}\n4. {{GROUP2_STEP4}}\n\n## 連携するサブノード\n- Chat Model: {{CHAT_MODEL_ROLE}}\n- Tools: {{TOOLS_ROLE}}\n- Memory: {{MEMORY_ROLE}}\n\n## 達成したいこと\n{{GROUP2_GOAL}}\n\n## 次のステップ\n→ ユーザーへの応答返却"
-      },
-      "id": "{{STICKY_NOTE_2_UUID}}",
-      "name": "Sticky Note - AI推論判断",
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
-      "position": [{{STICKY2_X}}, {{STICKY2_Y}}]
-    },
-    {
-      "_comment": "AI Agent: {{AI_AGENT_RESPONSIBILITY}}を担当する中核ノード。Chat Model、Tools、Memoryと連携して動作。",
-      "parameters": {
-        "promptType": "{{PROMPT_TYPE}}",
-        "options": {
-          "systemMessage": "{{SYSTEM_MESSAGE}}",
-          "maxIterations": {{MAX_ITERATIONS}},
-          "returnIntermediateSteps": {{RETURN_STEPS}}
-        }
-      },
-      "id": "{{AI_AGENT_UUID}}",
-      "name": "AI Agent",
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 1.7,
-      "position": [{{AGENT_X}}, {{AGENT_Y}}],
-      "notes": "処理内容: {{AI_AGENT_DETAILED_DESCRIPTION}}\n責務: {{AI_AGENT_RESPONSIBILITY}}\n目標: {{AI_AGENT_GOAL}}\n入力: Chat Triggerからのユーザーメッセージ\n出力: {{AI_AGENT_OUTPUT}}\n連携: Chat Model (推論), Tools (外部システム連携), Memory (会話履歴管理)"
-    },
-    {
-      "_comment": "【Sticky Note: グループ3 - LLM推論エンジングループ】このグループは、大規模言語モデル(LLM)を使用した推論処理を担当します。目的: AI Agentからの指示に基づき、自然言語理解と生成を実行すること。背景: Chat Modelは、OpenAI、Claude、Gemini等のLLMプロバイダーに接続し、高度な言語処理能力を提供します。temperatureやmax_tokensなどのパラメータで応答の性質を調整できます。達成したいこと: ユーザーの質問に対して、文脈を理解した自然で的確な応答を生成すること。",
-      "parameters": {
-        "height": 342,
-        "width": 440,
-        "color": 6,
-        "content": "# 【グループ3: LLM推論エンジン】\n\n## このグループに含まれるノード\n📌 {{CHAT_MODEL_NODE_NAME}}\n\n例: OpenAI Chat Model / Claude Chat Model / Gemini Chat Model\n\n## 目的\n{{GROUP3_PURPOSE}}\n\n## 背景\n{{GROUP3_BACKGROUND}}\n\n## 使用モデル\n{{CHAT_MODEL_TYPE}} - {{LLM_MODEL}}\n\n## パラメータ設定の意味\n- Temperature: {{TEMPERATURE_MEANING}}\n- Max Tokens: {{MAX_TOKENS_MEANING}}\n- Top P: {{TOP_P_MEANING}}\n\n## 処理の流れ\n1. {{GROUP3_STEP1}}\n2. {{GROUP3_STEP2}}\n3. {{GROUP3_STEP3}}\n\n## 達成したいこと\n{{GROUP3_GOAL}}\n\n## AI Agentとの連携\nai_languageModel接続でAI Agentに推論能力を提供"
-      },
-      "id": "{{STICKY_NOTE_3_UUID}}",
-      "name": "Sticky Note - LLM推論エンジン",
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
-      "position": [{{STICKY3_X}}, {{STICKY3_Y}}]
-    },
-    {
-      "_comment": "Chat Model: {{CHAT_MODEL_TYPE}}を使用してAIの推論を実行。temperatureやmax_tokensで応答の性質を制御。",
-      "parameters": {
-        "model": "{{LLM_MODEL}}",
-        "options": {
-          "temperature": {{TEMPERATURE}},
-          "maxTokens": {{MAX_TOKENS}},
-          "topP": {{TOP_P}},
-          "frequencyPenalty": {{FREQUENCY_PENALTY}},
-          "presencePenalty": {{PRESENCE_PENALTY}}
-        }
-      },
-      "id": "{{CHAT_MODEL_UUID}}",
-      "name": "OpenAI Chat Model",
-      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
-      "typeVersion": 1,
-      "position": [{{MODEL_X}}, {{MODEL_Y}}],
-      "credentials": {
-        "openAiApi": {
-          "id": "{{CREDENTIAL_ID}}",
-          "name": "{{CREDENTIAL_NAME}}"
-        }
-      },
-      "notes": "処理内容: {{CHAT_MODEL_DETAILED_DESCRIPTION}}\nモデル: {{LLM_MODEL}}\n温度設定: {{TEMPERATURE}} ({{TEMPERATURE_MEANING}})\n最大トークン: {{MAX_TOKENS}}\n役割: AI Agentの推論エンジンとして機能し、ユーザーの質問に対する応答を生成"
-    },
-    {
-      "_comment": "【Sticky Note: グループ4 - 会話履歴管理グループ】このグループは、対話の文脈を保持し、一貫性のある会話を実現します。目的: ユーザーごとの会話履歴を管理し、過去のやり取りを参照できるようにすること。背景: Memoryノードは、Session Keyを使用して複数ユーザーの会話を分離管理します。Context Window Lengthで保持する会話数を制御できます。達成したいこと: ユーザーが「さっき言ったあれ」と言っても文脈を理解し、自然な対話を継続できること。",
-      "parameters": {
-        "height": 342,
-        "width": 440,
-        "color": 3,
-        "content": "# 【グループ4: 会話履歴管理】\n\n## このグループに含まれるノード\n📌 {{MEMORY_NODE_NAME}}\n\n例: Simple Memory / PostgreSQL Chat Memory\n\n## 目的\n{{GROUP4_PURPOSE}}\n\n## 背景\n{{GROUP4_BACKGROUND}}\n\n## メモリ設定\n- タイプ: {{MEMORY_TYPE}}\n- Session Key: {{SESSION_KEY_EXPRESSION}}\n- Context Window: {{CONTEXT_WINDOW_LENGTH}}件\n\n## 処理の流れ\n1. {{GROUP4_STEP1}}\n2. {{GROUP4_STEP2}}\n3. {{GROUP4_STEP3}}\n\n## 保存される情報\n{{MEMORY_STORED_INFO}}\n\n## 達成したいこと\n{{GROUP4_GOAL}}\n\n## AI Agentとの連携\nai_memory接続で会話履歴を提供"
-      },
-      "id": "{{STICKY_NOTE_4_UUID}}",
-      "name": "Sticky Note - 会話履歴管理",
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
-      "position": [{{STICKY4_X}}, {{STICKY4_Y}}]
-    },
-    {
-      "_comment": "Memory: 会話履歴を管理し、コンテキストを維持。Session Keyで複数ユーザーの会話を分離管理。",
-      "parameters": {
-        "sessionKey": "={{SESSION_KEY_EXPRESSION}}",
-        "contextWindowLength": {{CONTEXT_WINDOW_LENGTH}}
-      },
-      "id": "{{MEMORY_UUID}}",
-      "name": "Simple Memory",
-      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
-      "typeVersion": 1.2,
-      "position": [{{MEMORY_X}}, {{MEMORY_Y}}],
-      "notes": "処理内容: {{MEMORY_DETAILED_DESCRIPTION}}\n保存内容: 過去{{CONTEXT_WINDOW_LENGTH}}件の会話履歴\nSession Key: {{SESSION_KEY_EXPRESSION}}\n役割: {{MEMORY_ROLE}}\n効果: 文脈を理解した一貫性のある応答を実現"
-    },
-    {
-      "_comment": "【Sticky Note: グループ5 - 外部システム連携ツールグループ】このグループは、AIエージェントが外部システムと連携するためのツール群を提供します。目的: AI Agentが必要に応じて呼び出せる機能(Tools)を提供し、外部データの取得や処理を可能にすること。背景: Toolsは、HTTP Request、Database操作、Custom Codeなど、AIが自律的に使用できる機能セットです。AI Agentはツールの説明を読んで、適切なタイミングで呼び出します。達成したいこと: AIが単なる会話だけでなく、実際のデータ取得・処理・送信などの実務作業を自動実行できるようにすること。",
-      "parameters": {
-        "height": 342,
-        "width": 440,
-        "color": 7,
-        "content": "# 【グループ5: 外部システム連携ツール】\n\n## このグループに含まれるノード\n📌 {{TOOLS_NODE_NAMES}}\n\n例:\n- Custom Code Tool\n- HTTP Request Tool\n- Vector Store Tool\n- Calculator Tool\n\n## 目的\n{{GROUP5_PURPOSE}}\n\n## 背景\n{{GROUP5_BACKGROUND}}\n\n## 提供するツール\n{{TOOLS_LIST}}\n\n## 処理の流れ\n1. {{GROUP5_STEP1}}\n2. {{GROUP5_STEP2}}\n3. {{GROUP5_STEP3}}\n4. {{GROUP5_STEP4}}\n\n## 実行タイミング\n{{TOOL_EXECUTION_TIMING}}\n\n## 達成したいこと\n{{GROUP5_GOAL}}\n\n## AI Agentとの連携\nai_tool接続でツール群を提供"
-      },
-      "id": "{{STICKY_NOTE_5_UUID}}",
-      "name": "Sticky Note - 外部システム連携",
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
-      "position": [{{STICKY5_X}}, {{STICKY5_Y}}]
-    },
-    {
-      "_comment": "Custom Code Tool: {{TOOL_PURPOSE}}を実行するツール。AI Agentが必要に応じて呼び出す。",
-      "parameters": {
-        "name": "{{TOOL_NAME}}",
-        "description": "{{TOOL_DESCRIPTION}}",
-        "language": "{{CODE_LANGUAGE}}",
-        "jsCode": "{{TOOL_CODE}}"
-      },
-      "id": "{{TOOL_UUID}}",
-      "name": "Custom Code Tool",
-      "type": "@n8n/n8n-nodes-langchain.toolCode",
-      "typeVersion": 1,
-      "position": [{{TOOL_X}}, {{TOOL_Y}}],
-      "notes": "処理内容: {{TOOL_DETAILED_DESCRIPTION}}\n実行タイミング: {{TOOL_EXECUTION_TIMING}}\n入力: {{TOOL_INPUT}}\n出力: {{TOOL_OUTPUT}}\n役割: {{TOOL_ROLE}}"
-    }
-  ],
-  "connections": {
-    "_comment": "接続定義: 各ノード間のデータフローを定義。main=通常のデータフロー、ai_*=AIサブノード接続",
-    "Chat Trigger": {
-      "main": [[{ "node": "AI Agent", "type": "main", "index": 0 }]]
-    },
-    "OpenAI Chat Model": {
-      "ai_languageModel": [
-        [{ "node": "AI Agent", "type": "ai_languageModel", "index": 0 }]
-      ]
-    },
-    "Simple Memory": {
-      "ai_memory": [
-        [
-          { "node": "AI Agent", "type": "ai_memory", "index": 0 },
-          { "node": "Chat Trigger", "type": "ai_memory", "index": 0 }
+  "workflow_structure": {
+    "name": "{{workflow_name}}",
+    "nodes": [
+      {
+        "group": "Input Reception Group",
+        "pattern": "webhook_input_validation",
+        "nodes": [
+          {
+            "name": "{{webhook_node_name}}",
+            "type": "n8n-nodes-base.webhook",
+            "role": "Entry point - receives external HTTP POST requests",
+            "parameters": {
+              "httpMethod": "POST",
+              "path": "{{webhook_path}}",
+              "responseMode": "lastNode"
+            },
+            "output_fields": [
+              "{{field1}}",
+              "{{field2}}",
+              "{{field3}}"
+            ]
+          },
+          {
+            "name": "{{data_extraction_node_name}}",
+            "type": "n8n-nodes-base.set",
+            "role": "Extract required fields from webhook payload",
+            "parameters": {
+              "assignments": {
+                "assignments": [
+                  {
+                    "name": "{{extracted_field_1}}",
+                    "value": "={{$json.body.{{source_field_1}}}}",
+                    "type": "string"
+                  },
+                  {
+                    "name": "{{extracted_field_2}}",
+                    "value": "={{$json.body.{{source_field_2}}}}",
+                    "type": "string"
+                  }
+                ]
+              }
+            },
+            "dependencies": [
+              "{{webhook_node_name}}"
+            ]
+          },
+          {
+            "name": "{{state_check_node_name}}",
+            "type": "n8n-nodes-base.code",
+            "role": "Load state from global storage and set flow determination flag",
+            "parameters": {
+              "jsCode": "const staticData = $getWorkflowStaticData('global');\nif (!staticData.{{state_key}}) { staticData.{{state_key}} = {}; }\nconst userId = $input.first().json.{{user_id_field}};\nconst savedState = staticData.{{state_key}}[userId];\nreturn [{ json: { ...($input.first().json), is_{{flow_name}}_flow: !!savedState, saved_state: savedState || null } }];"
+            },
+            "output_fields": [
+              "is_{{flow_name}}_flow",
+              "saved_state"
+            ],
+            "dependencies": [
+              "{{data_extraction_node_name}}"
+            ]
+          },
+          {
+            "name": "{{flow_router_node_name}}",
+            "type": "n8n-nodes-base.if",
+            "role": "Branch between main flow and sub flow",
+            "parameters": {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{$json.is_{{flow_name}}_flow}}",
+                    "rightValue": false,
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "false"
+                    }
+                  }
+                ]
+              }
+            },
+            "branches": {
+              "true": "{{main_flow_start_node}}",
+              "false": "{{sub_flow_start_node}}"
+            },
+            "dependencies": [
+              "{{state_check_node_name}}"
+            ]
+          },
+          {
+            "name": "{{input_validation_node_name}}",
+            "type": "n8n-nodes-base.if",
+            "role": "Validate required fields existence",
+            "parameters": {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{$json.{{required_field_1}}}}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty"
+                    }
+                  },
+                  {
+                    "leftValue": "={{$json.{{required_field_2}}}}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            "branches": {
+              "true": "{{next_processing_node}}",
+              "false": "{{error_handling_node}}"
+            },
+            "dependencies": [
+              "{{flow_router_node_name}}"
+            ]
+          }
         ]
+      },
+      {
+        "group": "AI Processing Group 1",
+        "pattern": "ai_agent_with_chat_model_memory_parser",
+        "nodes": [
+          {
+            "name": "{{ai_agent_1_name}}",
+            "type": "@n8n/n8n-nodes-langchain.agent",
+            "role": "{{ai_role_description - e.g., transform natural language to structured data}}",
+            "parameters": {
+              "promptType": "define",
+              "text": "={{$json.{{input_field}}}}",
+              "hasOutputParser": true,
+              "options": {
+                "systemMessage": "{{system_prompt - define AI role and output format}}",
+                "maxIterations": 3
+              }
+            },
+            "sub_nodes": [
+              {
+                "name": "{{chat_model_node_name}}",
+                "type": "@n8n/n8n-nodes-langchain.model{{Provider}}",
+                "connection_type": "ai_languageModel",
+                "parameters": {
+                  "model": "{{model_name}}",
+                  "options": {
+                    "temperature": 0.3
+                  }
+                }
+              },
+              {
+                "name": "{{memory_node_name}}",
+                "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+                "connection_type": "ai_memory",
+                "parameters": {
+                  "sessionIdType": "customKey",
+                  "sessionKey": "={{$json.{{session_key_field}}}}"
+                }
+              },
+              {
+                "name": "{{output_parser_node_name}}",
+                "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+                "connection_type": "ai_outputParser",
+                "parameters": {
+                  "jsonSchemaExample": "{{json_schema_definition}}"
+                }
+              }
+            ],
+            "output_fields": [
+              "{{ai_output_field_1}}",
+              "{{ai_output_field_2}}",
+              "{{ai_output_field_3}}"
+            ],
+            "dependencies": [
+              "{{input_validation_node_name}}"
+            ]
+          },
+          {
+            "name": "{{ai_result_validation_node_name}}",
+            "type": "n8n-nodes-base.code",
+            "role": "Detailed validation of AI output (type and format)",
+            "parameters": {
+              "jsCode": "const data = $input.first().json;\nconst hasField1 = data.{{field1}} && typeof data.{{field1}} === '{{expected_type1}}';\nconst hasField2 = data.{{field2}} && {{validation_logic2}};\nconst isValid = hasField1 && hasField2;\nreturn [{ json: { ...data, validation_passed: isValid, validation_error: isValid ? null : '{{error_message}}' } }];"
+            },
+            "output_fields": [
+              "validation_passed",
+              "validation_error"
+            ],
+            "dependencies": [
+              "{{ai_agent_1_name}}"
+            ]
+          },
+          {
+            "name": "{{validation_branch_node_name}}",
+            "type": "n8n-nodes-base.if",
+            "role": "Branch on validation success/failure",
+            "parameters": {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{$json.validation_passed}}",
+                    "rightValue": true,
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true"
+                    }
+                  }
+                ]
+              }
+            },
+            "branches": {
+              "true": "{{next_processing_group}}",
+              "false": "{{error_handling_node}}"
+            },
+            "dependencies": [
+              "{{ai_result_validation_node_name}}"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "External API Processing Group",
+        "pattern": "external_api_with_data_transformation",
+        "nodes": [
+          {
+            "name": "{{data_transformation_node_name}}",
+            "type": "n8n-nodes-base.code",
+            "role": "Transform and calculate data for API call",
+            "parameters": {
+              "jsCode": "const input = $input.first().json;\nconst transformed = { {{transformation_logic}} };\nreturn [{ json: { ...input, ...transformed } }];"
+            },
+            "output_fields": [
+              "{{transformed_field_1}}",
+              "{{transformed_field_2}}"
+            ],
+            "dependencies": [
+              "{{validation_branch_node_name}}"
+            ]
+          },
+          {
+            "name": "{{external_api_call_node_name}}",
+            "type": "n8n-nodes-base.{{apiNodeType}}",
+            "role": "Retrieve or register data with external service",
+            "parameters": {
+              "resource": "{{resource_type}}",
+              "operation": "{{operation_type}}",
+              "{{parameter_1}}": "={{$json.{{field_1}}}}",
+              "{{parameter_2}}": "={{$json.{{field_2}}}}"
+            },
+            "credentials": {
+              "id": "{{credential_id}}",
+              "name": "{{credential_name}}"
+            },
+            "output_fields": [
+              "{{api_response_field_1}}",
+              "{{api_response_field_2}}"
+            ],
+            "dependencies": [
+              "{{data_transformation_node_name}}"
+            ]
+          },
+          {
+            "name": "{{api_response_formatting_node_name}}",
+            "type": "n8n-nodes-base.code",
+            "role": "Convert API response to suitable format for subsequent processing",
+            "parameters": {
+              "jsCode": "const response = $input.first().json;\nconst formatted = { {{formatting_logic}} };\nreturn [{ json: formatted }];"
+            },
+            "dependencies": [
+              "{{external_api_call_node_name}}"
+            ]
+          },
+          {
+            "name": "{{condition_check_node_name}}",
+            "type": "n8n-nodes-base.code",
+            "role": "Determine condition based on retrieved data",
+            "parameters": {
+              "jsCode": "const data = $input.first().json;\nconst condition = {{condition_logic}};\nreturn [{ json: { ...data, {{condition_flag}}: condition } }];"
+            },
+            "output_fields": [
+              "{{condition_flag}}"
+            ],
+            "dependencies": [
+              "{{api_response_formatting_node_name}}"
+            ]
+          },
+          {
+            "name": "{{condition_branch_node_name}}",
+            "type": "n8n-nodes-base.if",
+            "role": "Branch processing flow based on condition",
+            "parameters": {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{$json.{{condition_flag}}}}",
+                    "rightValue": true,
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true"
+                    }
+                  }
+                ]
+              }
+            },
+            "branches": {
+              "true": "{{branch_a_processing}}",
+              "false": "{{branch_b_processing}}"
+            },
+            "dependencies": [
+              "{{condition_check_node_name}}"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "Data Registration and Notification Group",
+        "pattern": "registration_with_conditional_notification",
+        "nodes": [
+          {
+            "name": "{{data_registration_node_name}}",
+            "type": "n8n-nodes-base.{{registrationNodeType}}",
+            "role": "Create and register main data",
+            "parameters": {
+              "resource": "{{resource_type}}",
+              "operation": "create",
+              "{{field_1}}": "={{$json.{{source_field_1}}}}",
+              "{{field_2}}": "={{$json.{{source_field_2}}}}"
+            },
+            "credentials": {
+              "id": "{{credential_id}}",
+              "name": "{{credential_name}}"
+            },
+            "dependencies": [
+              "{{condition_branch_node_name}}"
+            ]
+          },
+          {
+            "name": "{{notification_check_node_name}}",
+            "type": "n8n-nodes-base.if",
+            "role": "Determine if notification sending is necessary",
+            "parameters": {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{$json.{{notification_trigger_field}}.length}}",
+                    "rightValue": 0,
+                    "operator": {
+                      "type": "number",
+                      "operation": "larger"
+                    }
+                  }
+                ]
+              }
+            },
+            "branches": {
+              "true": "{{notification_generation_processing}}",
+              "false": "{{skip_notification_success_response}}"
+            },
+            "dependencies": [
+              "{{data_registration_node_name}}"
+            ]
+          },
+          {
+            "name": "{{ai_agent_2_name_notification_generation}}",
+            "type": "@n8n/n8n-nodes-langchain.agent",
+            "role": "{{automatic_generation_of_notification_content}}",
+            "parameters": {
+              "promptType": "define",
+              "text": "={{JSON.stringify($json)}}",
+              "hasOutputParser": true,
+              "options": {
+                "systemMessage": "{{notification_generation_prompt}}",
+                "maxIterations": 3
+              }
+            },
+            "sub_nodes": [
+              {
+                "name": "{{chat_model_2_node_name}}",
+                "type": "@n8n/n8n-nodes-langchain.model{{Provider}}",
+                "connection_type": "ai_languageModel"
+              },
+              {
+                "name": "{{memory_2_node_name}}",
+                "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+                "connection_type": "ai_memory"
+              },
+              {
+                "name": "{{parser_2_node_name}}",
+                "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+                "connection_type": "ai_outputParser"
+              }
+            ],
+            "dependencies": [
+              "{{notification_check_node_name}}"
+            ]
+          },
+          {
+            "name": "{{notification_send_node_name}}",
+            "type": "n8n-nodes-base.{{notificationNodeType}}",
+            "role": "Send email or message",
+            "parameters": {
+              "resource": "{{resource_type}}",
+              "operation": "send",
+              "{{recipient_field}}": "={{$json.{{recipients}}}}",
+              "{{subject_field}}": "={{$json.{{subject}}}}",
+              "{{body_field}}": "={{$json.{{body}}}}"
+            },
+            "credentials": {
+              "id": "{{credential_id}}",
+              "name": "{{credential_name}}"
+            },
+            "dependencies": [
+              "{{ai_agent_2_name_notification_generation}}"
+            ]
+          },
+          {
+            "name": "{{success_response_node_name}}",
+            "type": "n8n-nodes-base.{{responseNodeType}}",
+            "role": "Notify processing success to webhook origin",
+            "parameters": {
+              "resource": "message",
+              "operation": "send",
+              "{{channel_field}}": "={{$json.{{channel_id}}}}",
+              "{{content_field}}": "{{success_message}}"
+            },
+            "dependencies": [
+              "{{notification_send_node_name}}"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "AI Alternative Generation Group (Conditional Branch B)",
+        "pattern": "ai_alternatives_with_state_management",
+        "nodes": [
+          {
+            "name": "{{ai_agent_3_name_alternative_generation}}",
+            "type": "@n8n/n8n-nodes-langchain.agent",
+            "role": "{{automatic_generation_of_alternatives - e.g., 5 available time slots}}",
+            "parameters": {
+              "promptType": "define",
+              "text": "={{JSON.stringify($json)}}",
+              "hasOutputParser": true,
+              "options": {
+                "systemMessage": "{{alternative_generation_prompt}}",
+                "maxIterations": 5
+              }
+            },
+            "sub_nodes": [
+              {
+                "name": "{{chat_model_3_node_name}}",
+                "type": "@n8n/n8n-nodes-langchain.model{{Provider}}",
+                "connection_type": "ai_languageModel"
+              },
+              {
+                "name": "{{memory_3_node_name}}",
+                "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+                "connection_type": "ai_memory"
+              },
+              {
+                "name": "{{parser_3_node_name}}",
+                "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+                "connection_type": "ai_outputParser"
+              }
+            ],
+            "dependencies": [
+              "{{condition_branch_node_name}}"
+            ]
+          },
+          {
+            "name": "{{state_save_node_name}}",
+            "type": "n8n-nodes-base.code",
+            "role": "Save state to global storage (for next selection flow)",
+            "parameters": {
+              "jsCode": "const staticData = $getWorkflowStaticData('global');\nif (!staticData.{{state_key}}) { staticData.{{state_key}} = {}; }\nconst userId = $input.first().json.{{user_id_field}};\nstaticData.{{state_key}}[userId] = { {{saved_data_structure}} };\nreturn [$input.first()];"
+            },
+            "dependencies": [
+              "{{ai_agent_3_name_alternative_generation}}"
+            ]
+          },
+          {
+            "name": "{{alternatives_presentation_response_node_name}}",
+            "type": "n8n-nodes-base.{{responseNodeType}}",
+            "role": "Present alternatives to user",
+            "parameters": {
+              "resource": "message",
+              "operation": "send",
+              "{{channel_field}}": "={{$json.{{channel_id}}}}",
+              "{{content_field}}": "{{alternatives_presentation_message}}"
+            },
+            "dependencies": [
+              "{{state_save_node_name}}"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "Sub Flow Processing Group (Selection Flow)",
+        "pattern": "state_recovery_and_selection_processing",
+        "nodes": [
+          {
+            "name": "{{state_load_node_name}}",
+            "type": "n8n-nodes-base.code",
+            "role": "Restore data from saved state",
+            "parameters": {
+              "jsCode": "const input = $input.first().json;\nconst savedState = input.saved_state;\nif (!savedState) { throw new Error('No saved state found'); }\nreturn [{ json: { ...input, ...savedState } }];"
+            },
+            "dependencies": [
+              "{{flow_router_node_name}}"
+            ]
+          },
+          {
+            "name": "{{user_selection_parse_node_name}}",
+            "type": "n8n-nodes-base.code",
+            "role": "Parse user selection number",
+            "parameters": {
+              "jsCode": "const input = $input.first().json;\nconst selectedIndex = parseInt(input.{{user_input_field}}) - 1;\nconst selectedItem = input.{{alternatives_array}}[selectedIndex];\nreturn [{ json: { ...input, selected_index: selectedIndex, selected_item: selectedItem, is_valid_selection: !!selectedItem } }];"
+            },
+            "dependencies": [
+              "{{state_load_node_name}}"
+            ]
+          },
+          {
+            "name": "{{selection_validation_node_name}}",
+            "type": "n8n-nodes-base.if",
+            "role": "Validate if selection is valid",
+            "parameters": {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{$json.is_valid_selection}}",
+                    "rightValue": true,
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true"
+                    }
+                  }
+                ]
+              }
+            },
+            "branches": {
+              "true": "{{state_clear_then_registration}}",
+              "false": "{{error_response}}"
+            },
+            "dependencies": [
+              "{{user_selection_parse_node_name}}"
+            ]
+          },
+          {
+            "name": "{{state_clear_node_name}}",
+            "type": "n8n-nodes-base.code",
+            "role": "Clear state after processing completion",
+            "parameters": {
+              "jsCode": "const staticData = $getWorkflowStaticData('global');\nconst userId = $input.first().json.{{user_id_field}};\nif (staticData.{{state_key}} && staticData.{{state_key}}[userId]) { delete staticData.{{state_key}}[userId]; }\nreturn [$input.first()];"
+            },
+            "dependencies": [
+              "{{selection_validation_node_name}}"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "Error Handling Group",
+        "pattern": "unified_error_handling",
+        "nodes": [
+          {
+            "name": "{{error_response_node_name}}",
+            "type": "n8n-nodes-base.{{responseNodeType}}",
+            "role": "Notify user of error",
+            "parameters": {
+              "resource": "message",
+              "operation": "send",
+              "{{channel_field}}": "={{$json.{{channel_id}}}}",
+              "{{content_field}}": "{{error_message_template}}"
+            },
+            "dependencies": [
+              "{{input_validation_node_name}}",
+              "{{validation_branch_node_name}}",
+              "{{selection_validation_node_name}}"
+            ]
+          },
+          {
+            "name": "{{workflow_end_node_name}}",
+            "type": "n8n-nodes-base.noOp",
+            "role": "Processing endpoint (common for success and error)",
+            "dependencies": [
+              "{{success_response_node_name}}",
+              "{{alternatives_presentation_response_node_name}}",
+              "{{error_response_node_name}}"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "Error Workflow Group",
+        "pattern": "global_error_catching",
+        "nodes": [
+          {
+            "name": "{{error_trigger_node_name}}",
+            "type": "n8n-nodes-base.errorTrigger",
+            "role": "Catch unexpected errors in workflow",
+            "parameters": {}
+          },
+          {
+            "name": "{{error_info_formatting_node_name}}",
+            "type": "n8n-nodes-base.code",
+            "role": "Structure error details",
+            "parameters": {
+              "jsCode": "const error = $input.first().json;\nreturn [{ json: { error_type: error.name, error_message: error.message, node_name: error.node?.name, timestamp: new Date().toISOString() } }];"
+            },
+            "dependencies": [
+              "{{error_trigger_node_name}}"
+            ]
+          },
+          {
+            "name": "{{severity_check_node_name}}",
+            "type": "n8n-nodes-base.if",
+            "role": "Determine error severity",
+            "parameters": {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{$json.error_type}}",
+                    "rightValue": "{{critical_error_type}}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              }
+            },
+            "branches": {
+              "true": "{{admin_notification}}",
+              "false": "{{log_only}}"
+            },
+            "dependencies": [
+              "{{error_info_formatting_node_name}}"
+            ]
+          },
+          {
+            "name": "{{admin_notification_node_name}}",
+            "type": "n8n-nodes-base.{{notificationNodeType}}",
+            "role": "Notify administrator of critical error",
+            "parameters": {
+              "resource": "message",
+              "operation": "send",
+              "{{recipient_field}}": "{{admin_notification_channel}}",
+              "{{content_field}}": "{{admin_alert_message}}"
+            },
+            "dependencies": [
+              "{{severity_check_node_name}}"
+            ]
+          }
+        ]
+      }
+    ],
+    "connections": {
+      "description": "Define connections between nodes",
+      "connection_types": {
+        "main": "Main data flow",
+        "ai_languageModel": "LLM model connection to AI Agent",
+        "ai_memory": "Memory connection to AI Agent",
+        "ai_outputParser": "Output Parser connection to AI Agent"
+      },
+      "pattern_examples": [
+        {
+          "pattern": "linear_flow",
+          "example": "{{NodeA}} → main → {{NodeB}} → main → {{NodeC}}"
+        },
+        {
+          "pattern": "conditional_branch",
+          "example": "{{IF_node}} → main[0] → {{TrueBranch}}, {{IF_node}} → main[1] → {{FalseBranch}}"
+        },
+        {
+          "pattern": "ai_agent_composition",
+          "example": "{{ChatModel}} → ai_languageModel → {{AIAgent}}, {{Memory}} → ai_memory → {{AIAgent}}, {{Parser}} → ai_outputParser → {{AIAgent}}"
+        },
+        {
+          "pattern": "merge_flow",
+          "example": "{{NodeA}} → main → {{MergeNode}}, {{NodeB}} → main → {{MergeNode}} → main → {{NextNode}}"
+        }
+      ],
+      "key_connections": [
+        {
+          "from": "{{webhook_node_name}}",
+          "to": "{{data_extraction_node_name}}",
+          "type": "main"
+        },
+        {
+          "from": "{{data_extraction_node_name}}",
+          "to": "{{state_check_node_name}}",
+          "type": "main"
+        },
+        {
+          "from": "{{state_check_node_name}}",
+          "to": "{{flow_router_node_name}}",
+          "type": "main"
+        },
+        {
+          "from": "{{flow_router_node_name}}",
+          "to": [
+            "{{input_validation_node_name}}",
+            "{{state_load_node_name}}"
+          ],
+          "type": "main",
+          "note": "IF node branch - main[0]=true, main[1]=false"
+        },
+        {
+          "from": "{{chat_model_node_name}}",
+          "to": "{{ai_agent_1_name}}",
+          "type": "ai_languageModel"
+        },
+        {
+          "from": "{{memory_node_name}}",
+          "to": "{{ai_agent_1_name}}",
+          "type": "ai_memory"
+        },
+        {
+          "from": "{{output_parser_node_name}}",
+          "to": "{{ai_agent_1_name}}",
+          "type": "ai_outputParser"
+        }
       ]
-    },
-    "Custom Code Tool": {
-      "ai_tool": [[{ "node": "AI Agent", "type": "ai_tool", "index": 0 }]]
     }
   },
-  "settings": {
-    "_comment": "ワークフロー全体設定: 実行順序、実行履歴の保存、タイムゾーン等を制御",
-    "executionOrder": "{{EXECUTION_ORDER}}",
-    "saveManualExecutions": {{SAVE_MANUAL}},
-    "saveExecutionProgress": {{SAVE_PROGRESS}},
-    "timezone": "{{TIMEZONE}}"
+  "implementation_guidelines": {
+    "variable_naming_convention": {
+      "description": "Variable names enclosed in {{}} using descriptive names that AI can infer",
+      "examples": [
+        "{{user_id}} - User identifier",
+        "{{event_datetime}} - Event datetime",
+        "{{webhook_payload}} - Complete webhook payload"
+      ]
+    },
+    "dependency_tracking": {
+      "description": "Specify preceding node in dependencies field of each node",
+      "importance": "Essential to guarantee workflow execution order"
+    },
+    "state_management": {
+      "pattern": "global_static_data",
+      "usage": "Access via $getWorkflowStaticData('global')",
+      "structure": {
+        "{{state_key}}": {
+          "{{user_id}}": {
+            "{{saved_field_1}}": "{{value}}",
+            "{{saved_field_2}}": "{{value}}"
+          }
+        }
+      }
+    },
+    "error_handling_strategy": {
+      "inline_validation": "Validate with IF node immediately after each processing",
+      "global_error_workflow": "Catch unexpected errors with Error Trigger",
+      "user_feedback": "Always return user-friendly message on error"
+    },
+    "ai_agent_best_practices": {
+      "temperature": "0.3 for accuracy focus, 0.7-0.9 for creativity focus",
+      "output_parser": "Always strictly define output format with JSON schema",
+      "memory": "Connect Memory node when conversation history is needed",
+      "validation": "Always perform detailed validation of AI output with Code node"
+    },
+    "performance_optimization": {
+      "batch_processing": "Leverage n8n array processing instead of loops for multiple items",
+      "conditional_execution": "Skip unnecessary processing early with IF node",
+      "api_rate_limiting": "Set appropriate intervals for external API calls"
+    }
   },
-  "staticData": null,
-  "tags": [],
-  "pinData": {},
-  "versionId": "{{VERSION_ID}}"
+  "usage_notes": {
+    "how_to_use_this_template": [
+      "1. Define overall workflow picture in template_metadata",
+      "2. Design node structure for each group in workflow_structure.nodes",
+      "3. Replace {{variable_name}} with actual values",
+      "4. Verify dependencies in connections",
+      "5. Retrieve additional node information with MCP tools and extend"
+    ],
+    "extending_with_mcp": [
+      "Search new node types with mcp__n8n-mcp__search_nodes",
+      "Retrieve detailed parameters with mcp__n8n-mcp__get_node_info",
+      "Validate configuration with mcp__n8n-mcp__validate_node_operation"
+    ],
+    "key_patterns_preserved": [
+      "Webhook reception → Data extraction → State management → Flow branching",
+      "AI Agent + Chat Model + Memory + Output Parser combination",
+      "External API call → Data formatting → Condition determination → Branching",
+      "Multi-turn processing via global state save and load",
+      "Unified error handling (inline + global)"
+    ],
+    "minimal_required_elements": [
+      "At least 1 trigger node (Webhook or Trigger)",
+      "Data extraction and validation node",
+      "Main processing node (AI Agent or API call)",
+      "Conditional branch node (IF)",
+      "Response/end node",
+      "Error handling node"
+    ]
+  }
 }
 
 ## 🏷️ Sticky Note とコメントのガイドライン
@@ -871,3 +1602,166 @@ MCP サーバーへのアクセス時は「ナレッジ - n8n ワークフロー
 ```
 
 ```
+
+---
+
+# Sticky Note の内容構造テンプレート
+
+## パターン1: 全体フロー用Sticky Note（ワークフロー冒頭に配置）
+
+```markdown
+# 【{{WORKFLOW_NAME}} - 全体フロー】
+
+## このワークフローに含まれる全ノード（{{TOTAL_NODE_COUNT}}個）
+📌 **{{NODE_1_NAME}}** ({{NODE_1_TYPE}})
+📌 **{{NODE_2_NAME}}** ({{NODE_2_TYPE}})
+📌 **{{NODE_3_NAME}}** ({{NODE_3_TYPE}})
+...（全ノードをリスト化）
+
+## このワークフローの目的
+{{WORKFLOW_PURPOSE}}
+
+## 背景
+{{WORKFLOW_BACKGROUND}}
+
+従来の課題:
+- {{PROBLEM_1}}
+- {{PROBLEM_2}}
+- {{PROBLEM_3}}
+
+このワークフローにより、{{SOLUTION_SUMMARY}}
+
+## 全体の流れ
+1. {{STEP_1}}
+2. {{STEP_2}}
+3. {{STEP_3}}
+4. {{STEP_4}}
+5. {{STEP_5}}
+
+## 達成したいこと
+{{WORKFLOW_GOAL}}
+```
+
+### JSON形式（全体フロー用Sticky Note）
+
+```json
+{
+  "parameters": {
+    "content": "# 【{{WORKFLOW_NAME}} - 全体フロー】\n\n## このワークフローに含まれる全ノード（{{TOTAL_NODE_COUNT}}個）\n📌 **{{NODE_1_NAME}}** ({{NODE_1_TYPE}})\n📌 **{{NODE_2_NAME}}** ({{NODE_2_TYPE}})\n...\n\n## このワークフローの目的\n{{WORKFLOW_PURPOSE}}\n\n## 背景\n{{WORKFLOW_BACKGROUND}}\n\n従来の課題:\n- {{PROBLEM_1}}\n- {{PROBLEM_2}}\n\nこのワークフローにより、{{SOLUTION}}\n\n## 全体の流れ\n1. {{STEP_1}}\n2. {{STEP_2}}\n...\n\n## 達成したいこと\n{{GOAL}}",
+    "height": 600,
+    "width": 700,
+    "color": 7
+  },
+  "id": "sticky_overview_uuid",
+  "name": "Sticky Note - ワークフロー全体フロー",
+  "type": "n8n-nodes-base.stickyNote",
+  "typeVersion": 1,
+  "position": [100, 50]
+}
+```
+
+---
+
+## パターン2: グループごとのSticky Note（各処理グループに配置）
+
+```markdown
+# 【グループ{{GROUP_ID}}: {{GROUP_NAME}}】
+
+## このグループに含まれるノード
+📌 **{{NODE_1_NAME}}** ({{NODE_1_TYPE}})
+📌 **{{NODE_2_NAME}}** ({{NODE_2_TYPE}})
+📌 **{{NODE_3_NAME}}** ({{NODE_3_TYPE}})
+
+## 目的
+{{GROUP_PURPOSE}}
+
+## 背景
+{{GROUP_BACKGROUND}}
+
+## 処理の流れ
+1. {{PROCESSING_STEP_1}}
+2. {{PROCESSING_STEP_2}}
+3. {{PROCESSING_STEP_3}}
+4. {{PROCESSING_STEP_4}}
+
+## 達成したいこと
+{{GROUP_GOAL}}
+
+## 次のステップ
+→ {{NEXT_GROUP_NAME}}へ（{{CONNECTION_DESCRIPTION}}）
+```
+
+### JSON形式（グループごとのSticky Note）
+
+```json
+{
+  "parameters": {
+    "content": "# 【グループ{{GROUP_ID}}: {{GROUP_NAME}}】\n\n## このグループに含まれるノード\n📌 **{{NODE_1_NAME}}** ({{NODE_1_TYPE}})\n📌 **{{NODE_2_NAME}}** ({{NODE_2_TYPE}})\n...\n\n## 目的\n{{GROUP_PURPOSE}}\n\n## 背景\n{{GROUP_BACKGROUND}}\n\n## 処理の流れ\n1. {{STEP_1}}\n2. {{STEP_2}}\n...\n\n## 達成したいこと\n{{GOAL}}\n\n## 次のステップ\n→ {{NEXT_GROUP}}へ",
+    "height": 350,
+    "width": 500,
+    "color": {{STICKY_NOTE_COLOR}}
+  },
+  "id": "sticky_{{GROUP_ID}}_uuid",
+  "name": "Sticky Note - {{GROUP_NAME}}",
+  "type": "n8n-nodes-base.stickyNote",
+  "typeVersion": 1,
+  "position": [{{X}}, {{Y}}]
+}
+```
+
+---
+
+## 使用例: Google Meet議事録自動化
+
+### 全体フロー用Sticky Note
+
+```json
+{
+  "parameters": {
+    "content": "# 【Google Meet議事録自動化 v1.1 - 全体フロー】\n\n## このワークフローに含まれる全ノード（21個）\n📌 **Google Drive Trigger** (Trigger)\n📌 **Google Drive: Get File Info** (Google Drive)\n📌 **Google Drive: M4Aダウンロード** (Google Drive)\n📌 **Filter: M4A検証** (Filter)\n📌 **Google Gemini: Transcribe Audio** (Gemini) ★新規\n📌 **Code: チャンク分割** (Code)\n📌 **Split in Batches×2** (並列処理)\n📌 **AI Agent×5** (Step1-5)\n📌 **Discord Webhook** (通知)\n\n## このワークフローの目的\nGoogle DriveにアップロードされたM4A音声ファイルから自動で議事録を生成し、指定フォーマットで保存します。\n\n## 背景\n従来の課題:\n- 手動議事録作成に1時間かかる\n- Deepgram APIで月額$10-20のコスト\n- 外部API依存による複雑性\n\nこのワークフロー(v1.1)により、Gemini直接文字起こしで処理時間50%短縮、コスト75%削減を実現します。\n\n## 全体の流れ\n1. Google Driveで新規M4Aファイル検知（5分ごと）\n2. Gemini 2.0 Flashで直接文字起こし（30-60秒）\n3. チャンク5並列処理で整形（5倍高速化）\n4. 議題3並列処理で分析（3倍高速化）\n5. Claude Sonnet 4.5でMarkdown議事録生成\n6. Google Driveに保存、Discord通知\n\n## 達成したいこと\n1時間会議の議事録を3分で自動生成（従来比50%短縮）",
+    "height": 650,
+    "width": 750,
+    "color": 7
+  },
+  "id": "sticky_000_overview",
+  "name": "Sticky Note - ワークフロー全体フロー",
+  "type": "n8n-nodes-base.stickyNote",
+  "typeVersion": 1,
+  "position": [50, -100]
+}
+```
+
+### グループ2用Sticky Note（Gemini文字起こし）
+
+```json
+{
+  "parameters": {
+    "content": "# 【グループ2: 音声文字起こし（Geminiネイティブ）】\n\n## このグループに含まれるノード\n📌 **Google Gemini: Transcribe Audio** (Gemini)\n\n## 目的\nM4A音声ファイルをGemini 2.0 Flashで直接文字起こしする\n\n## 背景\nGeminiのネイティブ音声処理機能を使用して、話者分離・タイムスタンプ付きで文字起こしを実行。Deepgram不要で処理時間50%短縮、コスト70-85%削減を実現。\n\n## 処理の流れ\n1. M4Aバイナリデータ受信\n2. Gemini 2.0 Flash Transcribe実行\n3. 話者をspeaker A, B, C等でラベル付け\n4. タイムスタンプ付与（HH:MM:SS形式）\n5. JSON配列出力（line_id, content, speaker, timestamp, start_time, end_time）\n\n## 達成したいこと\n高品質な日本語文字起こしを30-60秒で完了（Deepgram 60-120秒より50%短縮）\n\n## 次のステップ\n→ グループ3: チャンク分割準備へ（JSON配列をチャンクに分割）",
+    "height": 400,
+    "width": 550,
+    "color": 6
+  },
+  "id": "sticky_002",
+  "name": "Sticky Note - Gemini文字起こし",
+  "type": "n8n-nodes-base.stickyNote",
+  "typeVersion": 1,
+  "position": [1050, 100]
+}
+```
+
+---
+
+## Sticky Note配置ガイドライン
+
+### 配置位置
+- **全体フロー**: ワークフロー左上（X: 50-100, Y: -100～50）
+- **グループSticky**: 各グループの左上、ノードから左に40-60px
+
+### サイズ推奨
+- **全体フロー**: 700-800px × 600-700px
+- **グループSticky**: 400-550px × 280-400px
+
+### 色分けルール
+- **全体フロー**: 7 (オレンジ) - 最重要
+- **グループ**: 各グループのsticky_note_colorに従う（0-7で循環）
+

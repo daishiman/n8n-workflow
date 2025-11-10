@@ -1,0 +1,122 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "以下のデータから指定フォーマットのMarkdown議事録を生成してください：\n\n【データ】\n- 会議名: {{ $('AI Agent: Step2 議題抽出').first().json.meeting_name }}\n- ファイル作成日時: {{ $('Google Drive: Get File Info').first().json.createdTime }}\n- 議題一覧: {{ $input.all() }}\n- 全文字起こし: {{ $('Code: チャンク統合+重複除去').first().json.lines }}\n\n【指定フォーマット】\n# 目的・背景\n# 日時\n# 参加者\n# 宿題事項\n# 決定事項\n# 次回の日時\n# 議事内容\n\n【出力】完全なMarkdownテキストを返してください。",
+        "options": {
+          "systemMessage": "あなたは議事録作成の専門家です。指定されたフォーマットに従って、読みやすく完全な議事録を作成してください。"
+        }
+      },
+      "id": "node_016_uuid",
+      "name": "AI Agent: Step4 フォーマット変換",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [2775, 100],
+      "notes": "全データを統合し、指定フォーマットのMarkdown議事録を生成",
+      "notesInFlow": true,
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 1,
+      "_comment": "【単一責務】Markdown議事録生成のみ。品質検証は含まない。"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "以下の議事録の完全性を検証し、不足項目があれば補完してください：\n\n【生成された議事録】{{ $('AI Agent: Step4 フォーマット変換').first().json.output }}\n【元データ】全議題: {{ $('AI Agent: Step3 議題分析').all() }}\n\n【出力形式】\nJSON：{\"status\": \"ok|補完実施|警告\", \"markdown\": \"最終議事録\", \"warnings\": [...]}",
+        "options": {
+          "systemMessage": "あなたは品質保証の専門家です。議事録の完全性を検証し、必要に応じて補完してください。"
+        },
+        "hasOutputParser": true
+      },
+      "id": "node_017_uuid",
+      "name": "AI Agent: Step5 品質保証",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [3000, 100],
+      "notes": "生成された議事録の完全性を検証し、不足項目を補完",
+      "notesInFlow": true,
+      "onError": "continueRegularOutput",
+      "retryOnFail": false,
+      "_comment": "【単一責務】品質保証のみ。議事録生成は含まない。"
+    }
+  ],
+  "subnodes": [
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-5-20250929"
+        },
+        "options": {
+          "temperature": 0.7,
+          "maxTokens": 8000,
+          "topK": 40,
+          "topP": 0.9
+        }
+      },
+      "id": "subnode_016_01_uuid",
+      "name": "Anthropic Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [2775, -100],
+      "credentials": {
+        "anthropicApi": {
+          "id": "anthropic_api_key_id",
+          "name": "Anthropic API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "step4_memory",
+        "contextWindowLength": 10
+      },
+      "id": "subnode_016_02_uuid",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [2775, -250]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-5-20250929"
+        },
+        "options": {
+          "temperature": 0.7,
+          "maxTokens": 8000,
+          "topK": 40,
+          "topP": 0.9
+        }
+      },
+      "id": "subnode_017_01_uuid",
+      "name": "Anthropic Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [3000, -100],
+      "credentials": {
+        "anthropicApi": {
+          "id": "anthropic_api_key_id",
+          "name": "Anthropic API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "step5_memory",
+        "contextWindowLength": 10
+      },
+      "id": "subnode_017_02_uuid",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [3000, -250]
+    }
+  ]
+}
