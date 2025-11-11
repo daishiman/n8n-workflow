@@ -1,57 +1,57 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+このファイルは、Claude Code (claude.ai/code) がこのリポジトリで作業する際のガイダンスを提供します。
 
-## Project Overview
+## プロジェクト概要
 
-This is an **n8n Workflow Automatic Design System** - an AI-driven framework that generates complete n8n workflow JSON files from business requirements. The system uses a structured 3-phase process (Phase 1: Requirements & Design, Phase 2: JSON Generation, Phase 3: Integration & Output) with 12-layer architecture and 12-element framework.
+**n8nワークフロー自動設計システム** - 業務要件から完全なn8nワークフローJSONファイルを生成するAI駆動型フレームワークです。本システムは、12層アーキテクチャと12要素フレームワークを用いた3フェーズ構造のプロセス（Phase 1: 要件定義・設計、Phase 2: JSON生成、Phase 3: 統合・出力）を使用します。
 
-## Core Architecture
+## コアアーキテクチャ
 
-### 12-Layer Architecture Framework
+### 12層アーキテクチャフレームワーク
 
-**Data Flow Layers (L1-L7):**
-- L1: Trigger - Event detection and reception
-- L2: Input - Data reception and initialization
-- L3: Validation - Input validation and format checking
-- L4: Transformation - Data transformation and processing
-- L5: Core Logic - AI judgment and business logic (AI Agent Node placement)
-- L6: Integration - External integration and API calls
-- L7: Output - Result output and notifications
+**データフロー層（L1-L7）:**
+- L1: Trigger（トリガー） - イベント検知・受信
+- L2: Input（入力） - データ受信・初期化
+- L3: Validation（検証） - 入力検証・フォーマット確認
+- L4: Transformation（変換） - データ変換・加工
+- L5: Core Logic（コアロジック） - AI判断・ビジネスロジック（AI Agent Node配置）
+- L6: Integration（統合） - 外部連携・API呼び出し
+- L7: Output（出力） - 結果出力・通知
 
-**Cross-Cutting Concerns (L8-L12):**
-- L8: Error Handling - Error detection and recovery
-- L9: Security - Authentication, authorization, encryption
-- L10: Monitoring - Logging and metrics collection
-- L11: Performance - Caching and parallel processing
-- L12: Orchestration - Flow control and conditional branching
+**横断的関心事層（L8-L12）:**
+- L8: Error Handling（エラー処理） - エラー検知・リカバリ
+- L9: Security（セキュリティ） - 認証・認可・暗号化
+- L10: Monitoring（監視） - ログ出力・メトリクス収集
+- L11: Performance（パフォーマンス） - キャッシュ・並列処理
+- L12: Orchestration（オーケストレーション） - フロー制御・条件分岐
 
-### 3-Phase Workflow Generation Process
+### 3フェーズワークフロー生成プロセス
 
-**Phase 1: Requirements & Design (Step010-060)**
-- Step010: Business understanding (12-element framework interview)
-- Step020: AI configuration (optimal AI model selection)
-- Step030: Technical requirements conversion (12-layer architecture mapping)
-- Step040: Task decomposition and grouping
-- Step050: AI Agent responsibility definition
-- Step060: Pattern application and detailed design
+**Phase 1: 要件定義・設計（Step010-060）**
+- Step010: 業務理解（12要素フレームワークによるヒアリング）
+- Step020: AI設定（最適AIモデル選定）
+- Step030: 技術要件変換（12層アーキテクチャへのマッピング）
+- Step040: タスク分解とグループ化
+- Step050: AIエージェント責務定義
+- Step060: パターン適用と詳細設計
 
-**Phase 2: JSON Generation (Step070-149)**
-- Step070-129: Main flow group JSON generation (up to 30 groups)
-- Step130-149: Error flow group JSON generation (up to 10 groups)
-- Each group uses template from `.claude/agents/step070-メインフローグループJSON生成テンプレート.md`
+**Phase 2: JSON生成（Step070-149）**
+- Step070-129: メインフローグループJSON生成（最大30グループ）
+- Step130-149: エラーフローグループJSON生成（最大10グループ）
+- 各グループは `.claude/agents/step070-メインフローグループJSON生成テンプレート.md` のテンプレートを使用
 
-**Phase 3: Integration & Output (Step150-190)**
-- Step150: Inter-group connection integration
-- Step160: Workflow validation
-- Step170: Layout optimization
-- Step180: Sticky Note completion
-- Step190: Final output (complete workflow JSON)
+**Phase 3: 統合・出力（Step150-190）**
+- Step150: グループ間接続統合
+- Step160: ワークフロー全体検証
+- Step170: 配置最適化
+- Step180: Sticky Note完成
+- Step190: 最終出力（完全なワークフローJSON）
 
-## Working with Agent Prompts
+## エージェントプロンプトの使用方法
 
-### Location
-All agent prompts are in `.claude/agents/` directory:
+### 配置場所
+すべてのエージェントプロンプトは `.claude/agents/` ディレクトリに配置：
 - step010-業務理解.md
 - step020-AI設定.md
 - step030-技術要件変換.md
@@ -65,31 +65,31 @@ All agent prompts are in `.claude/agents/` directory:
 - step180-StickyNote完成.md
 - step190-最終出力.md
 
-### Prompt Structure
-Each prompt follows this format:
+### プロンプト構造
+各プロンプトは以下の形式に従う：
 ```markdown
-# 目的 (Purpose)
-# 背景 (Background)
-# 言葉の定義 (Term Definitions)
-# 制約 (Constraints)
-# 処理手順 (Processing Steps)
-## 処理手順の全体フロー (Overall Flow)
-## 処理手順1-N (Detailed Steps)
-# 初回質問 (Initial Question)
+# 目的
+# 背景
+# 言葉の定義
+# 制約
+# 処理手順
+## 処理手順の全体フロー
+## 処理手順1-N
+# 初回質問
 ```
 
-### Agent Naming Convention
-Each step specifies an agent name based on real-world experts/frameworks:
-- システムアーキテクト (System Architect - Grady Booch)
-- データエンジニア (Data Engineer - Martin Kleppmann)
-- SREエンジニア (SRE Engineer)
-- n8nエキスパート (n8n Expert)
-- データフローエンジニア (Data Flow Engineer)
-- テクニカルライター (Technical Writer)
+### エージェント命名規則
+各ステップは実在する専門家・フレームワークに基づくエージェント名を指定：
+- システムアーキテクト（グレディ・ブーチ『オブジェクト指向分析設計』）
+- データエンジニア（マーティン・クレップマン『データ指向アプリケーション設計』）
+- SREエンジニア
+- n8nエキスパート
+- データフローエンジニア
+- テクニカルライター
 
-## Output Directory Structure
+## 出力ディレクトリ構造
 
-When executing the workflow design process, outputs are saved in:
+ワークフロー設計プロセスを実行すると、以下の構造で出力が保存される：
 ```
 ./{業務目的}/
 ├── step010_業務理解/
@@ -117,102 +117,102 @@ When executing the workflow design process, outputs are saved in:
     └── 検証レポート.md
 ```
 
-## n8n-MCP Integration
+## n8n-MCP統合
 
-### Required MCP Tools
-- `search_nodes({query, category})` - Search n8n nodes
-- `get_node_essentials({nodeType, includeExamples})` - Get node details
-- `get_node_documentation({nodeType})` - Get readable documentation
-- `validate_node_operation({nodeType, config})` - Validate node configuration
-- `validate_workflow({workflow})` - Full workflow validation
+### 必須MCPツール
+- `search_nodes({query, category})` - n8nノードを検索
+- `get_node_essentials({nodeType, includeExamples})` - ノード詳細を取得
+- `get_node_documentation({nodeType})` - 読みやすいドキュメントを取得
+- `validate_node_operation({nodeType, config})` - ノード設定を検証
+- `validate_workflow({workflow})` - ワークフロー全体を検証
 
-### Node Type Format
-Always use full node type with prefix:
-- Core nodes: `n8n-nodes-base.webhook`, `n8n-nodes-base.httpRequest`
-- AI nodes: `@n8n/n8n-nodes-langchain.agent`
+### ノードタイプ形式
+常にプレフィックス付きの完全なノードタイプを使用：
+- コアノード: `n8n-nodes-base.webhook`, `n8n-nodes-base.httpRequest`
+- AIノード: `@n8n/n8n-nodes-langchain.agent`
 
-## Execution Flow
+## 実行フロー
 
-### Starting a New Workflow Design
+### 新規ワークフロー設計の開始
 
-1. Execute prompts sequentially from Step010
-2. Each step outputs to `./{業務目的}/step{番号}_{ステップ名}/`
-3. Get user approval after each step before proceeding
-4. Use n8n-MCP to validate node types and configurations
-5. Apply 12-layer architecture throughout design
+1. Step010から順番にプロンプトを実行
+2. 各ステップは `./{業務目的}/step{番号}_{ステップ名}/` に出力
+3. 各ステップ完了後、次に進む前にユーザーの承認を得る
+4. n8n-MCPを使用してノードタイプと設定を検証
+5. 設計全体を通して12層アーキテクチャを適用
 
-### Template Usage (Phase 2)
+### テンプレート使用方法（Phase 2）
 
-For Group N JSON generation:
-1. Copy `step070-メインフローグループJSON生成テンプレート.md`
-2. Replace `[N]` with actual group number (1, 2, 3, ...)
-3. Replace `[グループ名]` with group name from Step060
-4. Extract Group N information from Step060 detailed design
-5. Execute prompt to generate JSON
+グループNのJSON生成：
+1. `step070-メインフローグループJSON生成テンプレート.md` をコピー
+2. `[N]` を実際のグループ番号（1, 2, 3, ...）に置換
+3. `[グループ名]` をStep060のグループ名に置換
+4. Step060の詳細設計からグループNの情報を抽出
+5. プロンプトを実行してJSONを生成
 
-### Token Optimization
+### トークン最適化
 
-- Each group JSON should be ≤2500 tokens
-- Group size: 3-15 nodes recommended
-- If exceeding: reduce group size or simplify parameters
+- 各グループJSONは2500トークン以下を推奨
+- グループサイズ: 3-15ノードを推奨
+- 超過した場合: グループサイズを縮小またはパラメータを簡素化
 
-## Sticky Note Design Policy
+## Sticky Note設計ポリシー
 
-All Sticky Notes must follow these rules:
+すべてのSticky Noteは以下のルールに従う：
 
-**Pattern 1 (Overall Flow):**
-- Minimum size: 760×650
-- Color: 7 (light pink) - FIXED
-- Must include `### 🔗 関連ノードブロック` section with all nodes' roles and connections
+**パターン1（全体フロー）:**
+- 最小サイズ: 760×650
+- 色: 7（薄ピンク） - 固定
+- `### 🔗 関連ノードブロック` セクションを含み、すべてのノードの役割と接続を記載
 
-**Pattern 2 (Each Group):**
-- Minimum size: 540×420
-- Colors: Main flow (2/3/4/6), Error flow (5)
-- NEVER use white colors (0/1)
-- Must include group flow and related nodes block
-- Must display layer, dependencies, and main data visually in Markdown
+**パターン2（各グループ）:**
+- 最小サイズ: 540×420
+- 色: メインフロー（2/3/4/6）、エラーフロー（5）
+- 白色系（0/1）は絶対に使用禁止
+- グループフローと関連ノードブロックを含める
+- 層、依存関係、主要データをMarkdownで視覚的に表示
 
-## Git Workflow
+## Gitワークフロー
 
-Follow `.github/GIT_WORKFLOW.md` for branch strategy and commit conventions:
-- Branch naming: `feature/[機能名]-[YYYYMMDD]`
-- Commit format: `[種別]: [変更内容]`
-  - Types: feat, fix, docs, style, refactor, test, chore
-- Always work on feature branches, never on main
-- Create PR after pushing changes
-- Clean up merged branches regularly
+`.github/GIT_WORKFLOW.md` に従ってブランチ戦略とコミット規約を遵守：
+- ブランチ命名: `feature/[機能名]-[YYYYMMDD]`
+- コミット形式: `[種別]: [変更内容]`
+  - 種別: feat, fix, docs, style, refactor, test, chore
+- 常にフィーチャーブランチで作業、mainでは作業しない
+- 変更をプッシュ後にPRを作成
+- マージ済みブランチは定期的にクリーンアップ
 
-## Common Constraints
+## 共通制約
 
-### Output Constraints (All Steps)
-- Request user confirmation after each step completion
-- Proceed to next step only after approval
-- Save outputs to designated directories
+### 出力制約（全ステップ共通）
+- 各ステップ完了後にユーザー確認を要求
+- 承認後のみ次ステップに進む
+- 指定されたディレクトリに出力を保存
 
-### Validation Requirements
-- Use n8n-MCP for node selection and validation
-- All nodes must have correct typeVersion
-- Verify all required parameters are defined
-- Check connection compatibility between nodes
+### 検証要件
+- ノード選定と検証にn8n-MCPを使用
+- すべてのノードは正しいtypeVersionを持つ
+- すべての必須パラメータが定義されていることを確認
+- ノード間の接続互換性をチェック
 
-### Design Principles
-- Single Responsibility Principle for AI Agents
-- Complete 12-layer mapping required
-- Data flow must be explicit (input → processing → output)
-- Cross-cutting concerns integrated at appropriate layers
+### 設計原則
+- AIエージェントに単一責任の原則を適用
+- 12層への完全なマッピングが必須
+- データフローを明示的にする（入力 → 処理 → 出力）
+- 横断的関心事を適切な層に統合
 
-## Example Workflow
+## 実行例
 
-See `./Google_Meet議事録自動化_v4.0/` for a complete example:
-- Contains all step outputs from Step010 to Step190
-- Includes group JSONs (Step070-092)
-- Final integrated workflow: `step190_最終成果物/Google_Meet議事録自動化システム_workflow_integrated_v4.json`
-- Helper scripts in `scripts/` for validation and conversion
+`./Google_Meet議事録自動化_v4.0/` に完全な実行例あり：
+- Step010からStep190までのすべてのステップ出力を含む
+- グループJSON（Step070-092）を含む
+- 最終統合ワークフロー: `step190_最終成果物/Google_Meet議事録自動化システム_workflow_integrated_v4.json`
+- 検証と変換のためのヘルパースクリプトが `scripts/` に配置
 
-## Important Notes
+## 重要な注意事項
 
-- This is a **design framework**, not executable code
-- Output is n8n workflow JSON for import into n8n
-- AI CLI (Claude Code) executes the prompts, not automated scripts
-- Each business requirement creates a new directory under project root
-- Process is iterative - steps can be revised based on feedback
+- これは**設計フレームワーク**であり、実行可能コードではない
+- 出力はn8nにインポートするためのn8nワークフローJSON
+- AI CLI（Claude Code）がプロンプトを実行、自動化スクリプトではない
+- 各業務要件はプロジェクトルート直下に新しいディレクトリを作成
+- プロセスは反復的 - フィードバックに基づいてステップを修正可能
