@@ -1,0 +1,252 @@
+{
+  "name": "Google Meet議事録自動化システム - Error Group 1",
+  "nodes": [
+    {
+      "id": "error_trigger_1",
+      "type": "n8n-nodes-base.errorTrigger",
+      "name": "Error Trigger",
+      "parameters": {},
+      "typeVersion": 1,
+      "position": [200, 600],
+      "_comment": "すべてのノードからのエラーを受け取ります。エラー発生時に自動的にこのノードが起動します。",
+      "notes": "自動起動: いずれかのノードでエラー発生時。エラー情報: error.message, error.stack, node.name等。"
+    },
+    {
+      "id": "code_error_info",
+      "type": "n8n-nodes-base.code",
+      "name": "Code: エラー情報整理",
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// エラー情報を整理し、種別を判定\nconst error = $input.all()[0].json.error;\nconst nodeName = $input.all()[0].json.node?.name || 'Unknown';\nconst fileName = $input.all()[0].json.file_name || 'Unknown';\n\nlet errorType = 'unknown';\n\n// エラー種別判定\nif (nodeName.includes('Gemini') || nodeName.includes('音声文字起こし')) {\n  errorType = 'gemini';\n} else if (nodeName.includes('AI Agent') || nodeName.includes('Claude')) {\n  errorType = 'ai';\n} else if (nodeName.includes('Google Drive')) {\n  errorType = 'drive';\n}\n\nreturn {\n  json: {\n    error_type: errorType,\n    error_message: error?.message || 'No error message',\n    error_stack: error?.stack || 'No stack trace',\n    node_name: nodeName,\n    file_name: fileName,\n    timestamp: new Date().toISOString()\n  }\n};"
+      },
+      "typeVersion": 2,
+      "position": [400, 600],
+      "_comment": "エラー情報を整理し、エラー種別（gemini、ai、drive）を判定します。エラーメッセージ、スタックトレース、ノード名、ファイル名、タイムスタンプを記録します。",
+      "notes": "エラー種別: gemini（音声文字起こし失敗）、ai（AI処理失敗）、drive（Google Drive操作失敗）、unknown（その他）。出力: error_type, error_message, error_stack, node_name, file_name, timestamp。"
+    },
+    {
+      "id": "if_error_type",
+      "type": "n8n-nodes-base.if",
+      "name": "IF: エラー種別判定",
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.error_type }}",
+              "rightValue": "gemini",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "typeVersion": 2,
+      "position": [600, 600],
+      "_comment": "エラー種別に応じて処理を分岐します。Gemini失敗の場合はTrue出力、それ以外はFalse出力。",
+      "notes": "True出力（Gemini失敗）: M4Aファイルを/エラー/フォルダに移動。False出力（AI/Drive失敗）: 部分議事録保存またはn8n一時保存。"
+    },
+    {
+      "id": "google_drive_move_error",
+      "type": "n8n-nodes-base.googleDrive",
+      "name": "Google Drive: エラーファイル移動",
+      "parameters": {
+        "operation": "update",
+        "fileId": "={{ $('Google Drive: 新規ファイル検知').item.json.id }}",
+        "updateFields": {
+          "parents": {
+            "folderId": "/エラー/"
+          }
+        }
+      },
+      "typeVersion": 3,
+      "position": [800, 500],
+      "_comment": "Gemini音声文字起こし失敗時、M4Aファイルを/エラー/フォルダに移動します。手動で再処理可能です。",
+      "notes": "移動先: /エラー/。トリガー: Gemini失敗時のみ（IF True出力）。"
+    },
+    {
+      "id": "google_drive_create_error_minutes",
+      "type": "n8n-nodes-base.googleDrive",
+      "name": "Google Drive: エラー議事録保存",
+      "parameters": {
+        "operation": "create",
+        "name": "={{ '[ERROR]minutes - ' + $now.format('YYYY-MM-DD') + ' - ' + $json.file_name + '.md' }}",
+        "parents": {
+          "folderId": "/議事録_出力/"
+        },
+        "mimeType": "text/markdown",
+        "options": {
+          "fileContent": "={{ '# エラー議事録\\n\\n**ファイル**: ' + $json.file_name + '\\n**エラータイプ**: ' + $json.error_type + '\\n**エラーメッセージ**: ' + $json.error_message + '\\n**発生ノード**: ' + $json.node_name + '\\n**タイムスタンプ**: ' + $json.timestamp + '\\n\\n## エラー詳細\\n\\n```\\n' + $json.error_stack + '\\n```' }}"
+        }
+      },
+      "typeVersion": 3,
+      "position": [800, 700],
+      "_comment": "AI失敗時、エラー情報を含む部分議事録を[ERROR]プレフィックス付きで保存します。手動確認用。",
+      "notes": "保存先: /議事録_出力/。ファイル名形式: [ERROR]minutes - YYYY-MM-DD - ファイル名.md。トリガー: AI失敗時（IF False出力）。"
+    },
+    {
+      "id": "set_error_temp",
+      "type": "n8n-nodes-base.set",
+      "name": "Set: エラー一時保存",
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "error_1",
+              "name": "error_logged",
+              "value": "true",
+              "type": "boolean"
+            },
+            {
+              "id": "error_2",
+              "name": "error_type",
+              "value": "={{ $json.error_type }}",
+              "type": "string"
+            },
+            {
+              "id": "error_3",
+              "name": "error_message",
+              "value": "={{ $json.error_message }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 3.4,
+      "position": [1000, 600],
+      "_comment": "エラー情報をn8n内部ストレージに一時保存します。Drive失敗時のフォールバック。",
+      "notes": "出力フィールド: error_logged, error_type, error_message。"
+    },
+    {
+      "id": "http_request_discord_error",
+      "type": "n8n-nodes-base.httpRequest",
+      "name": "Discord: エラー通知",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.DISCORD_WEBHOOK_URL }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "content",
+              "value": "={{ '🚨 議事録生成エラー発生\\n📄 ファイル: ' + $json.file_name + '\\n❌ エラータイプ: ' + $json.error_type + '\\n💬 メッセージ: ' + $json.error_message + '\\n🔧 発生ノード: ' + $json.node_name + '\\n⏰ 時刻: ' + $json.timestamp }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 4.2,
+      "position": [1200, 600],
+      "_comment": "すべてのエラーをDiscord Webhookで管理者に通知します。エラータイプ、メッセージ、ノード名、タイムスタンプを含みます。",
+      "notes": "Webhook URL: 環境変数 DISCORD_WEBHOOK_URL。通知内容: file_name, error_type, error_message, node_name, timestamp。"
+    },
+    {
+      "id": "sticky_error_1",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Error Group 1: エラーハンドリング",
+      "parameters": {
+        "content": "## Error Group 1: エラーハンドリング\n\n📌 **ノード**:\n- Error Trigger\n- Code: エラー情報整理\n- IF: エラー種別判定\n- Google Drive: エラーファイル移動\n- Google Drive: エラー議事録保存\n- Set: エラー一時保存\n- Discord: エラー通知\n\n**責務**: 全ノードのエラー検知、種別判定、リカバリー、通知\n\n**エラー種別**:\n1. **Gemini失敗**: M4Aファイルを/エラー/フォルダに移動\n2. **AI失敗**: [ERROR]議事録を保存\n3. **Drive失敗**: n8n内部ストレージに一時保存\n\n**全エラー**: Discord通知",
+        "height": 300,
+        "width": 360,
+        "color": 7
+      },
+      "typeVersion": 1,
+      "position": [150, 400]
+    }
+  ],
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Code: エラー情報整理",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: エラー情報整理": {
+      "main": [
+        [
+          {
+            "node": "IF: エラー種別判定",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: エラー種別判定": {
+      "main": [
+        [
+          {
+            "node": "Google Drive: エラーファイル移動",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Drive: エラー議事録保存",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive: エラーファイル移動": {
+      "main": [
+        [
+          {
+            "node": "Set: エラー一時保存",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive: エラー議事録保存": {
+      "main": [
+        [
+          {
+            "node": "Set: エラー一時保存",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: エラー一時保存": {
+      "main": [
+        [
+          {
+            "node": "Discord: エラー通知",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,140 @@
+{
+  "name": "Google Meet議事録自動化システム - Group 12",
+  "nodes": [
+    {
+      "id": "google_drive_move_file",
+      "type": "n8n-nodes-base.googleDrive",
+      "name": "Google Drive: M4Aファイル移動",
+      "parameters": {
+        "operation": "update",
+        "fileId": "={{ $('Google Drive: 新規ファイル検知').item.json.id }}",
+        "updateFields": {
+          "parents": {
+            "folderId": "/processed/"
+          }
+        }
+      },
+      "typeVersion": 3,
+      "position": [5000, 300],
+      "_comment": "処理済みのM4Aファイルを/processed/フォルダに移動します。元の/議事録_入力/フォルダからは削除されます。",
+      "notes": "移動先: /processed/。元ファイルID参照: Group 1のトリガーノードから取得。"
+    },
+    {
+      "id": "http_request_discord",
+      "type": "n8n-nodes-base.httpRequest",
+      "name": "Discord: 処理完了通知",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.DISCORD_WEBHOOK_URL }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "content",
+              "value": "={{ '✅ 議事録生成完了！\\n📄 ファイル: ' + $json.name + '\\n🔗 URL: ' + $json.webViewLink + '\\n⏱ 処理時間: ' + $executionTime + '秒' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 4.2,
+      "position": [5200, 300],
+      "_comment": "Discord Webhookで処理完了を通知します。ファイル名、URL、処理時間を含みます。オプション設定で無効化可能。",
+      "notes": "Webhook URL: 環境変数 DISCORD_WEBHOOK_URL。通知内容: ファイル名、URL、処理時間。オプション: 環境変数未設定の場合はスキップ。"
+    },
+    {
+      "id": "set_final_result",
+      "type": "n8n-nodes-base.set",
+      "name": "Set: 最終結果セット",
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "result_1",
+              "name": "success",
+              "value": "true",
+              "type": "boolean"
+            },
+            {
+              "id": "result_2",
+              "name": "meeting_name",
+              "value": "={{ $json.meeting_name }}",
+              "type": "string"
+            },
+            {
+              "id": "result_3",
+              "name": "minutes_file",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "result_4",
+              "name": "minutes_url",
+              "value": "={{ $json.webViewLink }}",
+              "type": "string"
+            },
+            {
+              "id": "result_5",
+              "name": "processing_time",
+              "value": "={{ $executionTime }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 3.4,
+      "position": [5400, 300],
+      "_comment": "最終結果をセットします。成功フラグ、会議名、ファイル名、URL、処理時間を含みます。",
+      "notes": "出力フィールド: success, meeting_name, minutes_file, minutes_url, processing_time。"
+    },
+    {
+      "id": "sticky_12",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 12: ファイル移動 + 通知",
+      "parameters": {
+        "content": "## Group 12: ファイル移動 + 通知 + 最終結果\n\n📌 **ノード**:\n- Google Drive: M4Aファイル移動\n- Discord: 処理完了通知\n- Set: 最終結果セット\n\n**責務**: M4Aファイル移動、Discord通知、最終結果セット\n\n**処理内容**:\n- M4Aファイルを/processed/フォルダに移動\n- Discord Webhook通知（オプション）\n- 最終結果セット（success, meeting_name, minutes_file, minutes_url, processing_time）\n\n**パフォーマンス**: <5秒",
+        "height": 280,
+        "width": 340,
+        "color": 4
+      },
+      "typeVersion": 1,
+      "position": [4950, 60]
+    }
+  ],
+  "connections": {
+    "Google Drive: M4Aファイル移動": {
+      "main": [
+        [
+          {
+            "node": "Discord: 処理完了通知",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord: 処理完了通知": {
+      "main": [
+        [
+          {
+            "node": "Set: 最終結果セット",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
