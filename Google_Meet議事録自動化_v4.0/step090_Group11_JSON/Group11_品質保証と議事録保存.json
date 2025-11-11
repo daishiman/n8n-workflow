@@ -1,0 +1,121 @@
+{
+  "name": "Google Meet議事録自動化システム - Group 11",
+  "nodes": [
+    {
+      "id": "ai_agent_claude_step5",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "name": "Claude: 品質保証 (Step5 + Memory)",
+      "parameters": {
+        "agent": "conversationalAgent",
+        "promptType": "define",
+        "text": "あなたは議事録品質保証専門AIです。生成された議事録の完全性を検証し、不足項目を補完します。\n\n処理:\n1. 完全性検証（全議題・決定事項・宿題が含まれているか）\n2. 不足項目補完（元データと照合）\n3. 警告生成（重要な欠落がある場合）\n\n出力形式（JSON）:\n{\n  \"markdown\": \"補完後のMarkdown\",\n  \"warnings\": [\"警告1\", \"警告2\"]\n}"
+      },
+      "typeVersion": 1.7,
+      "position": [
+        4400,
+        300
+      ],
+      "_comment": "AI Agent Nodeに変換済み（旧: http_request_claude_step5）",
+      "notes": "Model: claude-sonnet-4-5-20250929。Temperature: 0.7。Max Tokens: 8000。Memory: step5_memory（Window: 5）",
+      "subnodes": {
+        "chatModel": {
+          "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+          "parameters": {
+            "model": "claude-sonnet-4-5-20250929",
+            "options": {
+              "temperature": 0.7,
+              "maxTokens": 8000
+            }
+          }
+        },
+        "memory": {
+          "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+          "parameters": {
+            "sessionKey": "step5_memory",
+            "contextWindowLength": 5
+          }
+        },
+        "tools": []
+      }
+    },
+    {
+      "id": "code_parse_step5",
+      "type": "n8n-nodes-base.code",
+      "name": "Code: Step5結果パース",
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const response = $input.all()[0].json;\nconst result = JSON.parse(response.content[0].text);\nreturn { json: result };"
+      },
+      "typeVersion": 2,
+      "position": [
+        4600,
+        300
+      ],
+      "_comment": "Claude APIレスポンスから最終Markdown + 警告リストを抽出します。",
+      "notes": "入力: Claude APIレスポンス。出力: markdown, warnings配列。"
+    },
+    {
+      "id": "google_drive_create_file",
+      "type": "n8n-nodes-base.googleDrive",
+      "name": "Google Drive: 議事録保存",
+      "parameters": {
+        "operation": "create",
+        "name": "={{ 'minutes - ' + $now.format('YYYY-MM-DD') + ' - ' + $json.meeting_name + '.md' }}",
+        "parents": {
+          "folderId": "/議事録_出力/"
+        },
+        "mimeType": "text/markdown",
+        "options": {
+          "fileContent": "={{ $json.markdown }}"
+        }
+      },
+      "typeVersion": 3,
+      "position": [
+        4800,
+        300
+      ],
+      "_comment": "最終議事録をGoogle Driveの/議事録_出力/フォルダに保存します。ファイル名は自動生成（minutes - YYYY-MM-DD - 会議名.md）。",
+      "notes": "フォルダ: /議事録_出力/。ファイル名形式: minutes - YYYY-MM-DD - 会議名.md。MIMEタイプ: text/markdown。"
+    },
+    {
+      "id": "sticky_11",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 11: 品質保証 + 議事録保存 (Step5)",
+      "parameters": {
+        "content": "## Group 11: 品質保証 + 議事録保存 (Step5)\n\n📌 **ノード**:\n- Claude: 品質保証 (Step5 + Memory)\n- Code: Step5結果パース\n- Google Drive: 議事録保存\n\n**責務**: 議事録検証・補完、Google Driveに保存\n\n**AI設定**:\n- Model: claude-sonnet-4-5-20250929\n- Temperature: 0.7\n- Max Tokens: 8000\n- Memory: step5_memory\n\n**保存先**: /議事録_出力/\n\n**パフォーマンス**: 30-60秒",
+        "height": 260,
+        "width": 360,
+        "color": 6
+      },
+      "typeVersion": 1,
+      "position": [
+        4350,
+        60
+      ]
+    }
+  ],
+  "connections": {
+    "Claude: 品質保証 (Step5 + Memory)": {
+      "main": [
+        [
+          {
+            "node": "Code: Step5結果パース",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Step5結果パース": {
+      "main": [
+        [
+          {
+            "node": "Google Drive: 議事録保存",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

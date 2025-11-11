@@ -79,19 +79,33 @@ n8nのベストプラクティスパターンを適用し、ノード配置・Ex
 ```
 
 **Pattern 2: AI Agent with Tool Workflow**（AI使用時必須）
-```
-AI Agentに外部ツールを接続する
 
-AI Agent (Main Workflow)
-    ├─ Chat Model: Gemini 2.0 Flash
-    ├─ Memory: Buffer Window (10 messages)
-    └─ Tools:
-        ├─ Tool Workflow 1: データベース検索
-        ├─ Tool Workflow 2: 外部API呼び出し
-        └─ Tool Workflow 3: ファイル操作
+**🔴 必須ノードタイプ**: AI処理を行う場合、**必ず**以下を使用：
+
+```
+AI Agent Node（必須）
+  type: "@n8n/n8n-nodes-langchain.agent"
+  typeVersion: 1.7
+
+  サブノード構成:
+    ├─ Chat Model（必須）
+    │   ├─ Gemini: "@n8n/n8n-nodes-langchain.lmChatGoogleGemini"
+    │   ├─ Claude: "@n8n/n8n-nodes-langchain.lmChatAnthropic"
+    │   └─ OpenAI: "@n8n/n8n-nodes-langchain.lmChatOpenAi"
+    │
+    ├─ Memory（オプション）
+    │   └─ Buffer Window: "@n8n/n8n-nodes-langchain.memoryBufferWindow"
+    │
+    └─ Tools（オプション）
+        └─ Workflow Tool: "@n8n/n8n-nodes-langchain.toolWorkflow"
 
 各Tool Workflowは独立したワークフローとして実装
 ```
+
+**禁止事項**:
+- ❌ HTTP RequestノードでGemini/Claude APIを直接呼び出し
+- ❌ Code NodeでLLM SDKを使用
+- ❌ カスタムノードでの独自実装
 
 **Pattern 3: Batch Processing with Token Optimization**（大量データ時）
 ```

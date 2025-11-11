@@ -1,0 +1,32 @@
+{
+  "name": "Google Meet議事録自動化システム - Group 8",
+  "nodes": [
+    {
+      "id": "code_agenda_reconstruction",
+      "type": "n8n-nodes-base.code",
+      "name": "Code: 議題データ再構成",
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// 議題ごとに該当する文字起こしデータを収集\nconst step2Output = $input.all()[0].json;  // {meeting_name, agendas}\nconst step1Lines = $input.all()[1].json.lines;  // 統合済みlines配列\n\nconst agendaDataArray = [];\n\nfor (const agenda of step2Output.agendas) {\n  const agendaLines = [];\n  \n  // agenda.line_ids に該当する行を収集\n  for (const lineId of agenda.line_ids) {\n    const line = step1Lines.find(l => l.line_id === lineId);\n    if (line) {\n      agendaLines.push(line);\n    }\n  }\n  \n  agendaDataArray.push({\n    agenda_id: agenda.agenda_id,\n    title: agenda.title,\n    lines: agendaLines,\n    meeting_name: step2Output.meeting_name\n  });\n}\n\n// 各議題を個別のアイテムとして返す（Split in Batchesで並列処理するため）\nreturn agendaDataArray.map(agenda => ({ json: agenda }));"
+      },
+      "typeVersion": 2,
+      "position": [3000, 300],
+      "_comment": "各議題に該当する文字起こしデータを収集し、議題ごとのデータセットを作成します。次のSplit in Batchesで並列処理されます。",
+      "notes": "入力1: Step2出力（meeting_name, agendas）。入力2: Step1統合済みlines配列。出力: 議題ごとのデータセット（agenda_id, title, lines, meeting_name）。推定議題数: 3-5個。"
+    },
+    {
+      "id": "sticky_8",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 8: 議題データ再構成",
+      "parameters": {
+        "content": "## Group 8: 議題データ再構成\n\n📌 **ノード**:\n- Code: 議題データ再構成\n\n**責務**: 議題ごとに該当する文字起こしを収集\n\n**処理内容**:\n- Step2の議題リスト（line_ids）を使用\n- 各議題に該当する行を収集\n- 議題ごとのデータセット作成\n  - agenda_id\n  - title\n  - lines（該当行のみ）\n  - meeting_name\n\n**出力**: 議題ごとの配列（並列処理準備）\n\n**パフォーマンス**: <0.5秒",
+        "height": 260,
+        "width": 320,
+        "color": 4
+      },
+      "typeVersion": 1,
+      "position": [2950, 60]
+    }
+  ],
+  "connections": {}
+}

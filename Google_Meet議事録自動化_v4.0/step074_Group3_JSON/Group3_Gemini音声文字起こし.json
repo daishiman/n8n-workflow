@@ -1,0 +1,94 @@
+{
+  "name": "Google Meet議事録自動化システム - Group 3",
+  "nodes": [
+    {
+      "id": "http_request_gemini_transcribe",
+      "type": "n8n-nodes-base.httpRequest",
+      "name": "Gemini: 音声文字起こし (Step0)",
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contents",
+              "value": "={{ [{\"parts\": [{\"inline_data\": {\"mime_type\": \"audio/m4a\", \"data\": $binary.m4a_data.data}}]}] }}"
+            },
+            {
+              "name": "generationConfig",
+              "value": "={{ {\"temperature\": 0.3, \"maxOutputTokens\": 100000, \"responseMimeType\": \"application/json\"} }}"
+            },
+            {
+              "name": "systemInstruction",
+              "value": "={{ {\"parts\": [{\"text\": \"あなたは日本語の音声文字起こし専門AIです。M4A音声ファイルを受け取り、以下の形式でJSON配列として文字起こし結果を返してください。\\n\\n出力形式:\\n```json\\n{\\n  \\\"lines\\\": [\\n    {\\n      \\\"line_id\\\": 1,\\n      \\\"content\\\": \\\"発言内容\\\",\\n      \\\"speaker\\\": \\\"A\\\",\\n      \\\"timestamp\\\": \\\"00:01:20\\\",\\n      \\\"start_time\\\": 80.5,\\n      \\\"end_time\\\": 85.2\\n    }\\n  ]\\n}\\n```\\n\\n要件:\\n1. 話者を自動分離してA, B, C...でラベル付け\\n2. タイムスタンプを秒単位とHH:MM:SS形式の両方で記録\\n3. 句読点を適切に挿入\\n4. フィラー語（えー、あのー等）はそのまま残す（Step1で除去）\\n5. すべての発言をline_id順に配列化\"}] } }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 120000,
+          "response": {
+            "response": {
+              "fullResponse": false,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "typeVersion": 4.2,
+      "position": [1000, 300],
+      "_comment": "Gemini 2.0 Flash Experimentalの音声認識APIを使用して、M4Aファイルを日本語テキストに変換します。話者分離、タイムスタンプ付与、句読点挿入を自動で行います。",
+      "notes": "API: Gemini 2.0 Flash Experimental。Temperature: 0.3（高精度）。Max Tokens: 100,000（長時間会議対応）。Timeout: 120秒。出力: JSON配列（lines）。認証: GOOGLE_API_KEY環境変数。処理時間: 30-60秒（1時間会議）。"
+    },
+    {
+      "id": "code_parse_transcription",
+      "type": "n8n-nodes-base.code",
+      "name": "Code: 文字起こし結果パース",
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Gemini APIレスポンスから文字起こし結果を抽出\nconst response = $input.all()[0].json;\nconst generatedContent = response.candidates[0].content.parts[0].text;\nconst transcription = JSON.parse(generatedContent);\n\nreturn {\n  json: transcription\n};"
+      },
+      "typeVersion": 2,
+      "position": [1200, 300],
+      "_comment": "Gemini APIレスポンスから文字起こしJSON（lines配列）を抽出し、次のステップで使える形式に変換します。",
+      "notes": "入力: Gemini APIレスポンス（candidates[0].content.parts[0].text）。出力: JSON配列（lines）。エラーハンドリング: JSON.parse失敗時はError Group 1へ。"
+    },
+    {
+      "id": "sticky_3",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 3: Gemini音声文字起こし",
+      "parameters": {
+        "content": "## Group 3: Gemini音声文字起こし (Step0)\n\n📌 **このグループに含まれるノード**:\n- Gemini: 音声文字起こし (Step0)\n- Code: 文字起こし結果パース\n\n**責務**: M4A音声から日本語文字起こし生成\n\n**処理内容**:\n- Gemini 2.0 Flash Experimentalで音声認識\n- 話者自動分離（A, B, C...）\n- タイムスタンプ自動付与（秒 + HH:MM:SS）\n- 句読点自動挿入\n- JSON配列として出力（lines）\n\n**AI設定**:\n- Model: gemini-2.0-flash-exp\n- Temperature: 0.3（高精度）\n- Max Tokens: 100,000（長時間対応）\n- Memory: なし\n\n**パフォーマンス**:\n- 推定処理時間: 30-60秒（1時間会議）\n- Timeout: 120秒\n\n**出力形式**: JSON配列（line_id, content, speaker, timestamp, start_time, end_time）",
+        "height": 340,
+        "width": 360,
+        "color": 5
+      },
+      "typeVersion": 1,
+      "position": [950, 60]
+    }
+  ],
+  "connections": {
+    "Gemini: 音声文字起こし (Step0)": {
+      "main": [
+        [
+          {
+            "node": "Code: 文字起こし結果パース",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

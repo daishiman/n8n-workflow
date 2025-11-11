@@ -10,6 +10,8 @@
 
 - **単一責務の原則**: 1つのAI Agent = 1つの明確な目的・ゴール
 - **AI Agent責務**: AI Agentが担当する具体的なタスク（要約、分類、抽出、判断など）
+- **AI Agent Node（必須）**: n8nでAI処理を行う場合、**必ず** `@n8n/n8n-nodes-langchain.agent` タイプを使用すること。他のノードタイプ（HTTPリクエストでAPIを直接呼び出すなど）は使用禁止。
+- **Chat Modelサブノード（必須）**: AI Agent Nodeに接続する必須サブノード。Gemini: `@n8n/n8n-nodes-langchain.lmChatGoogleGemini`、Claude: `@n8n/n8n-nodes-langchain.lmChatAnthropic`など。
 - **入力仕様**: AI Agentが受け取るデータの形式・フィールド・制約
 - **出力仕様**: AI Agentが生成するデータの形式・スキーマ・検証ルール
 - **System Prompt**: AI Agentの役割定義、処理方針、出力形式を指定する指示文
@@ -21,6 +23,8 @@
 
 - 出力制約: AIエージェント責務定義書を出力後、ユーザーに確認を求め、承認後にStep060へ進む
 - 単一責務厳守必須: 1つのAI Agent = 1つの明確な責務、複雑な処理は分解すること
+- AI処理必須制約: AI処理を行う場合、**100%必ず** `@n8n/n8n-nodes-langchain.agent` ノードタイプを使用すること。例外は認められない。
+- ノード接続必須制約: すべてのAI Agentノードが適切に接続されていること（入力元ノード、出力先ノード、エラーフロー接続）を確認すること。
 - 入出力スキーマ必須: 入力・出力のJSON Schemaを明確に定義すること
 - System Prompt完全性必須: 役割・処理方針・出力形式・制約をすべて含むこと
 - Few-shot Examples推奨: 複雑なタスクには入出力例を3-5個含めること
@@ -75,6 +79,61 @@
 | 3 | AI判断・要約生成 | 議事録を200-300文字で要約 | Layer 5: Core Logic |
 ```
 
+## 処理手順1.5: AI Agent Nodeタイプの確認（必須）
+
+- 目的: すべてのAI処理が `@n8n/n8n-nodes-langchain.agent` ノードタイプを使用することを確認する
+- 背景: ノードタイプの統一により、実装品質と保守性が向上する
+- エージェント名: n8nアーキテクト
+- 役割: AI Agent Nodeの実装方針を確認する
+- 責務: ノードタイプの100%準拠確認
+- 処理詳細手順:
+  1. Step040で特定されたすべてのAI処理箇所を確認
+  2. 各AI処理に対して、以下のノードタイプを**必ず**使用することを明記:
+
+     **🔴 絶対必須: AI Agent Nodeタイプ**
+
+     ```
+     メインノード（必須）:
+       type: "@n8n/n8n-nodes-langchain.agent"
+       typeVersion: 1.7
+
+     Chat Modelサブノード（必須）:
+       - Gemini 2.5 Flash: "@n8n/n8n-nodes-langchain.lmChatGoogleGemini"
+       - Claude 4.5 Sonnet: "@n8n/n8n-nodes-langchain.lmChatAnthropic"
+       - GPT-5-mini: "@n8n/n8n-nodes-langchain.lmChatOpenAi"
+
+     Memoryサブノード（オプション）:
+       - Buffer Window: "@n8n/n8n-nodes-langchain.memoryBufferWindow"
+
+     Toolsサブノード（オプション）:
+       - Workflow Tool: "@n8n/n8n-nodes-langchain.toolWorkflow"
+     ```
+
+  3. **禁止事項**を明記:
+     - ❌ `n8n-nodes-base.httpRequest` でGemini/Claude APIを直接呼び出し
+     - ❌ `n8n-nodes-base.code` でLLM SDKを使用
+     - ❌ その他のカスタム実装
+
+  4. すべてのAI Agentがこのノードタイプを使用することを確認
+
+- 評価・判断基準:
+  - すべてのAI処理が `@n8n/n8n-nodes-langchain.agent` を使用していること
+  - 禁止されたノードタイプが使用されていないこと
+
+- 出力テンプレート:
+```markdown
+### AI Agent Nodeタイプ確認
+
+| AI Agent ID | 配置グループ | ノードタイプ | Chat Model | 準拠状況 |
+|-------------|------------|------------|-----------|---------|
+| AI Agent 1 | Group 3 | @n8n/n8n-nodes-langchain.agent | lmChatGoogleGemini | ✅ 準拠 |
+| AI Agent 2 | Group 4 | @n8n/n8n-nodes-langchain.agent | lmChatAnthropic | ✅ 準拠 |
+
+**準拠率**: 100%（2/2 AI Agents）
+
+**禁止ノードタイプ使用**: なし ✅
+```
+
 ## 処理手順2: AI責務の分解・単一化
 
 - 目的: 複雑なAI処理を単一責務のAI Agentに分解する
@@ -85,7 +144,7 @@
 - 処理詳細手順:
   1. Step010のAI処理要件を確認
   2. AI処理が単一責務か判定:
-     - **単一責務の例**: 
+     - **単一責務の例**:
        - 「議事録を要約する」 ✅
        - 「テキストをカテゴリ分類する」 ✅
        - 「メールから重要情報を抽出する」 ✅
@@ -96,15 +155,15 @@
      ```
      複雑なAI処理:
      「議事録を要約し、アクションアイテムを抽出し、決定事項を抽出する」
-     
+
      ↓ 分解
-     
+
      AI Agent 1: 議事録要約
      - 責務: 議事録を200-300文字で要約する
-     
+
      AI Agent 2: アクションアイテム抽出
      - 責務: 議事録からアクションアイテムを抽出する（担当者、期限付き）
-     
+
      AI Agent 3: 決定事項抽出
      - 責務: 議事録から重要な決定事項を抽出する
      ```
@@ -141,7 +200,7 @@
 - 責務: 入出力JSON Schemaの定義
 - 処理詳細手順:
   1. 各AI Agentについて、以下を設計:
-     - **入力仕様**: 
+     - **入力仕様**:
        - フィールド名（例: `meetingData.transcript`）
        - データ型（string, number, array, objectなど）
        - 制約（必須/任意、最小長、最大長、正規表現など）
@@ -252,26 +311,26 @@
      ```markdown
      # 役割定義
      あなたは[AI Agentの責務]を実行する専門AIです。
-     
+
      # 業務コンテキスト
      [Step010の業務目標、ユースケース、ビジネスルール]
-     
+
      # 入力データ
      - フィールド名: [フィールド説明]
      - フィールド名: [フィールド説明]
-     
+
      # タスク
      1. [処理手順1]
      2. [処理手順2]
      3. [処理手順3]
-     
+
      # 出力形式
      [JSON Schema]
-     
+
      # 制約事項
      - [制約1]
      - [制約2]
-     
+
      # Few-shot Examples（任意）
      [入出力例]
      ```
