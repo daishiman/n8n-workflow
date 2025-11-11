@@ -10,8 +10,13 @@
 
 - **単一責務の原則**: 1つのAI Agent = 1つの明確な目的・ゴール
 - **AI Agent責務**: AI Agentが担当する具体的なタスク（要約、分類、抽出、判断など）
-- **AI Agent Node（必須）**: n8nでAI処理を行う場合、**必ず** `@n8n/n8n-nodes-langchain.agent` タイプを使用すること。他のノードタイプ（HTTPリクエストでAPIを直接呼び出すなど）は使用禁止。
-- **Chat Modelサブノード（必須）**: AI Agent Nodeに接続する必須サブノード。Gemini: `@n8n/n8n-nodes-langchain.lmChatGoogleGemini`、Claude: `@n8n/n8n-nodes-langchain.lmChatAnthropic`など。
+- **単一責務の原則**: 1つのAI Agent = 1つの明確な目的・ゴール
+- **AI Agent責務**: AI Agentが担当する具体的なタスク（要約、分類、抽出、判断など）
+- **AI Agent Node（必須）**: n8nでAI処理を行う場合、**必ず** `@n8n/n8n-nodes-langchain.agent` タイプを使用すること。このノードは、AIの頭脳として機能し、サブノードと連携して動作します。
+- **サブノード**: AI Agentに機能を提供するノード群。
+  - **Language Model (LM)**: **必須**。AIモデルそのもの（例: OpenAI, Gemini）。`ai_languageModel`入力に接続。
+  - **Memory**: 任意。会話履歴を記憶する（例: Simple Memory）。`ai_memory`入力に接続。
+  - **Tools**: 任意。外部機能を利用する（例: n8n Sub-Workflow Tool）。`ai_tool`入力に接続。
 - **入力仕様**: AI Agentが受け取るデータの形式・フィールド・制約
 - **出力仕様**: AI Agentが生成するデータの形式・スキーマ・検証ルール
 - **System Prompt**: AI Agentの役割定義、処理方針、出力形式を指定する指示文
@@ -24,7 +29,7 @@
 - 出力制約: AIエージェント責務定義書を出力後、ユーザーに確認を求め、承認後にStep060へ進む
 - 単一責務厳守必須: 1つのAI Agent = 1つの明確な責務、複雑な処理は分解すること
 - AI処理必須制約: AI処理を行う場合、**100%必ず** `@n8n/n8n-nodes-langchain.agent` ノードタイプを使用すること。例外は認められない。
-- ノード接続必須制約: すべてのAI Agentノードが適切に接続されていること（入力元ノード、出力先ノード、エラーフロー接続）を確認すること。
+- **構造生成制約**: AI Agentノードを生成する際は、**必ず** Language Modelサブノードを同時に生成し、`connections`オブジェクトで正しく接続すること。MemoryやToolsも必要に応じて同時に生成・接続する。
 - 入出力スキーマ必須: 入力・出力のJSON Schemaを明確に定義すること
 - System Prompt完全性必須: 役割・処理方針・出力形式・制約をすべて含むこと
 - Few-shot Examples推奨: 複雑なタスクには入出力例を3-5個含めること
@@ -88,25 +93,107 @@
 - 責務: ノードタイプの100%準拠確認
 - 処理詳細手順:
   1. Step040で特定されたすべてのAI処理箇所を確認
-  2. 各AI処理に対して、以下のノードタイプを**必ず**使用することを明記:
+  2. 各AI処理に対して、以下のノードタイプを**必ず**使用することを明記し、完全なJSON構造で定義する:
 
-     **🔴 絶対必須: AI Agent Nodeタイプ**
+     **🔴 絶対必須: AI Agent Nodeとサブノードの完全なJSON構造**
 
-     ```
-     メインノード（必須）:
-       type: "@n8n/n8n-nodes-langchain.agent"
-       typeVersion: 1.7
-
-     Chat Modelサブノード（必須）:
-       - Gemini 2.5 Flash: "@n8n/n8n-nodes-langchain.lmChatGoogleGemini"
-       - Claude 4.5 Sonnet: "@n8n/n8n-nodes-langchain.lmChatAnthropic"
-       - GPT-5-mini: "@n8n/n8n-nodes-langchain.lmChatOpenAi"
-
-     Memoryサブノード（オプション）:
-       - Buffer Window: "@n8n/n8n-nodes-langchain.memoryBufferWindow"
-
-     Toolsサブノード（オプション）:
-       - Workflow Tool: "@n8n/n8n-nodes-langchain.toolWorkflow"
+     ```json
+{
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "あなたは親切なアシスタントです。ユーザーの質問に答え、必要に応じてツールを使用してください。",
+        "options": {
+          "systemMessage": "あなたは日本語で応答する親切なAIアシスタントです。",
+          "maxIterations": 10
+        }
+      },
+      "id": "f7f25967-6471-499b-8003-29562939934d",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [1040, 480]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "id": "a1b5c138-35a3-4168-8035-533539e69a4c",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [800, 360],
+      "credentials": {
+        "openAiApi": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "YOUR_CREDENTIAL_NAME"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionKey": "={{ $json.sessionId }}",
+        "contextWindowLength": 10
+      },
+      "id": "3f2a6c9a-9e3b-4b5a-9a1e-2c3d4f5a6b7c",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [800, 480]
+    },
+    {
+      "parameters": {
+        "description": "Googleカレンダーにイベントを登録します",
+        "source": "database",
+        "workflowId": "123"
+      },
+      "id": "b4d2e1f0-c8a7-4b6e-8f9d-0e1f2a3b4c5d",
+      "name": "Calendar Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.1,
+      "position": [800, 600]
+    }
+  ],
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
      ```
 
   3. **禁止事項**を明記:
@@ -119,15 +206,16 @@
 - 評価・判断基準:
   - すべてのAI処理が `@n8n/n8n-nodes-langchain.agent` を使用していること
   - 禁止されたノードタイプが使用されていないこと
+  - AI Agentノードとサブノードが`nodes`配列と`connections`オブジェクトで正しく定義されていること
 
 - 出力テンプレート:
 ```markdown
 ### AI Agent Nodeタイプ確認
 
-| AI Agent ID | 配置グループ | ノードタイプ | Chat Model | 準拠状況 |
-|-------------|------------|------------|-----------|---------|
-| AI Agent 1 | Group 3 | @n8n/n8n-nodes-langchain.agent | lmChatGoogleGemini | ✅ 準拠 |
-| AI Agent 2 | Group 4 | @n8n/n8n-nodes-langchain.agent | lmChatAnthropic | ✅ 準拠 |
+| AI Agent ID | 配置グループ | メインノードタイプ | Chat Modelタイプ | 準拠状況 |
+|-------------|------------|------------------|-----------------|---------|
+| AI Agent 1 | Group 3 | @n8n/n8n-nodes-langchain.agent | @n8n/n8n-nodes-langchain.lmChatGoogleGemini | ✅ 準拠 |
+| AI Agent 2 | Group 4 | @n8n/n8n-nodes-langchain.agent | @n8n/n8n-nodes-langchain.lmChatAnthropic | ✅ 準拠 |
 
 **準拠率**: 100%（2/2 AI Agents）
 

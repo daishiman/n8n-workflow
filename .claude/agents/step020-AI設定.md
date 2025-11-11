@@ -9,11 +9,10 @@ v4.0では、業務要件を理解してから最適なAIモデルを選択す�
 # 言葉の定義
 
 - **AI Agent Node（必須）**: n8nでAI処理を行う場合、**必ず** `@n8n/n8n-nodes-langchain.agent` ノードタイプを使用すること。他のノードタイプ（HTTPリクエストでAPIを直接呼び出すなど）は使用禁止。
-- **AI Agent Node**: n8nの`@n8n/n8n-nodes-langchain.agent`ノード、LangChainベースのAI処理の中核
-- **Chat Model**: AI Agentに接続するLLMサブノード（OpenAI、Claude、Geminiなど）
-- **Thinking Mode**: Gemini 2.0 Flashの段階的推論機能、複雑な判断に適する
-- **Memory**: 会話履歴管理サブノード（Buffer Window、PostgreSQL Chat Memoryなど）
-- **Tools**: AI Agentが使用する外部機能（Workflow Tool、HTTP Request、Databaseなど）
+- **サブノード**: AI Agentに機能を提供するノード群。
+  - **Language Model (LM)**: **必須**。AIモデルそのもの（例: OpenAI, Gemini, Claude, xAI）。`ai_languageModel`入力に接続。
+  - **Memory**: 任意。会話履歴を記憶するSimple Memory, Redis Memoryなど）。。`ai_memory`入力に接続。
+  - **Tools**: 任意。外部機能を利用する（例: n8n Sub-Workflow Tool,　Calculatorなど）。`ai_tool`入力に接続。
 - **System Prompt**: AI Agentの役割定義、処理方針、出力形式を指定する指示文
 - **Temperature**: 生成の創造性を制御するパラメータ（0.0-1.0）
 - **Max Tokens**: 最大出力トークン数、コスト・速度に影響
@@ -22,6 +21,7 @@ v4.0では、業務要件を理解してから最適なAIモデルを選択す�
 
 - 出力制約: AI設定書を出力後、ユーザーに確認を求め、承認後にStep030へ進む
 - AI処理必須制約: AI処理を行う場合、**100%必ず** `@n8n/n8n-nodes-langchain.agent` ノードタイプを使用すること。例外は認められない。
+- **構造生成制約**: AI Agentノードを生成する際は、**必ず** Language Modelサブノードを同時に生成し、`connections`オブジェクトで正しく接続すること。MemoryやToolsも必要に応じて同時に生成・接続する。
 - モデル選定根拠必須: なぜそのAIモデルを選んだかの理由を明記すること
 - コスト試算必須: 月間実行回数からコストを試算し、予算内に収まることを確認すること
 - System Prompt設計必須: Step010の業務要件に基づいた具体的なSystem Promptを作成すること
@@ -129,76 +129,134 @@ v4.0では、業務要件を理解してから最適なAIモデルを選択す�
 
 ## 処理手順3: AI Agent構成設計
 
-- 目的: n8n AI Agent NodeのJSON構造を設計する
-- 背景: AI Agentは Chat Model、Memory、Toolsのサブノードで構成される
+- 目的: n8nのAI Agentノードと必須サブノード（LM、Memory、Tools）を含む、インポート可能なJSON構造を設計する。
+- 背景: AI Agentは単体では動作せず、Language Modelなどのサブノードとの接続が必須。最初から完全な構造で設計することで、設定ミスを防ぎ、保守性を向上させる。
 - エージェント名: n8nアーキテクト（n8n公式ドキュメント参照）
-- 役割: n8nのベストプラクティスに従ったAI Agent構成を設計する
-- 責務: AI Agent Node JSONの完全な定義
+- 役割: n8nのベストプラクティスに従い、AI Agentとそのサブノード群、およびそれらの接続を定義した完全なJSONを設計する。
+- 責務: AI Agent、Language Model、Memory、Toolsを含む`nodes`配列と、それらを正しく接続する`connections`オブジェクトの完全な定義。
 - 処理詳細手順:
-  1. ルートノード（AI Agent）の定義
-  2. Chat Modelサブノードの設定（選定モデルに対応）
-  3. Memoryサブノードの設定（会話履歴管理）
-  4. Toolsサブノードの設定（外部機能連携）
-  5. パラメータの最適化（temperature、maxTokensなど）
+  1. **AI Agentノード**の定義 (`@n8n/n8n-nodes-langchain.agent`)
+  2. **Language Modelサブノード**の定義（必須、選定モデルに対応）
+  3. **Memoryサブノード**の定義（任意、会話履歴管理が必要な場合）
+  4. **Toolsサブノード**の定義（任意、外部機能連携が必要な場合）
+  5. 上記すべてを1つの`nodes`配列に含める。
+  6. 各サブノードをAI Agentノードに接続するための`connections`オブジェクトを定義する。
+    - Language Model → `ai_languageModel`
+    - Memory → `ai_memory`
+    - Tools → `ai_tool`
 
 **🔴 絶対必須**: AI処理を行う場合、以下のノードタイプを**100%必ず**使用してください：
 
-- **メインノード**: `@n8n/n8n-nodes-langchain.agent` （typeVersion: 1.7）
-  - これ以外のノードタイプは**使用禁止**
-  - HTTP RequestやCode Nodeでの直接API呼び出しは**禁止**
-
-- **Chat Modelサブノード**（必須、メインノードに接続）:
-  - Gemini 2.5 Flash: `@n8n/n8n-nodes-langchain.lmChatGoogleGemini`
-  - Claude 4.5 Sonnet: `@n8n/n8n-nodes-langchain.lmChatAnthropic`
-  - GPT-5-mini: `@n8n/n8n-nodes-langchain.lmChatOpenAi`
-
-- **Memoryサブノード**（オプション、会話履歴管理が必要な場合）:
-  - Buffer Window: `@n8n/n8n-nodes-langchain.memoryBufferWindow`
-
-- **Toolsサブノード**（オプション、外部連携が必要な場合）:
+- **メインノード**: `@n8n/n8n-nodes-langchain.agent`
+- **Chat Modelサブノード**（必須）:
+  - Gemini: `@n8n/n8n-nodes-langchain.lmChatGoogleGemini`
+  - Anthropic: `@n8n/n8n-nodes-langchain.lmChatAnthropic`
+  - OpenAI: `@n8n/n8n-nodes-langchain.lmChatOpenAi`
+- **Memoryサブノード**（推奨）:
+  - Simple Memory: `@n8n/n8n-nodes-langchain.memoryBufferWindow`
+- **Toolsサブノード**（任意）:
   - Workflow Tool: `@n8n/n8n-nodes-langchain.toolWorkflow`
 
 - 評価・判断基準:
-  - AI Agent NodeがLangChain標準に準拠していること
-  - すべてのサブノードが適切に接続されていること
-  - パラメータがデフォルト値に依存していないこと
+  - 生成されるJSONが、`nodes`配列と`connections`オブジェクトを含む完全なn8nワークフロー形式であること。
+  - AI AgentノードにLanguage Modelサブノードが必ず接続されていること。
+  - 接続タイプ（`ai_languageModel`, `ai_memory`, `ai_tool`）が正しく指定されていること。
 - 出力テンプレート:
 ```json
 {
   "nodes": [
     {
-      "id": "ai_agent_main",
-      "type": "@n8n/n8n-nodes-langchain.agent",  // ← 必須：これ以外は使用禁止
-      "name": "AI Agent: [業務目的]",
       "parameters": {
-        "agent": "openAiFunctionsAgent",
         "promptType": "define",
-        "text": "={{ $json.systemPrompt }}"
-      },
-      "typeVersion": 1.7,  // ← 必須バージョン
-      "position": [1200, 300],
-      "_comment": "AI処理メインノード。必ずChat Modelサブノードを接続すること",
-      "notes": "禁止: HTTP RequestやCode NodeでのLLM API直接呼び出し"
-    }
-  ],
-  "subnodes": {
-    "chatModel": {
-      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",  // ← Gemini使用時必須
-      "parameters": {
-        "modelName": "gemini-2.0-flash-thinking-exp-01-21",
+        "text": "あなたは親切なアシスタントです。ユーザーの質問に答え、必要に応じてツールを使用してください。",
         "options": {
-          "temperature": 0.7,
-          "maxOutputTokens": 8192
+          "systemMessage": "あなたは日本語で応答する親切なAIアシスタントです。",
+          "maxIterations": 10
+        }
+      },
+      "id": "f7f25967-6471-499b-8003-29562939934d",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [1040, 480]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "id": "a1b5c138-35a3-4168-8035-533539e69a4c",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [800, 360],
+      "credentials": {
+        "openAiApi": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "YOUR_CREDENTIAL_NAME"
         }
       }
     },
-    "memory": {
-      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",  // ← オプション
+    {
       "parameters": {
+        "sessionKey": "={{ $json.sessionId }}",
         "contextWindowLength": 10
-      }
+      },
+      "id": "3f2a6c9a-9e3b-4b5a-9a1e-2c3d4f5a6b7c",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [800, 480]
     },
-    "tools": []
+    {
+      "parameters": {
+        "description": "Googleカレンダーにイベントを登録します",
+        "source": "database",
+        "workflowId": "123"
+      },
+      "id": "b4d2e1f0-c8a7-4b6e-8f9d-0e1f2a3b4c5d",
+      "name": "Calendar Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.1,
+      "position": [800, 600]
+    }
+  ],
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
   }
 }
 ```

@@ -109,63 +109,237 @@ Step060の詳細設計書に基づき、Group [N]のノード群をn8nにイン�
 
 ### AI Agent Node生成時の絶対必須要件
 
-**🔴 重要**: AI処理を行う場合、以下のノードタイプを**100%必ず**使用してください：
+**🔴 重要**: AI処理を行う場合、AI Agentノードと必須サブノード（Language Model、Memory、Tools）を**自動的に**生成してください。
 
-  3. AI Agent Nodeの場合は、以下の構造で生成:
+  3. AI Agent Node + サブノードの完全構成を生成:
+
+     **a) AI Agent メインノード**:
      ```json
      {
        "id": "ai_agent_main",
        "type": "@n8n/n8n-nodes-langchain.agent",  // ← 必須、これ以外は使用禁止
        "name": "AI Agent: [責務]",
        "parameters": {
-         "agent": "conversationalAgent",
          "promptType": "define",
-         "text": "={{ $json.systemPrompt }}",
-         "options": {}
+         "text": "={{ $json.chatInput }}",
+         "options": {
+           "systemMessage": "[Step050で定義したSystem Prompt]",
+           "maxIterations": 10
+         }
        },
-       "typeVersion": 1.7,  // ← 必須バージョン
+       "typeVersion": 3,
        "position": [X, Y],
        "_comment": "[説明]",
        "notes": "[補足]"
      }
      ```
 
-**Chat Modelサブノード接続（必須）**:
+     **b) Language Model サブノード（必須）**:
 
-n8nにインポート後、以下のサブノードを**手動で接続**する必要があります：
+     Step020のAI設定書に基づいて、以下のいずれかを生成：
 
-1. **Gemini 2.0 Flash用**:
-```json
-{
-  "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
-  "parameters": {
-    "modelName": "gemini-2.0-flash-exp",
-    "options": {
-      "temperature": 0.4,
-      "maxOutputTokens": 4000
-    }
-  }
-}
-```
+     **Gemini 2.0 Flash用**:
+     ```json
+     {
+       "id": "lm_gemini_[group_id]",
+       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+       "name": "Gemini 2.0 Flash",
+       "parameters": {
+         "modelName": "gemini-2.0-flash-exp",
+         "options": {
+           "temperature": 0.4,
+           "maxOutputTokens": 4000
+         }
+       },
+       "typeVersion": 1,
+       "position": [X-200, Y-100],
+       "_comment": "Gemini 2.0 Flash言語モデル",
+       "notes": "temperature: 0.4（精度重視）、maxOutputTokens: 4000"
+     }
+     ```
 
-2. **Claude 3.5 Sonnet用**:
-```json
-{
-  "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
-  "parameters": {
-    "model": "claude-3-5-sonnet-20241022",
-    "options": {
-      "temperature": 0.7,
-      "maxTokens": 8000
-    }
-  }
-}
-```
+     **Claude 4.5 Sonnet用**:
+     ```json
+     {
+       "id": "lm_claude_[group_id]",
+       "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+       "name": "Claude 4.5 Sonnet",
+       "parameters": {
+         "model": "claude-4-5-sonnet-20250929",
+         "options": {
+           "temperature": 0.7,
+           "maxTokens": 8000
+         }
+       },
+       "typeVersion": 1,
+       "position": [X-200, Y-100],
+       "_comment": "Claude 4.5 Sonnet言語モデル",
+       "notes": "temperature: 0.7（バランス型）、maxTokens: 8000"
+     }
+     ```
+
+     **OpenAI GPT-4o用**:
+     ```json
+     {
+       "id": "lm_openai_[group_id]",
+       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+       "name": "OpenAI GPT-5-mini",
+       "parameters": {
+         "model": "gpt-5-mini",
+         "options": {
+           "temperature": 0.7,
+           "maxTokens": 2000
+         }
+       },
+       "typeVersion": 1,
+       "position": [X-200, Y-100],
+       "_comment": "OpenAI GPT-4o言語モデル",
+       "notes": "temperature: 0.7、maxTokens: 2000"
+     }
+     ```
+
+     **c) Memory サブノード（推奨）**:
+
+     会話履歴を保持する場合に生成：
+
+     **Simple Memory（開発環境用）**:
+     ```json
+     {
+       "id": "memory_simple_[group_id]",
+       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+       "name": "Simple Memory",
+       "parameters": {
+         "sessionKey": "={{ $json.sessionId }}",
+         "contextWindowLength": 10
+       },
+       "typeVersion": 1.3,
+       "position": [X-200, Y],
+       "_comment": "会話履歴を保持（最新10ターン）",
+       "notes": "sessionKey: ユーザーIDやセッションIDで識別"
+     }
+     ```
+
+     **Redis Chat Memory（本番環境用）**:
+     ```json
+     {
+       "id": "memory_redis_[group_id]",
+       "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+       "name": "Redis Chat Memory",
+       "parameters": {
+         "sessionKey": "={{ $json.sessionId }}",
+         "sessionTimeToLive": 3600,
+         "contextWindowLength": 10
+       },
+       "credentials": {
+         "redis": "Redis認証情報"
+       },
+       "typeVersion": 1,
+       "position": [X-200, Y],
+       "_comment": "Redis経由で会話履歴を永続化",
+       "notes": "sessionTimeToLive: 3600秒（1時間）、本番環境推奨"
+     }
+     ```
+
+     **d) Tool サブノード（任意）**:
+
+     AI Agentが外部ツールを使用する場合に生成：
+
+     **Calculator Tool**:
+     ```json
+     {
+       "id": "tool_calculator_[group_id]",
+       "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+       "name": "Calculator",
+       "parameters": {},
+       "typeVersion": 1,
+       "position": [X-200, Y+100],
+       "_comment": "計算機能を提供",
+       "notes": "数値計算や算術演算をAIに提供"
+     }
+     ```
+
+     **HTTP Request Tool**:
+     ```json
+     {
+       "id": "tool_http_[group_id]",
+       "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+       "name": "HTTP Request Tool",
+       "parameters": {
+         "name": "weather_api",
+         "description": "指定された都市の天気情報を取得する",
+         "method": "GET",
+         "url": "https://api.weather.com/v1/current",
+         "authentication": "predefinedCredentialType"
+       },
+       "typeVersion": 1,
+       "position": [X-200, Y+200],
+       "_comment": "外部API呼び出し機能",
+       "notes": "HTTP APIを通じて外部データを取得"
+     }
+     ```
+
+     **e) Connections（サブノード接続）**:
+
+     サブノードをAI Agentに接続する`connections`を**必ず**生成：
+
+     ```json
+     {
+       "connections": {
+         "Gemini 2.0 Flash": {
+           "ai_languageModel": [
+             [
+               {
+                 "node": "AI Agent: [責務]",
+                 "type": "ai_languageModel",
+                 "index": 0
+               }
+             ]
+           ]
+         },
+         "Simple Memory": {
+           "ai_memory": [
+             [
+               {
+                 "node": "AI Agent: [責務]",
+                 "type": "ai_memory",
+                 "index": 0
+               }
+             ]
+           ]
+         },
+         "Calculator": {
+           "ai_tool": [
+             [
+               {
+                 "node": "AI Agent: [責務]",
+                 "type": "ai_tool",
+                 "index": 0
+               }
+             ]
+           ]
+         }
+       }
+     }
+     ```
+
+     **重要な接続タイプ**:
+     - Language Model → `ai_languageModel`（必須）
+     - Memory → `ai_memory`（任意）
+     - Tools → `ai_tool`（任意、複数接続可能）
+
+**サブノード生成の判断基準**:
+
+| サブノード種類 | 生成条件 | デフォルト選択 |
+|--------------|---------|--------------|
+| Language Model | **常に必須** | Step020のAI設定書に従う（Gemini/Claude/OpenAI） |
+| Memory | 会話履歴が必要な場合 | Simple Memory（開発環境）、Redis Memory（本番環境） |
+| Tools | AI Agentがツールを使用する場合 | Step050の責務定義に従う |
 
 **禁止されるノードタイプ**:
 - ❌ `n8n-nodes-base.httpRequest` でGemini/Claude APIを直接呼び出し
 - ❌ `n8n-nodes-base.code` でLLM SDKを使用
 - ❌ その他のカスタム実装
+- ❌ AI Agentノードを単独で生成（Language Modelサブノードなし）
 
   4. すべてのノードをnodes配列にまとめる
 - 評価・判断基準:
@@ -252,16 +426,37 @@ n8nにインポート後、以下のサブノードを**手動で接続**する�
      }
      ```
      **重要**: connectionsのキーはノードの`id`ではなく`name`プロパティを使用すること
-  3. 条件分岐ノード（IF、Switch）の場合、複数出力を定義:
+  3. **AI Agentのサブノード接続**: AI Agentが含まれる場合、以下の接続タイプを使用して`connections`を生成する。
+     - Chat Model → AI Agent: `ai_languageModel`
+     - Memory → AI Agent: `ai_memory`
+     - Tool → AI Agent: `ai_tool`
      ```json
-     "if_1": {
-       "main": [
-         [{"node": "code_1", "type": "main", "index": 0}],  // trueパス
-         [{"node": "error_trigger_1", "type": "main", "index": 0}]  // falseパス
+     "OpenAI Chat Model": {
+       "ai_languageModel": [
+         { "node": "AI Agent", "type": "ai_languageModel", "index": 0 }
+       ]
+     },
+     "Simple Memory": {
+       "ai_memory": [
+         { "node": "AI Agent", "type": "ai_memory", "index": 0 }
+       ]
+     },
+     "Calculator": {
+       "ai_tool": [
+         { "node": "AI Agent", "type": "ai_tool", "index": 0 }
        ]
      }
      ```
-  4. すべての接続をconnectionsオブジェクトにまとめる
+  4. 条件分岐ノード（IF、Switch）の場合、複数出力を定義:
+     ```json
+     "if_1": {
+       "main": [
+         [{"node": "code_1", "type": "main", "index": 0}],
+         [{"node": "error_trigger_1", "type": "main", "index": 1}]
+       ]
+     }
+     ```
+  5. すべての接続を`connections`オブジェクトにまとめる
 - 評価・判断基準:
   - すべてのノード（Sticky Note以外）が接続されていること
   - 孤立ノードが0個であること
@@ -289,6 +484,28 @@ n8nにインポート後、以下のサブノードを**手動で接続**する�
     "code_1": {
       "main": [
         [{"node": "ai_agent_1", "type": "main", "index": 0}]
+      ]
+    }
+  }
+}
+```
+- 出力テンプレート (AI Agentグループの場合):
+```json
+{
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        { "node": "AI Agent", "type": "ai_languageModel", "index": 0 }
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        { "node": "AI Agent", "type": "ai_memory", "index": 0 }
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        { "node": "AI Agent", "type": "ai_tool", "index": 0 }
       ]
     }
   }

@@ -78,33 +78,136 @@ n8nのベストプラクティスパターンを適用し、ノード配置・Ex
         [Wait] → [再実行]   [Slack通知]      [ログ記録]
 ```
 
-**Pattern 2: AI Agent with Tool Workflow**（AI使用時必須）
+**Pattern 2: AI Agent with Sub-Nodes and Tools**（AI使用時必須）
 
-**🔴 必須ノードタイプ**: AI処理を行う場合、**必ず**以下を使用：
+AI Agentノードは、Chat Model、Memory、Toolsといったサブノードと連携して動作します。このパターンでは、AI Agentノードとそれらのサブノードを一体として設計し、接続まで含めて定義します。
 
+**構造図**:
 ```
-AI Agent Node（必須）
-  type: "@n8n/n8n-nodes-langchain.agent"
-  typeVersion: 1.7
+┌───────────────────────┐
+│ Chat Model            │
+│ (e.g., lmChatOpenAi)  │
+└───────────┬───────────┘
+            │ ai_languageModel (必須)
+┌───────────▼───────────┐
+│ AI Agent              │
+│ (@n8n/n8n-nodes-      │
+│  langchain.agent)     │
+└───────────┬───────────┘
+            │─────────────────────────┐
+┌───────────┴───────────┐ ┌───────────┴───────────┐
+│           │           │ │           │           │
+│ ai_memory │           │ │           │ ai_tool   │
+┌───────────▼───────────┐ ┌───────────▼───────────┐
+│ Memory                │ │ Tool(s)               │
+│ (e.g., memoryBuffer)  │ │ (e.g., toolCalculator)│
+└───────────────────────┘ └───────────────────────┘
+```
 
-  サブノード構成:
-    ├─ Chat Model（必須）
-    │   ├─ Gemini: "@n8n/n8n-nodes-langchain.lmChatGoogleGemini"
-    │   ├─ Claude: "@n8n/n8n-nodes-langchain.lmChatAnthropic"
-    │   └─ OpenAI: "@n8n/n8n-nodes-langchain.lmChatOpenAi"
-    │
-    ├─ Memory（オプション）
-    │   └─ Buffer Window: "@n8n/n8n-nodes-langchain.memoryBufferWindow"
-    │
-    └─ Tools（オプション）
-        └─ Workflow Tool: "@n8n/n8n-nodes-langchain.toolWorkflow"
+**🔴 必須ノードタイプと接続構造**: AI処理を行う場合、**必ず**以下の完全なJSON構造を使用します。
 
-各Tool Workflowは独立したワークフローとして実装
+```json
+{
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "あなたは親切なアシスタントです。ユーザーの質問に答え、必要に応じてツールを使用してください。",
+        "options": {
+          "systemMessage": "あなたは日本語で応答する親切なAIアシスタントです。",
+          "maxIterations": 10
+        }
+      },
+      "id": "ai_agent_main",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [1040, 480]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "id": "lm_chat_model",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [800, 360],
+      "credentials": {
+        "openAiApi": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "YOUR_CREDENTIAL_NAME"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionKey": "={{ $json.sessionId }}",
+        "contextWindowLength": 10
+      },
+      "id": "memory_buffer_window",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [800, 480]
+    },
+    {
+      "parameters": {
+        "description": "Googleカレンダーにイベントを登録します",
+        "source": "database",
+        "workflowId": "123"
+      },
+      "id": "tool_calendar",
+      "name": "Calendar Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.1,
+      "position": [800, 600]
+    }
+  ],
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
 ```
 
 **禁止事項**:
-- ❌ HTTP RequestノードでGemini/Claude APIを直接呼び出し
-- ❌ Code NodeでLLM SDKを使用
+- ❌ `n8n-nodes-base.httpRequest` でGemini/Claude APIを直接呼び出し
+- ❌ `n8n-nodes-base.code` でLLM SDKを使用
 - ❌ カスタムノードでの独自実装
 
 **Pattern 3: Batch Processing with Token Optimization**（大量データ時）
