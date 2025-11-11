@@ -106,20 +106,67 @@ Step060の詳細設計書に基づき、Group [N]のノード群をn8nにイン�
        "notes": "[設定の補足情報]"
      }
      ```
-  3. AI Agent Nodeの場合は、subnodesも含める:
+
+### AI Agent Node生成時の絶対必須要件
+
+**🔴 重要**: AI処理を行う場合、以下のノードタイプを**100%必ず**使用してください：
+
+  3. AI Agent Nodeの場合は、以下の構造で生成:
      ```json
      {
        "id": "ai_agent_main",
-       "type": "@n8n/n8n-nodes-langchain.agent",
+       "type": "@n8n/n8n-nodes-langchain.agent",  // ← 必須、これ以外は使用禁止
        "name": "AI Agent: [責務]",
-       "parameters": {...},
-       "typeVersion": 1.7,
+       "parameters": {
+         "agent": "conversationalAgent",
+         "promptType": "define",
+         "text": "={{ $json.systemPrompt }}",
+         "options": {}
+       },
+       "typeVersion": 1.7,  // ← 必須バージョン
        "position": [X, Y],
        "_comment": "[説明]",
        "notes": "[補足]"
      }
      ```
-     ※subnodesは別途定義（Step020のAI設定書参照）
+
+**Chat Modelサブノード接続（必須）**:
+
+n8nにインポート後、以下のサブノードを**手動で接続**する必要があります：
+
+1. **Gemini 2.0 Flash用**:
+```json
+{
+  "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+  "parameters": {
+    "modelName": "gemini-2.0-flash-exp",
+    "options": {
+      "temperature": 0.4,
+      "maxOutputTokens": 4000
+    }
+  }
+}
+```
+
+2. **Claude 3.5 Sonnet用**:
+```json
+{
+  "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+  "parameters": {
+    "model": "claude-3-5-sonnet-20241022",
+    "options": {
+      "temperature": 0.7,
+      "maxTokens": 8000
+    }
+  }
+}
+```
+
+**禁止されるノードタイプ**:
+- ❌ `n8n-nodes-base.httpRequest` でGemini/Claude APIを直接呼び出し
+- ❌ `n8n-nodes-base.code` でLLM SDKを使用
+- ❌ その他のカスタム実装
+
   4. すべてのノードをnodes配列にまとめる
 - 評価・判断基準:
   - すべてのノードが含まれていること
