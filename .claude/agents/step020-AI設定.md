@@ -8,6 +8,7 @@ v4.0では、業務要件を理解してから最適なAIモデルを選択す�
 
 # 言葉の定義
 
+- **AI Agent Node（必須）**: n8nでAI処理を行う場合、**必ず** `@n8n/n8n-nodes-langchain.agent` ノードタイプを使用すること。他のノードタイプ（HTTPリクエストでAPIを直接呼び出すなど）は使用禁止。
 - **AI Agent Node**: n8nの`@n8n/n8n-nodes-langchain.agent`ノード、LangChainベースのAI処理の中核
 - **Chat Model**: AI Agentに接続するLLMサブノード（OpenAI、Claude、Geminiなど）
 - **Thinking Mode**: Gemini 2.0 Flashの段階的推論機能、複雑な判断に適する
@@ -20,6 +21,7 @@ v4.0では、業務要件を理解してから最適なAIモデルを選択す�
 # 制約
 
 - 出力制約: AI設定書を出力後、ユーザーに確認を求め、承認後にStep030へ進む
+- AI処理必須制約: AI処理を行う場合、**100%必ず** `@n8n/n8n-nodes-langchain.agent` ノードタイプを使用すること。例外は認められない。
 - モデル選定根拠必須: なぜそのAIモデルを選んだかの理由を明記すること
 - コスト試算必須: 月間実行回数からコストを試算し、予算内に収まることを確認すること
 - System Prompt設計必須: Step010の業務要件に基づいた具体的なSystem Promptを作成すること
@@ -138,6 +140,24 @@ v4.0では、業務要件を理解してから最適なAIモデルを選択す�
   3. Memoryサブノードの設定（会話履歴管理）
   4. Toolsサブノードの設定（外部機能連携）
   5. パラメータの最適化（temperature、maxTokensなど）
+
+**🔴 絶対必須**: AI処理を行う場合、以下のノードタイプを**100%必ず**使用してください：
+
+- **メインノード**: `@n8n/n8n-nodes-langchain.agent` （typeVersion: 1.7）
+  - これ以外のノードタイプは**使用禁止**
+  - HTTP RequestやCode Nodeでの直接API呼び出しは**禁止**
+
+- **Chat Modelサブノード**（必須、メインノードに接続）:
+  - Gemini 2.5 Flash: `@n8n/n8n-nodes-langchain.lmChatGoogleGemini`
+  - Claude 4.5 Sonnet: `@n8n/n8n-nodes-langchain.lmChatAnthropic`
+  - GPT-5-mini: `@n8n/n8n-nodes-langchain.lmChatOpenAi`
+
+- **Memoryサブノード**（オプション、会話履歴管理が必要な場合）:
+  - Buffer Window: `@n8n/n8n-nodes-langchain.memoryBufferWindow`
+
+- **Toolsサブノード**（オプション、外部連携が必要な場合）:
+  - Workflow Tool: `@n8n/n8n-nodes-langchain.toolWorkflow`
+
 - 評価・判断基準:
   - AI Agent NodeがLangChain標準に準拠していること
   - すべてのサブノードが適切に接続されていること
@@ -148,20 +168,22 @@ v4.0では、業務要件を理解してから最適なAIモデルを選択す�
   "nodes": [
     {
       "id": "ai_agent_main",
-      "type": "@n8n/n8n-nodes-langchain.agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",  // ← 必須：これ以外は使用禁止
       "name": "AI Agent: [業務目的]",
       "parameters": {
         "agent": "openAiFunctionsAgent",
         "promptType": "define",
         "text": "={{ $json.systemPrompt }}"
       },
-      "typeVersion": 1.7,
-      "position": [1200, 300]
+      "typeVersion": 1.7,  // ← 必須バージョン
+      "position": [1200, 300],
+      "_comment": "AI処理メインノード。必ずChat Modelサブノードを接続すること",
+      "notes": "禁止: HTTP RequestやCode NodeでのLLM API直接呼び出し"
     }
   ],
   "subnodes": {
     "chatModel": {
-      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",  // ← Gemini使用時必須
       "parameters": {
         "modelName": "gemini-2.0-flash-thinking-exp-01-21",
         "options": {
@@ -171,7 +193,7 @@ v4.0では、業務要件を理解してから最適なAIモデルを選択す�
       }
     },
     "memory": {
-      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",  // ← オプション
       "parameters": {
         "contextWindowLength": 10
       }
@@ -180,6 +202,11 @@ v4.0では、業務要件を理解してから最適なAIモデルを選択す�
   }
 }
 ```
+
+**禁止事項**:
+- ❌ `n8n-nodes-base.httpRequest` でGemini/Claude APIを直接呼び出し
+- ❌ `n8n-nodes-base.code` でLLM SDKを使用
+- ❌ その他のカスタム実装
 
 ## 処理手順4: System Prompt設計
 
