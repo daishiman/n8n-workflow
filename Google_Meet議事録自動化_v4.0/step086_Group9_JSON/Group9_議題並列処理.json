@@ -1,0 +1,108 @@
+{
+  "name": "Google Meet議事録自動化システム - Group 9",
+  "nodes": [
+    {
+      "id": "split_in_batches_agendas",
+      "type": "n8n-nodes-base.splitInBatches",
+      "name": "Split in Batches: 議題並列処理",
+      "parameters": {
+        "batchSize": 3,
+        "options": {}
+      },
+      "typeVersion": 3,
+      "position": [
+        3200,
+        300
+      ],
+      "_comment": "議題を3個ずつバッチ処理し、並列でAI分析を実行します。3議題を3並列で処理することで、処理時間を67%短縮します。",
+      "notes": "バッチサイズ: 3並列。推定バッチ数: 1-2バッチ（3-5議題）。ループ: Mergeノードまで。"
+    },
+    {
+      "id": "ai_agent_gemini_step3",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "name": "Gemini: 議題分析 (Step3)",
+      "parameters": {
+        "agent": "conversationalAgent",
+        "promptType": "define",
+        "text": "あなたは議題分析専門AIです。議題ごとの文字起こしから決定事項・宿題・保留事項を抽出します。\n\n処理:\n1. 決定事項抽出（decisions）: 会議で決定されたこと\n2. 宿題抽出（todos）: 誰が何をするか\n3. 保留事項抽出（pending）: 未決定・次回持ち越し\n\n出力形式（JSON）:\n{\n  \"agenda_id\": 1,\n  \"title\": \"議題タイトル\",\n  \"decisions\": [\"決定1\", \"決定2\"],\n  \"todos\": [{\"assignee\": \"担当者\", \"task\": \"タスク\", \"deadline\": \"期限\"}],\n  \"pending\": [\"保留1\", \"保留2\"]\n}"
+      },
+      "typeVersion": 1.7,
+      "position": [
+        3400,
+        300
+      ],
+      "_comment": "AI Agent Nodeに変換済み（旧: http_request_gemini_step3）",
+      "notes": "Model: gemini-2.0-flash-exp。Temperature: 0.4。Max Tokens: 4000。Memory: なし",
+      "subnodes": {
+        "chatModel": {
+          "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+          "parameters": {
+            "modelName": "gemini-2.0-flash-exp",
+            "options": {
+              "temperature": 0.4,
+              "maxOutputTokens": 4000
+            }
+          }
+        },
+        "memory": null,
+        "tools": []
+      }
+    },
+    {
+      "id": "code_parse_step3",
+      "type": "n8n-nodes-base.code",
+      "name": "Code: Step3結果パース",
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const response = $input.all()[0].json;\nconst generatedContent = response.candidates[0].content.parts[0].text;\nconst parsed = JSON.parse(generatedContent);\nreturn { json: parsed };"
+      },
+      "typeVersion": 2,
+      "position": [
+        3600,
+        300
+      ],
+      "_comment": "Gemini APIレスポンスから分析結果を抽出します。",
+      "notes": "入力: Gemini APIレスポンス。出力: agenda_id, title, decisions, todos, pending。"
+    },
+    {
+      "id": "sticky_9",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 9: 議題並列処理 (Step3)",
+      "parameters": {
+        "content": "## Group 9: 議題並列処理 (Step3)\n\n📌 **ノード**:\n- Split in Batches: 議題並列処理\n- Gemini: 議題分析 (Step3)\n- Code: Step3結果パース\n\n**責務**: 3議題並列で決定事項・宿題・保留事項を抽出\n\n**並列処理**:\n- バッチサイズ: 3並列\n- 推定処理時間: 5秒（連続だと15秒 → 67%短縮）\n\n**AI設定**:\n- Model: gemini-2.0-flash-exp\n- Temperature: 0.4\n- Max Tokens: 4000\n- Memory: なし",
+        "height": 260,
+        "width": 360,
+        "color": 5
+      },
+      "typeVersion": 1,
+      "position": [
+        3150,
+        60
+      ]
+    }
+  ],
+  "connections": {
+    "Split in Batches: 議題並列処理": {
+      "main": [
+        [
+          {
+            "node": "Gemini: 議題分析 (Step3)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini: 議題分析 (Step3)": {
+      "main": [
+        [
+          {
+            "node": "Code: Step3結果パース",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "name": "Google Meet議事録自動化システム - Group 5",
+  "nodes": [
+    {
+      "id": "split_in_batches_chunks",
+      "type": "n8n-nodes-base.splitInBatches",
+      "name": "Split in Batches: チャンク並列処理",
+      "parameters": {
+        "batchSize": 5,
+        "options": {}
+      },
+      "typeVersion": 3,
+      "position": [
+        1600,
+        300
+      ],
+      "_comment": "チャンクを5個ずつバッチ処理し、並列でAI整形を実行します。12チャンクを5並列で処理することで、処理時間を75%短縮します。",
+      "notes": "バッチサイズ: 5並列。推定バッチ数: 3バッチ（12チャンク÷5）。ループ: Mergeノードまで。"
+    },
+    {
+      "id": "ai_agent_gemini_step1",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "name": "Gemini: 文字起こし整形 (Step1)",
+      "parameters": {
+        "agent": "conversationalAgent",
+        "promptType": "define",
+        "text": "あなたは文字起こし整形専門AIです。チャンク化された文字起こしテキストを受け取り、フィラー語を除去して箇条書き化します。\n\n処理:\n1. フィラー語除去（\"えー\"、\"あのー\"、\"その\"、\"まあ\"等）\n2. 冗長な言い回しを簡潔化\n3. line_id、speaker、timestampは維持\n4. main_textのみ整形（overlapは参考情報）\n\n入力: チャンクJSON（$json形式）\n出力形式: JSON配列 lines[{line_id, content, speaker, timestamp, start_time, end_time}]"
+      },
+      "typeVersion": 1.7,
+      "position": [
+        1800,
+        300
+      ],
+      "_comment": "AI Agent Nodeに変換済み（旧: http_request_gemini_step1）",
+      "notes": "Model: gemini-2.0-flash-exp。Temperature: 0.4。Max Tokens: 4000。Memory: なし",
+      "subnodes": {
+        "chatModel": {
+          "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+          "parameters": {
+            "modelName": "gemini-2.0-flash-exp",
+            "options": {
+              "temperature": 0.4,
+              "maxOutputTokens": 4000
+            }
+          }
+        },
+        "memory": null,
+        "tools": []
+      }
+    },
+    {
+      "id": "code_parse_step1",
+      "type": "n8n-nodes-base.code",
+      "name": "Code: Step1結果パース",
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const response = $input.all()[0].json;\nconst generatedContent = response.candidates[0].content.parts[0].text;\nconst parsed = JSON.parse(generatedContent);\nreturn { json: parsed };"
+      },
+      "typeVersion": 2,
+      "position": [
+        2000,
+        300
+      ],
+      "_comment": "Gemini APIレスポンスから整形済みlines配列を抽出します。",
+      "notes": "入力: Gemini APIレスポンス。出力: lines配列（整形済み）。"
+    },
+    {
+      "id": "sticky_5",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 5: チャンク並列処理 (Step1)",
+      "parameters": {
+        "content": "## Group 5: チャンク並列処理 (Step1)\n\n📌 **ノード**:\n- Split in Batches: チャンク並列処理\n- Gemini: 文字起こし整形 (Step1)\n- Code: Step1結果パース\n\n**責務**: 5チャンク並列でフィラー語除去と箇条書き化\n\n**並列処理**:\n- バッチサイズ: 5並列\n- 推定処理時間: 15秒（連続だと60秒 → 75%短縮）\n\n**AI設定**:\n- Model: gemini-2.0-flash-exp\n- Temperature: 0.4\n- Max Tokens: 4000\n- Memory: なし",
+        "height": 260,
+        "width": 340,
+        "color": 5
+      },
+      "typeVersion": 1,
+      "position": [
+        1550,
+        60
+      ]
+    }
+  ],
+  "connections": {
+    "Split in Batches: チャンク並列処理": {
+      "main": [
+        [
+          {
+            "node": "Gemini: 文字起こし整形 (Step1)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini: 文字起こし整形 (Step1)": {
+      "main": [
+        [
+          {
+            "node": "Code: Step1結果パース",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
