@@ -136,10 +136,60 @@ v4.0では、以下の2つのSticky Noteテンプレートを使用:
 
 #### パターン2: グループごとのSticky Note
 
-**目的**: グループ単位で必要なノード・フロー・入出力情報を即時確認できるようにする  
-**配置**: 各グループの左上（Step170で決定）  
-**サイズ**: 520px × 420px（最低値 / ノード数に応じて拡張）  
-**色**: メイン=6（薄オレンジ）、エラー=5（薄赤）
+**目的**: グループ単位で必要なノード・フロー・入出力情報を即時確認できるようにする
+**配置**: 各グループの左上（Step170で決定）
+**サイズ**: 520px × 420px（最低値 / ノード数に応じて拡張）
+**色**: メインフロー=2/3/4/6（青、緑、紫、オレンジ）から選択、エラーフロー=5（薄赤）
+
+**色分けルール拡張**（画像のような多色対応）:
+- **全体フロー**: 色7（薄ピンク） - 固定
+- **メインフローグループ**: 色2/3/4/6から選択
+  - 色2（薄緑）: データ収集・入力グループ
+  - 色3（薄青）: データ変換・処理グループ
+  - 色4（薄紫）: AI処理・分析グループ
+  - 色6（薄オレンジ）: 出力・通知グループ
+- **エラーフローグループ**: 色5（薄赤） - 固定
+- **色0/1（白/黄）**: 使用禁止（視認性が低い）
+
+**色選択アルゴリズム**:
+```javascript
+function selectGroupColor(groupInfo) {
+  // エラーグループは常に色5
+  if (groupInfo.groupId.startsWith('E')) return 5;
+
+  // グループの役割に応じて色を選択
+  const roleColorMap = {
+    'collection': 2,    // データ収集 → 薄緑
+    'transform': 3,     // データ変換 → 薄青
+    'ai_processing': 4, // AI処理 → 薄紫
+    'output': 6         // 出力 → 薄オレンジ
+  };
+
+  return roleColorMap[groupInfo.role] || 6; // デフォルトは薄オレンジ
+}
+```
+
+**サイズ自動計算の詳細**:
+```javascript
+function calculateStickyDimensions(groupInfo) {
+  const nodeCount = groupInfo.nodes.length;
+  const contentLength = groupInfo.content.length;
+
+  // 高さ計算: ノード数とコンテンツ量に応じて
+  const minHeight = 420;
+  const nodeHeight = nodeCount * 60; // 各ノードで60px
+  const contentHeight = Math.ceil(contentLength / 50) * 20; // 50文字で20px
+  const height = Math.max(minHeight, nodeHeight, contentHeight);
+
+  // 幅計算: ノード名の最大長とコンテンツ幅に応じて
+  const minWidth = 520;
+  const maxNodeNameLength = Math.max(...groupInfo.nodes.map(n => n.name.length));
+  const nodeWidth = maxNodeNameLength * 10 + 100; // 文字幅 + マージン
+  const width = Math.max(minWidth, nodeWidth);
+
+  return { width, height };
+}
+```
 
 **必須要素**:
 - グループID / グループ名
