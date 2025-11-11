@@ -559,10 +559,10 @@ Step060の詳細設計書に基づき、Group [N]のノード群をn8nにイン�
        "type": "n8n-nodes-base.stickyNote",
        "name": "[Group [N]: グループ名]",
        "parameters": {
-         "content": "## Group [N]: [グループ名]\\n\\n📌 **このグループに含まれるノード**:\\n- [ノード名1]\\n- [ノード名2]\\n...\\n\\n**責務**: [責務]\\n\\n**処理内容**:\\n- [処理1]\\n- [処理2]\\n...\\n\\n**パフォーマンス**:\\n- 推定処理時間: [X]秒",
-         "height": 200,
-         "width": 300,
-         "color": 4
+         "content": "## Group [N]: [グループ名]\\n\\n## 📦 このグループに含まれるノード\\n**重要**: グループ内の全ノードを記載\\n\\n📌 **[ノード名1]** ([ノードタイプ1])\\n📌 **[ノード名2]** ([ノードタイプ2])\\n...（全ノード列挙）\\n\\n---\\n\\n**責務**: [責務]\\n\\n**処理内容**:\\n- [処理1]\\n- [処理2]\\n...\\n\\n**パフォーマンス**:\\n- 推定処理時間: [X]秒",
+         "height": 400,
+         "width": 500,
+         "color": 3  // メインフローは色3（薄青色）、エラーフローは色5（薄赤色）。白色（色0）は視認性が低いため使用禁止
        },
        "typeVersion": 1,
        "position": [X, Y]
@@ -581,10 +581,10 @@ Step060の詳細設計書に基づき、Group [N]のノード群をn8nにイン�
   "type": "n8n-nodes-base.stickyNote",
   "name": "Group 1: データ受信",
   "parameters": {
-    "content": "## Group 1: データ受信・初期化\\n\\n📌 **このグループに含まれるノード**:\\n- webhook_1: 議事録受信\\n- set_1: 初期化\\n- if_1: 必須チェック\\n- code_1: テキスト前処理\\n\\n**責務**: Webhook経由で議事録データを受信し、初期検証を実行\\n\\n**処理内容**:\\n- Webhook経由でPOSTリクエスト受信\\n- meetingDataオブジェクト初期化\\n- 必須フィールド（title, transcript）存在確認\\n- タイムスタンプ付与\\n\\n**パフォーマンス**:\\n- 推定処理時間: 0.5秒\\n\\n**エラー処理**: Error Group 1へ接続（必須フィールド欠如時）",
-    "height": 200,
-    "width": 300,
-    "color": 4
+    "content": "## Group 1: データ受信・初期化\\n\\n## 📦 このグループに含まれるノード\\n**重要**: グループ内の全ノードを記載\\n\\n📌 **webhook_1: 議事録受信** (n8n-nodes-base.webhook)\\n📌 **set_1: 初期化** (n8n-nodes-base.set)\\n📌 **if_1: 必須チェック** (n8n-nodes-base.if)\\n📌 **code_1: テキスト前処理** (n8n-nodes-base.code)\\n\\n---\\n\\n**責務**: Webhook経由で議事録データを受信し、初期検証を実行\\n\\n**処理内容**:\\n- Webhook経由でPOSTリクエスト受信\\n- meetingDataオブジェクト初期化\\n- 必須フィールド（title, transcript）存在確認\\n- タイムスタンプ付与\\n\\n**パフォーマンス**:\\n- 推定処理時間: 0.5秒\\n\\n**エラー処理**: Error Group 1へ接続（必須フィールド欠如時）",
+    "height": 400,
+    "width": 500,
+    "color": 3  // メインフローは色3（薄青色）。白色（色0）は視認性が低いため使用禁止
   },
   "typeVersion": 1,
   "position": [650, 200]

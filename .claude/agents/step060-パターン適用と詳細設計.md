@@ -303,7 +303,7 @@ AI判断に基づく動的ルーティング
 | set_1 | n8n-nodes-base.set | 初期化 | 1 | values: {meetingData.title, meetingData.transcript, meetingData.timestamp} | if_1 | meetingDataオブジェクト作成 | timestampはDate.now()で生成 |
 | if_1 | n8n-nodes-base.if | 必須チェック | 1 | conditions: [{value1: "={{ $json.meetingData.title }}", operation: "isNotEmpty"}] | code_1 (true), error_trigger_1 (false) | title必須フィールド確認 | 空の場合はエラーフローへ |
 | code_1 | n8n-nodes-base.code | テキスト前処理 | 1 | jsCode: "transcript.replace(/\\[\\d{2}:\\d{2}\\]/g, '').trim()" | sticky_1 | タイムスタンプ削除、整形 | 不要な文字を削除 |
-| sticky_1 | n8n-nodes-base.stickyNote | ログ: 受信完了 | 1 | content: "## Group 1: データ受信\\n\\n📌 **このグループに含まれるノード**:\\n- webhook_1\\n- set_1\\n- if_1\\n- code_1\\n\\n処理完了", height: 200, width: 300 | - | グループ1のログ・説明 | - |
+| sticky_1 | n8n-nodes-base.stickyNote | ログ: 受信完了 | 1 | content: "## Group 1: データ受信\\n\\n### ノードブロック\\n```nodes\\n- webhook_1 (webhook / webhook_1)\\n- set_1 (set / set_1)\\n- if_1 (if / if_1)\\n- code_1 (code / code_1)\\n```\\n\\n処理完了", height: 320, width: 480 | - | グループ1のログ・説明 | - |
 
 **n8n-MCP検証結果**:
 - webhook_1: ✅ validate_node_minimal 成功
@@ -433,35 +433,51 @@ AI判断に基づく動的ルーティング
 - 処理詳細手順:
   1. 各Sticky Noteに以下を含める:
      ```markdown
-     ## Group [N]: [グループ名]
+     # 【グループ[N]: [グループ名]}
 
-     📌 **このグループに含まれるノード**:
-     - [ノード名1]
-     - [ノード名2]
-     - ...
+     ## このグループに含まれるノード
+     📌 **[ノード表示名1]** ([ノードタイプ1])
+     📌 **[ノード表示名2]** ([ノードタイプ2])
 
-     **責務**: [グループの役割]
+     ## ノードブロック（視覚リンク）
+     > ### [ノード表示名1] ([ノードタイプ1])
+     > - 役割: [役割]
+     > - 入力: [入力データ]
+     > - 出力: [出力データ]
 
-     **処理内容**:
-     - [処理1]
-     - [処理2]
+     ## 目的
+     [グループの役割]
 
-     **入力**: [前グループからの入力データ]
-     **出力**: [次グループへの出力データ]
+     ## 背景
+     [なぜこのグループが必要か]
 
-     **パフォーマンス**:
+     ## グループ内フロー
+     1. [処理1]
+     2. [処理2]
+     3. [処理3]
+
+     ## フロー再現ガイド
+     1. [ノード配置の指示]
+     2. [接続の指示]
+
+     ## 入力 / 出力
+     - 入力: [前グループからの入力データ]
+     - 出力: [次グループへの出力データ]
+
+     ## パフォーマンス
      - 推定処理時間: [X]秒
      - 推定トークン: [Y] tokens（AI使用時）
 
-     **エラー処理**: Error Group [N]へ接続
+     ## エラー処理
+     Error Group [N]へ接続
      ```
   2. Sticky Noteの色分け:
-     - メインフローグループ: 色4（青系）
-     - エラーフローグループ: 色3（赤系）
-  3. サイズ: width=300px、height=200px
+     - メインフローグループ: 色6（薄オレンジ）。color=0/1（白/黄）は使用禁止
+     - エラーフローグループ: 色5（薄赤）で視認性を確保
+  3. サイズ: 最小 width=520px / height=420px。ノード数とMarkdown文字数に応じて `calculateStickyDimensions()`（Step180参照）で自動算出し、全文がスクロールなしで読めるようにする。
 
 - 評価・判断基準:
-  - すべてのSticky Noteにノード名リストが含まれていること
+  - すべてのSticky Noteに `nodes` ブロックでノード名/タイプ/Node IDが含まれていること
   - 責務・処理内容が明確であること
 - 出力テンプレート:
 ```markdown
@@ -471,18 +487,20 @@ AI判断に基づく動的ルーティング
 
 **ノードID**: `sticky_1`
 **position**: [650, 200]
-**サイズ**: width=300, height=200
-**背景色**: 4（青系）
+**サイズ**: width=520, height=420（calculateStickyDimensionsで算出）
+**背景色**: 6（薄オレンジ / color=0/1禁止）
 
 **コンテンツ**:
 ```
 ## Group 1: データ受信・初期化
 
-📌 **このグループに含まれるノード**:
-- webhook_1: 議事録受信
-- set_1: 初期化
-- if_1: 必須チェック
-- code_1: テキスト前処理
+### ノードブロック
+```nodes
+- webhook_1: 議事録受信 (n8n-nodes-base.webhook / webhook_1)
+- set_1: 初期化 (n8n-nodes-base.set / set_1)
+- if_1: 必須チェック (n8n-nodes-base.if / if_1)
+- code_1: テキスト前処理 (n8n-nodes-base.code / code_1)
+```
 
 **責務**: Webhook経由で議事録データを受信し、初期検証を実行
 
@@ -522,18 +540,20 @@ AI判断に基づく動的ルーティング
 
 **ノードID**: `sticky_error_1`
 **position**: [550, 700]
-**サイズ**: width=300, height=200
-**背景色**: 3（赤系）
+**サイズ**: width=460, height=300（calculateStickyDimensionsで算出）
+**背景色**: 5（薄赤 / color=0禁止）
 
 **コンテンツ**:
 ```
 ## Error Group 1: 入力エラー
 
-📌 **このグループに含まれるノード**:
-- error_trigger_1: 入力エラー検知
-- if_error_1: エラー種類判定
-- slack_error_1: エラー通知
-- respond_error_1: エラーレスポンス
+### ノードブロック
+```nodes
+- error_trigger_1: 入力エラー検知 (n8n-nodes-base.errorTrigger / error_trigger_1)
+- if_error_1: エラー種類判定 (n8n-nodes-base.if / if_error_1)
+- slack_error_1: エラー通知 (n8n-nodes-base.slack / slack_error_1)
+- respond_error_1: エラーレスポンス (n8n-nodes-base.respondToWebhook / respond_error_1)
+```
 
 **対象グループ**: Group 1-2
 
