@@ -117,9 +117,11 @@ Phase 3: 統合・検証・出力 (Step150-190)
    - エラーフローは右側または下部に配置
 
 5. **Sticky Note制約**
-   - グループタイトル用Sticky Noteはグループの左上に配置
-   - 最小サイズ: 240px × 100px
-   - テキストの可読性を確保
+   - パターン1（全体フロー）は [100, 50] 付近に固定し、最低700px × 650px・色7（薄ピンク）で全文を表示
+   - グループ用Sticky Noteは左上に配置し、最低520px × 420pxを確保。ノード数や記述量に応じてさらに拡張
+   - `### 🔗 関連ノードブロック` で列挙するノードが視認できる位置に配置し、対象ノード群の外接矩形と重ならないようにする
+   - color=0/1（白系）は使用禁止。全体フロー=7、メイングループ=6（薄オレンジ）、エラーフロー=5（薄赤）で統一し、一目で識別できるようにする
+   - テキストはスクロールなしで全文が読める寸法に調整し、ノードブロックが途切れないことを確認する
 
 ---
 
@@ -384,6 +386,12 @@ nodes.forEach(node => {
    - グループ内最初のノードのY座標 - 150px
    - グループのX座標と同じ
 
+3. **視認性・アクセシビリティルール**
+   - Sticky Noteの外枠がグループノードの上に重ならないようにX/Yを微調整
+   - `parameters.color` は color=0/1禁止。全体=7、メイン=6、エラー=5を維持
+   - `parameters.width` / `height` はStep180の `calculateStickyDimensions()` で算出し、全文が表示されるサイズを設定
+   - `parameters.content` には `nodes` ブロックで関連ノードを列挙し、位置と内容の一貫性を担保
+
 3. **position更新**
    ```json
    {
@@ -392,7 +400,10 @@ nodes.forEach(node => {
      "type": "@n8n/n8n-nodes-base.stickyNote",
      "position": [100, -50],  // グループG001の上部
      "parameters": {
-       "content": "## G001: 入力受付グループ\n\n**ノード一覧:**\n- Webhook Trigger\n- Input Validation"
+       "content": "## G001: 入力受付グループ\n\n### ノードブロック\n```nodes\n- Webhook Trigger (webhook / webhook_g001_01)\n- Input Validation (set / set_g001_02)\n```\n\n...",
+       "width": 520,
+       "height": 420,
+       "color": 6
      }
    }
    ```
@@ -414,6 +425,96 @@ nodes.forEach(node => {
   ]
 }
 ```
+
+---
+
+### ステップ6.5: Sticky Note範囲計算とノード包含確認
+
+**目的**: Sticky Noteの範囲内にグループ内の全ノードが配置されることを保証
+
+**処理内容**:
+
+1. **グループごとのノード範囲計算**
+   ```javascript
+   function calculateGroupBounds(group, nodes) {
+     const groupNodes = nodes.filter(n => n._comment?.group === group);
+     const minX = Math.min(...groupNodes.map(n => n.position[0]));
+     const maxX = Math.max(...groupNodes.map(n => n.position[0]));
+     const minY = Math.min(...groupNodes.map(n => n.position[1]));
+     const maxY = Math.max(...groupNodes.map(n => n.position[1]));
+
+     return { minX, maxX, minY, maxY };
+   }
+   ```
+
+2. **Sticky Noteサイズ計算**
+   ```javascript
+   function calculateStickyNoteSize(groupBounds, nodeCount) {
+     const height = Math.max(
+       (nodeCount * 180) + 200,  // ノード数に基づく最小高さ
+       (groupBounds.maxY - groupBounds.minY) + 300  // 実際の範囲 + マージン
+     );
+
+     const width = Math.max(
+       500,  // 最小幅
+       (groupBounds.maxX - groupBounds.minX) + 350  // 実際の範囲 + マージン
+     );
+
+     return { height, width };
+   }
+   ```
+
+3. **Sticky Note位置計算**
+   ```javascript
+   function calculateStickyNotePosition(groupBounds) {
+     return [
+       groupBounds.minX - 50,  // グループ左端より50px左
+       groupBounds.minY - 150  // グループ上端より150px上
+     ];
+   }
+   ```
+
+4. **包含確認**
+   ```javascript
+   function verifyStickyNoteInclusion(stickyNote, groupNodes) {
+     const stickyBounds = {
+       minX: stickyNote.position[0],
+       maxX: stickyNote.position[0] + stickyNote.parameters.width,
+       minY: stickyNote.position[1],
+       maxY: stickyNote.position[1] + stickyNote.parameters.height
+     };
+
+     const allIncluded = groupNodes.every(node => {
+       return node.position[0] >= stickyBounds.minX &&
+              node.position[0] + 240 <= stickyBounds.maxX && // ノード幅240px
+              node.position[1] >= stickyBounds.minY &&
+              node.position[1] + 100 <= stickyBounds.maxY;   // ノード高さ100px
+     });
+
+     return allIncluded;
+   }
+   ```
+
+**出力例**:
+```markdown
+## Sticky Note包含確認結果
+
+### G001: 入力受付グループ
+- Sticky Note位置: [100, -150]
+- Sticky Noteサイズ: 480px × 320px
+- グループノード数: 2個
+- 包含確認: ✅ すべてのノードが範囲内
+- ノード範囲: X: 150-390, Y: 0-180
+
+### G010: AI処理グループ
+- Sticky Note位置: [100, 850]
+- Sticky Noteサイズ: 600px × 500px
+- グループノード数: 4個
+- 包含確認: ✅ すべてのノードが範囲内
+- ノード範囲: X: 150-490, Y: 1000-1540
+```
+
+**重要**: この計算により、Step180で生成されるSticky Noteの視覚的包含性が保証されます。
 
 ---
 
