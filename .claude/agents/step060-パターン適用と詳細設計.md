@@ -239,6 +239,204 @@ AI判断に基づく動的ルーティング
     └─ Case C: 低優先度 → [Queue追加]
 ```
 
+**Pattern 5: Feedback Loop Patterns**（反復処理・品質向上時）
+
+フィードバックループは、処理結果を評価し、基準を満たすまで処理を繰り返すパターンです。AI品質判定、回数制御、スコアベース判定など、様々な制御構造を組み合わせて実装します。
+
+**Pattern 5-1: AI品質判定ループ**（AI評価による反復）
+```
+AI処理結果を評価し、品質基準を満たすまでループ
+
+[入力データ] → [Counter: iteration=0]
+    ↓
+[AI Agent: コンテンツ生成]
+    ↓
+[AI Agent: 品質評価] → スコア算出（0-100点）
+    ↓
+[IF: スコア判定]
+    ├─ ≥80点 → [Set: 結果確定] → 次処理
+    └─ <80点 → [IF: 再試行チェック]
+                  ├─ iteration < 5 → [Counter: +1] → [AI Agent: コンテンツ生成]（ループ）
+                  └─ iteration ≥ 5 → [Set: ベスト結果採用] → 次処理
+
+実装パラメータ:
+- 品質閾値: 80点（AI Agentのoutput.scoreで評価）
+- 最大反復: 5回
+- Expression: `={{ $json.score >= 80 }}`（品質判定）
+- Expression: `={{ $json.iteration < 5 }}`（回数判定）
+```
+
+**Pattern 5-2: 回数指定ループ**（固定回数の反復処理）
+```
+指定回数だけ処理を繰り返す単純ループ
+
+[Set: counter=0, maxIterations=10]
+    ↓
+[Loop Start]
+    ↓
+[処理実行: データ加工]
+    ↓
+[Set: counter += 1, results.push(output)]
+    ↓
+[IF: ループ継続判定]
+    ├─ counter < maxIterations → [Loop Start]（ループ）
+    └─ counter ≥ maxIterations → [Merge: 結果集約] → 次処理
+
+実装パラメータ:
+- Expression: `={{ $json.counter < $json.maxIterations }}`
+- ループカウンタをSet Nodeで管理
+```
+
+**Pattern 5-3: スコアベース品質ループ**（複数条件による判定）
+```
+複数の品質指標を評価し、すべてが基準を満たすまでループ
+
+[入力データ] → [Set: attempt=0]
+    ↓
+[AI Agent: コンテンツ生成]
+    ↓
+[Code: 品質スコア算出]
+    → readability_score（0-100）
+    → accuracy_score（0-100）
+    → completeness_score（0-100）
+    ↓
+[IF: 複合品質判定]
+    条件: readability ≥ 75 AND accuracy ≥ 80 AND completeness ≥ 85
+    ├─ 合格 → [Set: 最終出力] → 次処理
+    └─ 不合格 → [Switch: 改善戦略分岐]
+                  ├─ readability不足 → [Set: プロンプト調整A] → ループ
+                  ├─ accuracy不足 → [Set: プロンプト調整B] → ループ
+                  ├─ completeness不足 → [Set: プロンプト調整C] → ループ
+                  └─ attempt ≥ 5 → [Set: ベスト結果] → 次処理
+
+実装パラメータ:
+- Expression: `={{ $json.readability >= 75 && $json.accuracy >= 80 && $json.completeness >= 85 }}`
+- 改善戦略をSwitch Nodeで分岐
+```
+
+**Pattern 5-4: IF条件分岐ループ**（条件に基づく動的フロー）
+```
+IF文による条件分岐とループ制御の組み合わせ
+
+[入力データ]
+    ↓
+[Set: retryCount=0, maxRetries=3]
+    ↓
+[処理実行: API呼び出し]
+    ↓
+[IF: 成功判定]
+    ├─ response.status === 200 → [Set: 成功結果] → 次処理
+    └─ response.status !== 200 → [IF: リトライ判定]
+                                    ├─ retryCount < maxRetries → [Wait: 2秒]
+                                    │                             ↓
+                                    │                          [Set: retryCount += 1]
+                                    │                             ↓
+                                    │                          [処理実行]（ループ）
+                                    └─ retryCount ≥ maxRetries → [Error Trigger]
+
+実装パラメータ:
+- IF条件: `={{ $json.response.status === 200 }}`
+- リトライ条件: `={{ $json.retryCount < $json.maxRetries }}`
+- Wait Node: 2000ms（指数バックオフも可能）
+```
+
+**Pattern 5-5: Switch多分岐ループ**（複数ケースによる分岐制御）
+```
+Switch文による多方向分岐とループ制御
+
+[AI Agent: カテゴリ分類] → category（A/B/C/D）
+    ↓
+[Switch: カテゴリ別処理]
+    ├─ Case A: 簡易処理 → [Set: 結果A] → 次処理
+    ├─ Case B: 中等処理 → [AI Agent: 詳細生成]
+    │                      ↓
+    │                   [IF: 品質チェック]
+    │                      ├─ 合格 → 次処理
+    │                      └─ 不合格 → [Switch: カテゴリ別処理]（ループ）
+    ├─ Case C: 複雑処理 → [Batch Processing: 分割処理]
+    │                      ↓
+    │                   [Loop Over Items]
+    │                      ↓
+    │                   [IF: 各アイテム検証]
+    │                      ├─ 全合格 → 次処理
+    │                      └─ 一部不合格 → [Switch]（ループ）
+    └─ Default: 未分類 → [AI Agent: 再分類] → [Switch]（ループ）
+
+実装パラメータ:
+- Switch Mode: "Expression"
+- Expression: `={{ $json.category }}`
+- 各Caseで異なるフロー + ループ条件
+```
+
+**Pattern 5-6: 複合制御フローループ**（While/For/Do-Whileの疑似実装）
+```
+プログラミング言語の制御構造をn8nで再現
+
+【While風ループ】
+[Set: condition=true, counter=0]
+    ↓
+[IF: While条件チェック（前判定）]
+    ├─ condition === true → [処理実行]
+    │                         ↓
+    │                      [Code: 条件更新]
+    │                         ↓
+    │                      [IF: While条件]（ループ）
+    └─ condition === false → 次処理
+
+【Do-While風ループ】
+[処理実行]（必ず1回実行）
+    ↓
+[Code: 条件評価]
+    ↓
+[IF: Do-While条件チェック（後判定）]
+    ├─ condition === true → [処理実行]（ループ）
+    └─ condition === false → 次処理
+
+【For風ループ（配列反復）】
+[Set: items=[...], index=0]
+    ↓
+[IF: For条件（index < items.length）]
+    ├─ true → [Code: items[index]を処理]
+    │          ↓
+    │       [Set: index += 1]
+    │          ↓
+    │       [IF: For条件]（ループ）
+    └─ false → 次処理
+
+【Break/Continue風制御】
+[Loop処理]
+    ↓
+[IF: Break条件]
+    ├─ true → 次処理（ループ脱出）
+    └─ false → [IF: Continue条件]
+                  ├─ true → [Loop処理]（スキップしてループ継続）
+                  └─ false → [通常処理] → [Loop処理]（ループ継続）
+
+実装パラメータ:
+- While: `={{ $json.condition === true }}`
+- For: `={{ $json.index < $json.items.length }}`
+- Break: 特定条件で次処理へ直接接続
+- Continue: IFのtrueパスをループ開始に接続
+```
+
+**Pattern 5統合設計ガイドライン**:
+
+1. **ループカウンタ管理**: 必ずSet Nodeでカウンタ初期化・更新
+2. **無限ループ防止**: 最大反復回数（maxIterations）を必ず設定
+3. **終了条件の明確化**: IF/Switch Nodeで明示的な終了条件を定義
+4. **状態管理**: ループ内で状態変数（score, attempt, condition）を追跡
+5. **エラー処理**: 最大反復到達時のフォールバック処理を実装
+6. **パフォーマンス考慮**: Wait Nodeで適切な遅延を設定（APIレート制限対策）
+7. **デバッグ支援**: 各ループでSticky Noteにカウンタ・スコアをログ記録
+
+**適用例**:
+- ドキュメント生成でAI品質が不安定 → Pattern 5-1（品質判定ループ）
+- データ処理を10回繰り返す → Pattern 5-2（回数指定ループ）
+- 複数指標で評価 → Pattern 5-3（スコアベースループ）
+- API呼び出しリトライ → Pattern 5-4（IF条件分岐ループ）
+- カテゴリ別処理 + ループ → Pattern 5-5（Switch多分岐ループ）
+- 複雑な制御フロー → Pattern 5-6（複合制御ループ）
+
   3. 選定したパターンの適用箇所を明記
 
 - 評価・判断基準:
@@ -253,6 +451,7 @@ AI判断に基づく動的ルーティング
 |-----------|---------|---------|------|
 | Error-First Design | すべてのワークフローで必須 | 全グループ | 信頼性向上、エラー通知 |
 | AI Agent with Tool Workflow | AI処理でデータベース検索が必要 | Group 3 | AI精度向上、外部連携 |
+| Feedback Loop Patterns | AI生成品質を反復改善 | Group 4 | 出力品質向上、基準達成 |
 
 **パターン適用計画**:
 
@@ -263,6 +462,14 @@ AI判断に基づく動的ルーティング
 **Pattern 2: AI Agent with Tool Workflow**
 - AI Agent（Group 3）にTool Workflow 1個を接続
 - Tool Workflow: データベース検索（ユーザー情報取得）
+
+**Pattern 5: Feedback Loop Patterns**（適用時のみ記載）
+- 適用パターン: Pattern 5-1（AI品質判定ループ）
+- 適用箇所: Group 4（コンテンツ生成グループ）
+- ループ条件: スコア ≥ 80点または反復回数 ≥ 5回
+- 最大反復: 5回
+- 品質評価: AI Agent（品質評価専用）でスコア算出
+- フォールバック: 最大反復時はベスト結果を採用
 ```
 
 ## 処理手順2: ノードリスト詳細設計
@@ -672,6 +879,13 @@ AI判断に基づく動的ルーティング
 2. AI Agent with Tool Workflow（AI使用時）
 3. Batch Processing（大量データ時）
 4. Conditional Routing（分岐処理時）
+5. Feedback Loop Patterns（反復処理・品質向上時）
+   - 5-1: AI品質判定ループ
+   - 5-2: 回数指定ループ
+   - 5-3: スコアベース品質ループ
+   - 5-4: IF条件分岐ループ
+   - 5-5: Switch多分岐ループ
+   - 5-6: 複合制御フローループ
 
 **ワークフロー特性から推奨パターン**: [自動表示]
 
