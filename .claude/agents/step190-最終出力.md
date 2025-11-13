@@ -271,8 +271,8 @@ Step010-180までの全設計・実装・検証が完了し、最終的な成果
         - Claude使用時: `@n8n/n8n-nodes-langchain.lmChatAnthropic`
         - OpenAI使用時: `@n8n/n8n-nodes-langchain.lmChatOpenAi`
      4. モデルパラメータを設定:
-        - Gemini: `modelName: gemini-2.0-flash-exp`, `temperature: 0.4`, `maxOutputTokens: 4000`
-        - Claude: `model: claude-3-5-sonnet-20241022`, `temperature: 0.7`, `maxTokens: 8000`
+        - Gemini: `modelName: gemini-2.5-flash-exp`, `temperature: 0.4`, `maxOutputTokens: 4000`
+        - Claude: `model: claude-4-5-sonnet-20250929`, `temperature: 0.7`, `maxTokens: 8000`
      5. Credentialsを接続（次項参照）
 
      **重要**: このステップを省略すると、ワークフローは実行できません。
