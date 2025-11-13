@@ -16,7 +16,7 @@ n8n AI Agent Node の正式な技術識別子は**@n8n/n8n-nodes-langchain.agent
 
 AI Agent Node は 10 以上の AI プロバイダーに対応しており、Chat Model サブノードを通じて接続します。各プロバイダーの詳細な設定方法を以下に示します。
 
-### OpenAI（GPT-4o、GPT-3.5-turbo 等）
+### OpenAI（GPT-4o、GPT-4.5-turbo 等）
 
 **認証方法**: API キー認証
 
@@ -33,7 +33,7 @@ AI Agent Node は 10 以上の AI プロバイダーに対応しており、Chat
 - **API Key**（必須）：取得した OpenAI API キーを貼り付け
 - **Organization ID**（任意）：複数組織に所属している場合のみ必要（https://platform.openai.com/account/organization で確認）
 
-**利用可能なモデル**：gpt-4o、gpt-4o-mini、gpt-4-turbo、gpt-3.5-turbo など。アカウントのアクセス権限に基づいてモデルリストが動的にロードされます。
+**利用可能なモデル**：gpt-4o、gpt-4o-mini、gpt-4-turbo、gpt-4.5-turbo など。アカウントのアクセス権限に基づいてモデルリストが動的にロードされます。
 
 **特徴**：カスタム Base URL をサポートしているため、OpenAI 互換 API も利用可能です。Web Search、MCP Servers、File Search、Code Interpreter などの組み込みツールも使えます。
 

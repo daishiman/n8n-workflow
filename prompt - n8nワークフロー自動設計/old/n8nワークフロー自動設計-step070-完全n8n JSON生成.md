@@ -1718,7 +1718,7 @@ MCP サーバーへのアクセス時は「ナレッジ - n8n ワークフロー
 ```json
 {
   "parameters": {
-    "content": "# 【Google Meet議事録自動化 v1.1 - 全体フロー】\n\n## このワークフローに含まれる全ノード（21個）\n📌 **Google Drive Trigger** (Trigger)\n📌 **Google Drive: Get File Info** (Google Drive)\n📌 **Google Drive: M4Aダウンロード** (Google Drive)\n📌 **Filter: M4A検証** (Filter)\n📌 **Google Gemini: Transcribe Audio** (Gemini) ★新規\n📌 **Code: チャンク分割** (Code)\n📌 **Split in Batches×2** (並列処理)\n📌 **AI Agent×5** (Step1-5)\n📌 **Discord Webhook** (通知)\n\n## このワークフローの目的\nGoogle DriveにアップロードされたM4A音声ファイルから自動で議事録を生成し、指定フォーマットで保存します。\n\n## 背景\n従来の課題:\n- 手動議事録作成に1時間かかる\n- Deepgram APIで月額$10-20のコスト\n- 外部API依存による複雑性\n\nこのワークフロー(v1.1)により、Gemini直接文字起こしで処理時間50%短縮、コスト75%削減を実現します。\n\n## 全体の流れ\n1. Google Driveで新規M4Aファイル検知（5分ごと）\n2. Gemini 2.0 Flashで直接文字起こし（30-60秒）\n3. チャンク5並列処理で整形（5倍高速化）\n4. 議題3並列処理で分析（3倍高速化）\n5. Claude Sonnet 4.5でMarkdown議事録生成\n6. Google Driveに保存、Discord通知\n\n## 達成したいこと\n1時間会議の議事録を3分で自動生成（従来比50%短縮）",
+    "content": "# 【Google Meet議事録自動化 v1.1 - 全体フロー】\n\n## このワークフローに含まれる全ノード（21個）\n📌 **Google Drive Trigger** (Trigger)\n📌 **Google Drive: Get File Info** (Google Drive)\n📌 **Google Drive: M4Aダウンロード** (Google Drive)\n📌 **Filter: M4A検証** (Filter)\n📌 **Google Gemini: Transcribe Audio** (Gemini) ★新規\n📌 **Code: チャンク分割** (Code)\n📌 **Split in Batches×2** (並列処理)\n📌 **AI Agent×5** (Step1-5)\n📌 **Discord Webhook** (通知)\n\n## このワークフローの目的\nGoogle DriveにアップロードされたM4A音声ファイルから自動で議事録を生成し、指定フォーマットで保存します。\n\n## 背景\n従来の課題:\n- 手動議事録作成に1時間かかる\n- Deepgram APIで月額$10-20のコスト\n- 外部API依存による複雑性\n\nこのワークフロー(v1.1)により、Gemini直接文字起こしで処理時間50%短縮、コスト75%削減を実現します。\n\n## 全体の流れ\n1. Google Driveで新規M4Aファイル検知（5分ごと）\n2. Gemini 2.5 Flashで直接文字起こし（30-60秒）\n3. チャンク5並列処理で整形（5倍高速化）\n4. 議題3並列処理で分析（3倍高速化）\n5. Claude Sonnet 4.5でMarkdown議事録生成\n6. Google Driveに保存、Discord通知\n\n## 達成したいこと\n1時間会議の議事録を3分で自動生成（従来比50%短縮）",
     "height": 650,
     "width": 750,
     "color": 7
@@ -1736,7 +1736,7 @@ MCP サーバーへのアクセス時は「ナレッジ - n8n ワークフロー
 ```json
 {
   "parameters": {
-    "content": "# 【グループ2: 音声文字起こし（Geminiネイティブ）】\n\n## このグループに含まれるノード\n📌 **Google Gemini: Transcribe Audio** (Gemini)\n\n## 目的\nM4A音声ファイルをGemini 2.0 Flashで直接文字起こしする\n\n## 背景\nGeminiのネイティブ音声処理機能を使用して、話者分離・タイムスタンプ付きで文字起こしを実行。Deepgram不要で処理時間50%短縮、コスト70-85%削減を実現。\n\n## 処理の流れ\n1. M4Aバイナリデータ受信\n2. Gemini 2.0 Flash Transcribe実行\n3. 話者をspeaker A, B, C等でラベル付け\n4. タイムスタンプ付与（HH:MM:SS形式）\n5. JSON配列出力（line_id, content, speaker, timestamp, start_time, end_time）\n\n## 達成したいこと\n高品質な日本語文字起こしを30-60秒で完了（Deepgram 60-120秒より50%短縮）\n\n## 次のステップ\n→ グループ3: チャンク分割準備へ（JSON配列をチャンクに分割）",
+    "content": "# 【グループ2: 音声文字起こし（Geminiネイティブ）】\n\n## このグループに含まれるノード\n📌 **Google Gemini: Transcribe Audio** (Gemini)\n\n## 目的\nM4A音声ファイルをGemini 2.5 Flashで直接文字起こしする\n\n## 背景\nGeminiのネイティブ音声処理機能を使用して、話者分離・タイムスタンプ付きで文字起こしを実行。Deepgram不要で処理時間50%短縮、コスト70-85%削減を実現。\n\n## 処理の流れ\n1. M4Aバイナリデータ受信\n2. Gemini 2.5 Flash Transcribe実行\n3. 話者をspeaker A, B, C等でラベル付け\n4. タイムスタンプ付与（HH:MM:SS形式）\n5. JSON配列出力（line_id, content, speaker, timestamp, start_time, end_time）\n\n## 達成したいこと\n高品質な日本語文字起こしを30-60秒で完了（Deepgram 60-120秒より50%短縮）\n\n## 次のステップ\n→ グループ3: チャンク分割準備へ（JSON配列をチャンクに分割）",
     "height": 400,
     "width": 550,
     "color": 6

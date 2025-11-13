@@ -113,7 +113,7 @@ MCP サーバーへのアクセス時は「ナレッジ - n8n ワークフロー
 
      - 達成目標: ユーザーのニーズに合った Chat Model を選択してもらう
      - 具体例:
-       - OpenAI (GPT-4, GPT-3.5-turbo): 高品質、コスト高、幅広い用途
+       - OpenAI (GPT-4, GPT-4.5-turbo): 高品質、コスト高、幅広い用途
        - Claude (Sonnet, Opus): 長文処理に強い、高品質、コスト中〜高
        - Gemini (Pro, Ultra): Google エコシステム統合、コスト中
        - Ollama (ローカル LLM): コスト無料、プライバシー重視、性能は限定的
