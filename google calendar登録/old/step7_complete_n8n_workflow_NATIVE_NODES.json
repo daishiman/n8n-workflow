@@ -470,9 +470,9 @@
       "notes": "処理内容: 予定情報からビジネスメールを自動生成\n責務: 構造化予定データ → 丁寧なビジネスメール\n入力: event_title, event_datetime, duration_minutes, attendee_emails, description\n出力: email_subject, email_body_html, email_body_plain\n連携: Chat Model (Claude), Memory, Output Parser Tool"
     },
     {
-      "_comment": "Chat Model 3: Claude 3.5 Sonnet - AI Agent 3用の言語モデル",
+      "_comment": "Chat Model 3: Claude 4.5 Sonnet - AI Agent 3用の言語モデル",
       "parameters": {
-        "model": "anthropic/claude-3.5-sonnet:beta",
+        "model": "anthropic/claude-4.5-sonnet:beta",
         "options": {
           "baseURL": "https://openrouter.ai/api/v1",
           "temperature": 0.8,
@@ -491,7 +491,7 @@
           "name": "OpenRouter API"
         }
       },
-      "notes": "処理内容: Claude 3.5 Sonnetでビジネスメール生成\nモデル: anthropic/claude-3.5-sonnet:beta\n温度設定: 0.8 (自然で創造的な文章)\n最大トークン: 1500\n役割: 通知メール生成AI Agentの推論エンジン"
+      "notes": "処理内容: Claude 4.5 Sonnetでビジネスメール生成\nモデル: anthropic/claude-4.5-sonnet:beta\n温度設定: 0.8 (自然で創造的な文章)\n最大トークン: 1500\n役割: 通知メール生成AI Agentの推論エンジン"
     },
     {
       "_comment": "Memory 3: 会話履歴管理 - AI Agent 3用",
@@ -588,9 +588,9 @@
       "notes": "処理内容: 既存予定を分析して空き時間候補を5つ提案\n責務: 既存予定リスト + 希望時刻 → 5つの代替候補\n入力: event_datetime, duration_minutes, existing_events\n出力: alternative_slots (配列、5要素)\n連携: Chat Model (Gemini), Memory, Output Parser Tool"
     },
     {
-      "_comment": "Chat Model 2: Gemini 2.0 Flash - AI Agent 2用の言語モデル",
+      "_comment": "Chat Model 2: Gemini 2.5 Flash - AI Agent 2用の言語モデル",
       "parameters": {
-        "model": "google/gemini-2.0-flash-exp:free",
+        "model": "google/gemini-2.5-flash-exp:free",
         "options": {
           "baseURL": "https://openrouter.ai/api/v1",
           "temperature": 0.7,
@@ -609,7 +609,7 @@
           "name": "OpenRouter API"
         }
       },
-      "notes": "処理内容: Gemini 2.0 Flashでカレンダー分析と候補生成\nモデル: google/gemini-2.0-flash-exp:free\n温度設定: 0.7 (バランス型)\n最大トークン: 2000\n役割: 空き時間候補生成AI Agentの推論エンジン"
+      "notes": "処理内容: Gemini 2.5 Flashでカレンダー分析と候補生成\nモデル: google/gemini-2.5-flash-exp:free\n温度設定: 0.7 (バランス型)\n最大トークン: 2000\n役割: 空き時間候補生成AI Agentの推論エンジン"
     },
     {
       "_comment": "Memory 2: 会話履歴管理 - AI Agent 2用",

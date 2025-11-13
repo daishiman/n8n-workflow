@@ -437,7 +437,7 @@
         "height": 400,
         "width": 560,
         "color": 3,
-        "content": "# 【グループ4: 予定登録・通知】\n\n## 目的\n重複がない場合に、Googleカレンダーに予定を登録し、参加者にGmailで通知を送信します。\n\n## 背景\n予定登録後、参加者に手動でメールを送るのは手間がかかります。AI が自動でビジネスメールを生成することで、この作業を完全自動化できます。\n\n## 処理の流れ\n1. Googleカレンダー予定登録: 専用ノードで予定作成\n2. メール送信要否判定: 参加者がいるかチェック\n3. AI Agent 3（Claude）: ビジネスメール自動生成\n4. Gmail送信: 専用ノードで参加者全員にメール送信\n5. Discord成功返信: ユーザーに登録完了を通知\n\n## 連携するサブノード（AI Agent 3）\n- Chat Model (Claude 3.5): 自然で丁寧なビジネスメール生成\n- Memory: 過去のメール生成履歴\n- Output Parser: メールJSON構造化\n\n## 連携する外部システム\n- Google Calendar API: 予定登録\n- Gmail API: メール送信\n- Discord Webhook: 成功通知\n\n## 達成したいこと\n予定登録から参加者への通知まで、すべてを30秒以内に完了する\n\n## 完了\nワークフロー成功終了"
+        "content": "# 【グループ4: 予定登録・通知】\n\n## 目的\n重複がない場合に、Googleカレンダーに予定を登録し、参加者にGmailで通知を送信します。\n\n## 背景\n予定登録後、参加者に手動でメールを送るのは手間がかかります。AI が自動でビジネスメールを生成することで、この作業を完全自動化できます。\n\n## 処理の流れ\n1. Googleカレンダー予定登録: 専用ノードで予定作成\n2. メール送信要否判定: 参加者がいるかチェック\n3. AI Agent 3（Claude）: ビジネスメール自動生成\n4. Gmail送信: 専用ノードで参加者全員にメール送信\n5. Discord成功返信: ユーザーに登録完了を通知\n\n## 連携するサブノード（AI Agent 3）\n- Chat Model (Claude 4.5): 自然で丁寧なビジネスメール生成\n- Memory: 過去のメール生成履歴\n- Output Parser: メールJSON構造化\n\n## 連携する外部システム\n- Google Calendar API: 予定登録\n- Gmail API: メール送信\n- Discord Webhook: 成功通知\n\n## 達成したいこと\n予定登録から参加者への通知まで、すべてを30秒以内に完了する\n\n## 完了\nワークフロー成功終了"
       },
       "id": "sticky_note_group4",
       "name": "Sticky Note - 予定登録通知",
@@ -524,12 +524,12 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 1.7,
       "position": [4040, 120],
-      "notes": "【AIメール生成エージェント】\n\n処理内容: Claude 3.5 Sonnetを使用して予定情報からビジネスメールを自動生成\n\n責務: 構造化予定データ → 丁寧なビジネスメール（単一責務の原則）\n\n入力:\n- event_title: 予定タイトル\n- event_datetime: 日時\n- duration_minutes: 所要時間\n- attendee_emails: 参加者リスト\n- description: 補足説明\n\n出力:\n{\n  \"email_subject\": \"【予定通知】会議のご案内\",\n  \"email_body_html\": \"<html><body>...</body></html>\",\n  \"email_body_plain\": \"プレーンテキスト版...\"\n}\n\n連携するサブノード:\n- Claude Chat Model: 自然で丁寧な文章生成（temperature 0.8で創造性重視）\n- メール生成 Memory: 過去3件のメール生成履歴\n- メールデータParser: JSON出力を構造化\n\n役割: 人間が書くような自然なビジネスメールを自動生成\n\nなぜClaude: 日本語の文章生成が得意で、ビジネスメールの文体が自然"
+      "notes": "【AIメール生成エージェント】\n\n処理内容: Claude 4.5 Sonnetを使用して予定情報からビジネスメールを自動生成\n\n責務: 構造化予定データ → 丁寧なビジネスメール（単一責務の原則）\n\n入力:\n- event_title: 予定タイトル\n- event_datetime: 日時\n- duration_minutes: 所要時間\n- attendee_emails: 参加者リスト\n- description: 補足説明\n\n出力:\n{\n  \"email_subject\": \"【予定通知】会議のご案内\",\n  \"email_body_html\": \"<html><body>...</body></html>\",\n  \"email_body_plain\": \"プレーンテキスト版...\"\n}\n\n連携するサブノード:\n- Claude Chat Model: 自然で丁寧な文章生成（temperature 0.8で創造性重視）\n- メール生成 Memory: 過去3件のメール生成履歴\n- メールデータParser: JSON出力を構造化\n\n役割: 人間が書くような自然なビジネスメールを自動生成\n\nなぜClaude: 日本語の文章生成が得意で、ビジネスメールの文体が自然"
     },
     {
-      "_comment": "Chat Model 3: Claude 3.5 Sonnet - AI Agent 3用の言語モデル、文章生成に最適化",
+      "_comment": "Chat Model 3: Claude 4.5 Sonnet - AI Agent 3用の言語モデル、文章生成に最適化",
       "parameters": {
-        "model": "anthropic/claude-3.5-sonnet:beta",
+        "model": "anthropic/claude-4.5-sonnet:beta",
         "options": {
           "baseURL": "https://openrouter.ai/api/v1",
           "temperature": 0.8,
@@ -548,7 +548,7 @@
           "name": "OpenRouter API"
         }
       },
-      "notes": "【LLM推論エンジン - 文章生成特化】\n\n処理内容: Claude 3.5 Sonnetでビジネスメール生成\n\nモデル: anthropic/claude-3.5-sonnet:beta（Anthropicの最新モデル）\n\nパラメータ設定:\n- temperature: 0.8（高め = 自然で創造的な文章、定型文を避ける）\n- maxTokens: 1500（メール本文に十分な長さ）\n- topP: 0.9（多様な表現を確保）\n\n役割: AI Agent 3の「脳」として、自然で丁寧なビジネスメールを生成\n\nなぜClaude: 日本語の文章生成品質が高く、ビジネス文書の作成に適している\n\nAI Agentとの連携: ai_languageModel接続で推論能力を提供"
+      "notes": "【LLM推論エンジン - 文章生成特化】\n\n処理内容: Claude 4.5 Sonnetでビジネスメール生成\n\nモデル: anthropic/claude-4.5-sonnet:beta（Anthropicの最新モデル）\n\nパラメータ設定:\n- temperature: 0.8（高め = 自然で創造的な文章、定型文を避ける）\n- maxTokens: 1500（メール本文に十分な長さ）\n- topP: 0.9（多様な表現を確保）\n\n役割: AI Agent 3の「脳」として、自然で丁寧なビジネスメールを生成\n\nなぜClaude: 日本語の文章生成品質が高く、ビジネス文書の作成に適している\n\nAI Agentとの連携: ai_languageModel接続で推論能力を提供"
     },
     {
       "_comment": "Memory 3: AI Agent 3用の会話履歴管理、過去のメール生成パターンを学習",
@@ -631,7 +631,7 @@
         "height": 400,
         "width": 560,
         "color": 7,
-        "content": "# 【グループ5: AI代替案生成】\n\n## 目的\n予定が重複している場合に、既存予定を分析して空き時間の候補を5つ提案します。\n\n## 背景\n重複を検知しても「登録できません」で終わるのでは不親切です。AIが既存予定を分析し、「この時間なら空いています」と具体的な代替案を提示することで、ユーザーの手間を大幅に削減できます。\n\n## 単一責務の原則\nAI Agent 2は「既存予定分析 → 空き時間候補5つ提案」のみを担当します。\n\n## 処理の流れ\n1. AI Agent 2（Gemini）: 既存予定を分析し、空き時間を5つ提案\n2. Output Parser: 候補JSONを構造化\n3. ステート保存: ユーザーの選択を待つ状態を保存\n4. Discord重複返信: 5つの候補を番号付きで表示\n\n## 連携するサブノード（AI Agent 2）\n- Chat Model (Gemini 2.0): カレンダー分析と候補生成\n- Memory: 過去の候補生成履歴\n- Output Parser: 候補JSON構造化\n\n## 達成したいこと\nユーザーが自分でカレンダーを見て調整する手間を省き、「1-5の番号を選ぶだけ」にする\n\n## 次のステップ\nユーザーが番号を選択 → 選択フローで再度Webhook受信 → 予定登録"
+        "content": "# 【グループ5: AI代替案生成】\n\n## 目的\n予定が重複している場合に、既存予定を分析して空き時間の候補を5つ提案します。\n\n## 背景\n重複を検知しても「登録できません」で終わるのでは不親切です。AIが既存予定を分析し、「この時間なら空いています」と具体的な代替案を提示することで、ユーザーの手間を大幅に削減できます。\n\n## 単一責務の原則\nAI Agent 2は「既存予定分析 → 空き時間候補5つ提案」のみを担当します。\n\n## 処理の流れ\n1. AI Agent 2（Gemini）: 既存予定を分析し、空き時間を5つ提案\n2. Output Parser: 候補JSONを構造化\n3. ステート保存: ユーザーの選択を待つ状態を保存\n4. Discord重複返信: 5つの候補を番号付きで表示\n\n## 連携するサブノード（AI Agent 2）\n- Chat Model (Gemini 2.5): カレンダー分析と候補生成\n- Memory: 過去の候補生成履歴\n- Output Parser: 候補JSON構造化\n\n## 達成したいこと\nユーザーが自分でカレンダーを見て調整する手間を省き、「1-5の番号を選ぶだけ」にする\n\n## 次のステップ\nユーザーが番号を選択 → 選択フローで再度Webhook受信 → 予定登録"
       },
       "id": "sticky_note_group5",
       "name": "Sticky Note - AI代替案生成",
@@ -656,12 +656,12 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 1.7,
       "position": [3520, 880],
-      "notes": "【AI候補生成エージェント】\n\n処理内容: Gemini 2.0を使用して既存予定を分析し、空き時間候補を5つ提案\n\n責務: 既存予定リスト + 希望時刻 → 5つの代替候補（単一責務の原則）\n\n入力:\n- event_datetime: 希望日時（重複している時刻）\n- duration_minutes: 必要な所要時間\n- existing_events: 既存予定配列\n\n出力:\n{\n  \"alternative_slots\": [\n    {\"slot_datetime\": \"2025-11-08T10:00:00+09:00\", \"reason\": \"午前中の空き時間\"},\n    ...(計5個)\n  ]\n}\n\n連携するサブノード:\n- Gemini Chat Model: カレンダー分析と候補生成（temperature 0.7でバランス型）\n- 候補生成 Memory: 過去3件の候補生成履歴\n- 候補データParser: JSON出力を構造化（5要素を保証）\n\n役割: 既存予定の時間帯を分析し、重複しない最適な候補を提案\n\nなぜGemini: 構造化データ分析が得意で、論理的な候補生成に適している"
+      "notes": "【AI候補生成エージェント】\n\n処理内容: Gemini 2.5を使用して既存予定を分析し、空き時間候補を5つ提案\n\n責務: 既存予定リスト + 希望時刻 → 5つの代替候補（単一責務の原則）\n\n入力:\n- event_datetime: 希望日時（重複している時刻）\n- duration_minutes: 必要な所要時間\n- existing_events: 既存予定配列\n\n出力:\n{\n  \"alternative_slots\": [\n    {\"slot_datetime\": \"2025-11-08T10:00:00+09:00\", \"reason\": \"午前中の空き時間\"},\n    ...(計5個)\n  ]\n}\n\n連携するサブノード:\n- Gemini Chat Model: カレンダー分析と候補生成（temperature 0.7でバランス型）\n- 候補生成 Memory: 過去3件の候補生成履歴\n- 候補データParser: JSON出力を構造化（5要素を保証）\n\n役割: 既存予定の時間帯を分析し、重複しない最適な候補を提案\n\nなぜGemini: 構造化データ分析が得意で、論理的な候補生成に適している"
     },
     {
-      "_comment": "Chat Model 2: Gemini 2.0 Flash - AI Agent 2用の言語モデル、データ分析に最適化",
+      "_comment": "Chat Model 2: Gemini 2.5 Flash - AI Agent 2用の言語モデル、データ分析に最適化",
       "parameters": {
-        "model": "google/gemini-2.0-flash-exp:free",
+        "model": "google/gemini-2.5-flash-exp:free",
         "options": {
           "baseURL": "https://openrouter.ai/api/v1",
           "temperature": 0.7,
@@ -680,7 +680,7 @@
           "name": "OpenRouter API"
         }
       },
-      "notes": "【LLM推論エンジン - データ分析特化】\n\n処理内容: Gemini 2.0 Flashでカレンダー分析と候補生成\n\nモデル: google/gemini-2.0-flash-exp:free（Googleの高速モデル）\n\nパラメータ設定:\n- temperature: 0.7（中程度 = 論理性と柔軟性のバランス）\n- maxTokens: 2000（複数候補生成に十分）\n- topP: 0.95（多様な候補を確保）\n\n役割: AI Agent 2の「脳」として、既存予定を分析し空き時間を見つける\n\nなぜGemini: 構造化データ（既存予定リスト）の分析が得意で、論理的な候補生成に適している\n\nAI Agentとの連携: ai_languageModel接続で推論能力を提供"
+      "notes": "【LLM推論エンジン - データ分析特化】\n\n処理内容: Gemini 2.5 Flashでカレンダー分析と候補生成\n\nモデル: google/gemini-2.5-flash-exp:free（Googleの高速モデル）\n\nパラメータ設定:\n- temperature: 0.7（中程度 = 論理性と柔軟性のバランス）\n- maxTokens: 2000（複数候補生成に十分）\n- topP: 0.95（多様な候補を確保）\n\n役割: AI Agent 2の「脳」として、既存予定を分析し空き時間を見つける\n\nなぜGemini: 構造化データ（既存予定リスト）の分析が得意で、論理的な候補生成に適している\n\nAI Agentとの連携: ai_languageModel接続で推論能力を提供"
     },
     {
       "_comment": "Memory 2: AI Agent 2用の会話履歴管理、過去の候補生成パターンを学習",

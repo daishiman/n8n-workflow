@@ -554,7 +554,7 @@ Level 18: Gmail送信 (1)
 - ✅ HTTP Requestノードタイプ
 - ✅ OpenRouter APIエンドポイント設定
 - ✅ 認証情報参照（OpenRouter API Key）
-- ✅ モデル指定: `google/gemini-2.0-flash-exp:free`
+- ✅ モデル指定: `google/gemini-2.5-flash-exp:free`
 - ✅ システムメッセージに責務・ゴール記載
 - ✅ temperature/max_tokens/top_p明示的設定
 - ✅ timeout設定（30秒）
@@ -577,7 +577,7 @@ Level 18: Gmail送信 (1)
 - ✅ HTTP Requestノードタイプ
 - ✅ OpenRouter APIエンドポイント設定
 - ✅ 認証情報参照（OpenRouter API Key）
-- ✅ モデル指定: `anthropic/claude-3.5-sonnet:beta`
+- ✅ モデル指定: `anthropic/claude-4.5-sonnet:beta`
 - ✅ システムメッセージに責務・ゴール記載
 - ✅ temperature/max_tokens/top_p明示的設定
 - ✅ timeout設定（30秒）
@@ -749,16 +749,16 @@ AI Agent 2（生成）
 
 **パス1（重複なし、参加者あり）**:
 - Grok 2: 約$0.002
-- Claude 3.5 Sonnet: 約$0.003
+- Claude 4.5 Sonnet: 約$0.003
 - 合計: 約$0.005
 
 **パス2（重複あり）**:
 - Grok 2: 約$0.002
-- Gemini 2.0 Flash: $0（無料）
+- Gemini 2.5 Flash: $0（無料）
 - 合計: 約$0.002
 
 **パス3（候補選択、参加者あり）**:
-- Claude 3.5 Sonnet: 約$0.003
+- Claude 4.5 Sonnet: 約$0.003
 - 合計: 約$0.003
 
 **1日10実行の場合**:

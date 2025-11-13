@@ -45,11 +45,11 @@
   - `max_tokens`: 1000
   - `top_p`: 0.9
 
-#### AI Agent 2: 空き時間候補生成（Gemini 2.0 Flash）
+#### AI Agent 2: 空き時間候補生成（Gemini 2.5 Flash）
 
 **NODE-027: 【AI Agent 2】空き時間候補生成（Gemini）**
 
-- **Model**: `google/gemini-2.0-flash-exp:free`
+- **Model**: `google/gemini-2.5-flash-exp:free`
 - **責務**: カレンダー分析と空き時間候補5つの提案
 - **入力**:
   ```json
@@ -75,11 +75,11 @@
   - `max_tokens`: 2000
   - `top_p`: 0.95
 
-#### AI Agent 3: 通知メール生成（Claude 3.5 Sonnet）
+#### AI Agent 3: 通知メール生成（Claude 4.5 Sonnet）
 
 **NODE-024: 【AI Agent 3】通知メール生成（Claude）**
 
-- **Model**: `anthropic/claude-3.5-sonnet:beta`
+- **Model**: `anthropic/claude-4.5-sonnet:beta`
 - **責務**: 予定情報から参加者向けの通知メールを生成
 - **入力**:
   ```json
@@ -1097,8 +1097,8 @@ return [{
 1. 認証情報「OpenRouter API Key」を確認
 2. モデル名が以下のいずれかであることを確認:
    - `x-ai/grok-2-1212`
-   - `google/gemini-2.0-flash-exp:free`
-   - `anthropic/claude-3.5-sonnet:beta`
+   - `google/gemini-2.5-flash-exp:free`
+   - `anthropic/claude-4.5-sonnet:beta`
 3. OpenRouterダッシュボードで使用量を確認
 
 ---
@@ -1161,8 +1161,8 @@ return [{
 ### AI処理時間
 
 - **Grok 2**: 5-10秒
-- **Gemini 2.0 Flash**: 5-10秒
-- **Claude 3.5 Sonnet**: 5-10秒
+- **Gemini 2.5 Flash**: 5-10秒
+- **Claude 4.5 Sonnet**: 5-10秒
 
 ### 合計実行時間
 

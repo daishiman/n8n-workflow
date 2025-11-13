@@ -277,10 +277,10 @@
 - **認証**: OAuth2
 
 #### タスク5-2: 通知メール文章生成（AI Agent 3）
-- **タスク名**: Claude 3.5 Sonnetによるメール本文作成
+- **タスク名**: Claude 4.5 Sonnetによるメール本文作成
 - **アクション**: OpenRouter APIにPOSTリクエスト
 - **APIエンドポイント**: `https://openrouter.ai/api/v1/chat/completions`
-- **モデル**: `anthropic/claude-3.5-sonnet:beta`
+- **モデル**: `anthropic/claude-4.5-sonnet:beta`
 - **プロンプト**:
   ```
   以下の予定情報をもとに、参加者への通知メールを作成してください。
@@ -322,10 +322,10 @@
 - **認証**: OAuth2
 
 #### タスク5-4: 空き時間候補生成（AI Agent 2）
-- **タスク名**: Gemini 2.0 Flashによる代替候補提案
+- **タスク名**: Gemini 2.5 Flashによる代替候補提案
 - **アクション**: OpenRouter APIにPOSTリクエスト
 - **APIエンドポイント**: `https://openrouter.ai/api/v1/chat/completions`
-- **モデル**: `google/gemini-2.0-flash-exp:free`
+- **モデル**: `google/gemini-2.5-flash-exp:free`
 - **プロンプト**:
   ```
   以下の情報をもとに、予定が重複しない空き時間の候補を5つ提案してください。
