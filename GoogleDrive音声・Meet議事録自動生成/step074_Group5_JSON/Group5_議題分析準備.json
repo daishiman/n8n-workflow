@@ -1,0 +1,41 @@
+{
+  "name": "Group 5: 議題分析準備",
+  "nodes": [
+    {
+      "id": "code_split_topics_g5_01",
+      "type": "n8n-nodes-base.code",
+      "name": "議題分割処理",
+      "typeVersion": 2,
+      "position": [3200, 300],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// 議題配列を個別アイテムに分割\nconst items = $input.all();\nconst agendaItems = [];\n\nfor (const item of items) {\n  const agendas = item.json.agendas || [];\n  const meetingName = item.json.meeting_name;\n  const fullTranscript = item.json.full_transcript;\n  const speakers = item.json.speakers || [];\n  \n  // 各議題を独立したアイテムに展開\n  for (let i = 0; i < agendas.length; i++) {\n    const agenda = agendas[i];\n    \n    agendaItems.push({\n      json: {\n        // 会議全体のメタデータ\n        meeting_name: meetingName,\n        full_transcript: fullTranscript,\n        speakers: speakers,\n        total_agendas: agendas.length,\n        \n        // 個別議題データ\n        agenda_id: agenda.agenda_id || (i + 1),\n        title: agenda.title,\n        start_time: agenda.start_time,\n        end_time: agenda.end_time,\n        importance: agenda.importance,\n        summary: agenda.summary,\n        related_agendas: agenda.related_agendas || [],\n        \n        // 処理制御用\n        current_index: i,\n        is_first: i === 0,\n        is_last: i === agendas.length - 1\n      }\n    });\n  }\n}\n\nreturn agendaItems;"
+      },
+      "_comment": "Group 4で抽出された議題配列（agendas）を、個別の議題アイテムに分割します。各議題に会議全体のメタデータ（meeting_name、full_transcript、speakers）と個別議題データ（agenda_id、title、start_time、end_time、importance、summary、related_agendas）を付与します。これにより、Group 6のSplit In Batchesで3議題ずつ並列処理できる形式に変換します。",
+      "notes": "mode: runOnceForAllItems | 入力: agendas配列 | 出力: 個別議題アイテム（各議題が独立したjsonオブジェクト） | 付与データ: meeting_name, full_transcript, speakers, total_agendas, agenda_id, title, start_time, end_time, importance, summary, related_agendas, current_index, is_first, is_last | 目的: Group 6の並列バッチ処理準備"
+    },
+    {
+      "id": "sticky_g5",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 5: 議題分析準備",
+      "typeVersion": 1,
+      "position": [3140, 140],
+      "parameters": {
+        "content": "## Group 5: 議題分析準備\n\n**目的**: 議題配列を個別アイテムに分割し、並列処理準備を行う\n\n### 🎯 このグループの役割\n- **L4 (Transformation)**: 議題配列を個別アイテムに展開\n- **並列処理準備**: Group 6の3議題並列バッチ処理に対応\n\n### 📦 このグループに含まれるノード\n\n**1. 議題分割処理** (code_split_topics_g5_01)\n- タイプ: Code\n- 役割: 議題配列（agendas）を個別の議題アイテムに分割\n- 処理:\n  1. Group 4から受け取った議題配列をループ\n  2. 各議題を独立したjsonオブジェクトに変換\n  3. 会議全体のメタデータを各議題に付与\n  4. 処理制御用フラグを追加（current_index, is_first, is_last）\n- 出力: 議題数分のアイテム（3議題の場合、3アイテム）\n\n### 🔗 フロー\n**Group 4** → code_split_topics_g5_01 → **Group 6 (Split In Batches)**\n\n### ⚙️ 依存関係\n- **入力**: Group 4から議題配列（$json.agendas）\n- **出力**: 個別議題アイテム → Group 6へ\n- **並列処理準備**: 3議題並列バッチ対応\n\n### 📊 主要データ\n- **入力**:\n  - `$json.agendas`: 議題配列（JSON）\n  - `$json.meeting_name`: 会議名\n  - `$json.full_transcript`: 全文テキスト\n  - `$json.speakers`: 話者リスト\n- **出力** (各議題アイテム):\n  - 会議全体メタデータ:\n    - `$json.meeting_name`: 会議名\n    - `$json.full_transcript`: 全文テキスト\n    - `$json.speakers`: 話者リスト\n    - `$json.total_agendas`: 総議題数\n  - 個別議題データ:\n    - `$json.agenda_id`: 議題ID\n    - `$json.title`: 議題タイトル\n    - `$json.start_time`: 開始時刻\n    - `$json.end_time`: 終了時刻\n    - `$json.importance`: 重要度\n    - `$json.summary`: 要約\n    - `$json.related_agendas`: 関連議題ID配列\n  - 処理制御用:\n    - `$json.current_index`: インデックス番号\n    - `$json.is_first`: 最初の議題か\n    - `$json.is_last`: 最後の議題か\n\n### 🏗️ 12層マッピング\n- **L4 (Transformation)**: code_split_topics_g5_01（データ変換・加工）\n\n### 📈 処理例\n入力（1アイテム）:\n```json\n{\n  \"agendas\": [\n    {\"agenda_id\": 1, \"title\": \"プロジェクト進捗\"},\n    {\"agenda_id\": 2, \"title\": \"予算検討\"},\n    {\"agenda_id\": 3, \"title\": \"次回予定\"}\n  ]\n}\n```\n\n出力（3アイテム）:\n```json\n[\n  {\"agenda_id\": 1, \"title\": \"プロジェクト進捗\", \"current_index\": 0, \"is_first\": true},\n  {\"agenda_id\": 2, \"title\": \"予算検討\", \"current_index\": 1},\n  {\"agenda_id\": 3, \"title\": \"次回予定\", \"current_index\": 2, \"is_last\": true}\n]\n```\n\n### 🔄 次ステップへの準備\n- Group 6でbatchSize=3により、3議題同時並列処理\n- AI Agent Step4（議題分析）とAI Agent Step5（議題別マッピング）が並行実行",
+        "height": 540,
+        "width": 540,
+        "color": 2
+      }
+    }
+  ],
+  "connections": {},
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-13T00:00:00.000Z",
+  "versionId": "v4.0"
+}

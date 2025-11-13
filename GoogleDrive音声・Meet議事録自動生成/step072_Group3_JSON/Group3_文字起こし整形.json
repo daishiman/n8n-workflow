@@ -1,0 +1,110 @@
+{
+  "name": "Group 3: 文字起こし整形（並列）",
+  "nodes": [
+    {
+      "id": "ai_agent_step2_g3",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "name": "AI Agent Step2 - 文字起こし整形",
+      "typeVersion": 3,
+      "position": [2200, 300],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chunk }}",
+        "hasOutputParser": false,
+        "options": {
+          "systemMessage": "あなたは議事録作成の専門家です。音声文字起こしテキストを読みやすい形式に整形します。\n\n【整形ルール】\n1. フィラー（「えー」「あのー」「うーん」など）を削除\n2. 重複表現を統一（「それでそれで」→「それで」）\n3. 話し言葉を適切に整理（意味を損なわない範囲で）\n4. 箇条書き形式に変換（各発言を独立した項目に）\n5. 話者情報を保持（Speaker 1、Speaker 2など）\n6. タイムスタンプ情報を保持\n\n【出力形式】\n- 各行: [話者] 発言内容\n- 例: [Speaker 1] プロジェクトの進捗について報告します。\n\n【禁止事項】\n- 内容の要約や省略（全内容を保持）\n- 話者の推測や特定\n- 発言順序の変更",
+          "maxIterations": 3
+        },
+        "continueOnFail": false,
+        "retryOnFail": true,
+        "maxTries": 3,
+        "waitBetweenTries": 1000,
+        "onError": "continueRegularOutput"
+      },
+      "_comment": "AI Agent Step2は、Gemini 2.5 Flashを使用して文字起こしテキストを整形します。フィラー除去、重複表現統一、箇条書き化を行い、読みやすい議事録形式に変換します。5チャンク並列処理により、大量テキストを高速処理します。リトライ設定（maxTries=3、waitBetweenTries=1000ms）でAPI障害に対応し、onError=continueRegularOutputでエラー時も処理を継続します。",
+      "notes": "typeVersion: 3 | promptType: define | text: ={{ $json.chunk }} | systemMessage: 議事録作成専門家 | maxIterations: 3 | retryOnFail: true | maxTries: 3 | waitBetweenTries: 1000ms | onError: continueRegularOutput | 並列処理: 5チャンク同時"
+    },
+    {
+      "id": "gemini_step2_g3",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "name": "Gemini Flash 2.5 (Step2)",
+      "typeVersion": 1,
+      "position": [2200, 480],
+      "parameters": {
+        "model": "models/gemini-2.5-flash",
+        "options": {
+          "temperature": 0.4,
+          "maxOutputTokens": 4000
+        }
+      },
+      "credentials": {
+        "googleGeminiOAuth2Api": {
+          "id": "google_gemini_oauth2",
+          "name": "Google Gemini OAuth2"
+        }
+      },
+      "_comment": "Gemini 2.5 Flash Chat Modelは、AI Agent Step2の推論エンジンです。temperature=0.4で安定した出力を確保し、maxOutputTokens=4000で長文チャンクに対応します。高速処理（Claude比3-5倍速）とコスト効率（Claude比1/10）により、5並列処理でも低コストを維持します。",
+      "notes": "typeVersion: 1 | model: models/gemini-2.5-flash | temperature: 0.4（安定出力） | maxOutputTokens: 4000 | 接続タイプ: ai_languageModel | Step020準拠"
+    },
+    {
+      "id": "memory_step2_g3",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "name": "Simple Memory (Step2)",
+      "typeVersion": 1.3,
+      "position": [2200, 560],
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "step2_memory",
+        "contextWindowLength": 10
+      },
+      "_comment": "Simple Memory (Buffer Window)は、AI Agent Step2の文脈保持機能です。sessionKey='step2_memory'で専用メモリ領域を確保し、contextWindowLength=10で直近10回の対話履歴を保持します。チャンク間の文脈連続性を確保し、オーバーラップ処理と組み合わせて高精度な整形を実現します。",
+      "notes": "typeVersion: 1.3 | sessionIdType: customKey | sessionKey: step2_memory | contextWindowLength: 10 | 接続タイプ: ai_memory | Step020要件準拠（Memory追加）"
+    },
+    {
+      "id": "sticky_g3",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 3: 文字起こし整形（並列）",
+      "typeVersion": 1,
+      "position": [2140, 140],
+      "parameters": {
+        "content": "## Group 3: 文字起こし整形（並列）\n\n**目的**: AI Agent Step2でチャンクテキストを読みやすい議事録形式に整形（5並列処理）\n\n### 🎯 このグループの役割\n- **L5 (Core Logic)**: AI Agent Step2による文字起こし整形\n- **パターン2適用**: AI Agent with Sub-Nodes and Tools\n- **パターン3適用**: Batch Processing (5並列)\n\n### 📦 このグループに含まれるノード\n\n**1. AI Agent Step2 - 文字起こし整形** (ai_agent_step2_g3)\n- タイプ: AI Agent\n- 役割: フィラー除去、重複統一、箇条書き化\n- 入力: `={{ $json.chunk }}`（25行チャンク）\n- SystemMessage: 議事録作成専門家\n- 整形ルール: フィラー削除、重複統一、箇条書き変換、話者・タイムスタンプ保持\n- エラー処理: maxTries=3、waitBetweenTries=1000ms、onError=continueRegularOutput\n\n**2. Gemini Flash 2.5 (Step2)** (gemini_step2_g3) - Sub-node\n- タイプ: Google Gemini Chat Model\n- 役割: AI Agent Step2の推論エンジン\n- 設定: model=models/gemini-2.5-flash、temperature=0.4、maxOutputTokens=4000\n- 接続: ai_languageModel → AI Agent Step2\n- パフォーマンス: Claude比3-5倍速、コスト1/10\n\n**3. Simple Memory (Step2)** (memory_step2_g3) - Sub-node\n- タイプ: Buffer Window Memory\n- 役割: チャンク間の文脈保持（直近10回の対話履歴）\n- 設定: sessionIdType=customKey、sessionKey=step2_memory、contextWindowLength=10\n- 接続: ai_memory → AI Agent Step2\n- 目的: オーバーラップと組み合わせて文脈連続性確保\n\n### 🔗 フロー\n**Group 2 (Split In Batches)** → Output 1 (ループバック) → ai_agent_step2_g3 → **Group 2 (Split In Batches)** → ループ継続 → 全チャンク完了後 → Output 0 → **Group 4 (Merge)**\n\n### ⚙️ 依存関係\n- **入力**: Group 2からチャンクテキスト（$json.chunk、25行 + オーバーラップ6行）\n- **出力**: 整形済みチャンク → Group 2へループバック → 全完了後Group 4へ\n- **Sub-nodes**: Gemini Flash 2.5 (Chat Model) + Simple Memory (Memory)\n- **並列処理**: 5チャンク同時処理\n\n### 📊 主要データ\n- **入力**:\n  - `$json.chunk_id`: チャンク番号\n  - `$json.chunk`: 生の文字起こしテキスト（25行）\n  - `$json.chunk_segments`: 話者・タイムスタンプ情報\n- **出力**:\n  - `$json.formatted_chunk`: 整形済みテキスト\n  - `$json.speakers_identified`: 特定された話者リスト\n  - `$json.line_count`: 整形後の行数\n\n### 🏗️ 12層マッピング\n- **L5 (Core Logic)**: ai_agent_step2_g3（AI判断・ビジネスロジック）\n\n### 🔄 パターン適用\n\n**Pattern 1: Error-First Design**\n- maxTries: 3（最大3回リトライ）\n- waitBetweenTries: 1000ms（リトライ間隔）\n- onError: continueRegularOutput（エラー時も処理継続）\n- retryOnFail: true\n\n**Pattern 2: AI Agent with Sub-Nodes and Tools**\n- AI Agent: @n8n/n8n-nodes-langchain.agent (typeVersion 3)\n- Chat Model: Gemini 2.5 Flash (ai_languageModel接続)\n- Memory: Buffer Window (ai_memory接続、step2_memory)\n- Step020準拠: Memory追加（検証レポート修正反映）\n\n**Pattern 3: Batch Processing**\n- 5チャンク並列処理（Group 2のSplit In Batchesと連携）\n- ループバック: Split In Batches Output 1 → AI Agent → Split In Batches\n- 完了後: Split In Batches Output 0 → Group 4 (Merge)\n\n### ⚡ パフォーマンス特性\n- **並列処理**: 5チャンク同時→処理時間大幅短縮\n- **モデル速度**: Gemini Flash（Claude比3-5倍速）\n- **コスト**: Claude比1/10\n- **文脈保持**: Memory（contextWindowLength=10）",
+        "height": 540,
+        "width": 640,
+        "color": 4
+      }
+    }
+  ],
+  "connections": {
+    "Gemini Flash 2.5 (Step2)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Step2 - 文字起こし整形",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory (Step2)": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent Step2 - 文字起こし整形",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-13T00:00:00.000Z",
+  "versionId": "v4.0"
+}

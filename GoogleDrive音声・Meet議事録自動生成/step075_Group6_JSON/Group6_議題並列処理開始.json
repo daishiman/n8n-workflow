@@ -1,0 +1,41 @@
+{
+  "name": "Group 6: 議題並列処理開始",
+  "nodes": [
+    {
+      "id": "split_batch_g6_01",
+      "type": "n8n-nodes-base.splitInBatches",
+      "name": "議題並列バッチ",
+      "typeVersion": 3,
+      "position": [3400, 300],
+      "parameters": {
+        "batchSize": 3,
+        "options": {}
+      },
+      "_comment": "Group 5で分割された個別議題アイテムを、3議題ずつバッチに分割して並列処理します。Output 1（ループバック）でAI Agent Step4（議題分析）とAI Agent Step5（議題別マッピング）に送信し、両AIエージェントが並行実行されます。全議題処理完了後、Output 0でGroup 8（議題統合）に進みます。3並列処理により、9議題の会議を3回のバッチで効率的に処理できます。",
+      "notes": "typeVersion: 3 | batchSize: 3（3議題並列処理） | Output 1: AI Agent Step4 + AI Agent Step5へループバック（並行実行） | Output 0: 全議題完了後、Group 8（Merge）へ | パフォーマンス: 3並列により処理時間大幅短縮"
+    },
+    {
+      "id": "sticky_g6",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 6: 議題並列処理開始",
+      "typeVersion": 1,
+      "position": [3340, 140],
+      "parameters": {
+        "content": "## Group 6: 議題並列処理開始\n\n**目的**: 議題を3個ずつバッチに分割し、AI Agent Step4 + Step5の並列処理を開始\n\n### 🎯 このグループの役割\n- **L11 (Performance)**: 3議題並列バッチ処理\n- **並列制御**: AI Agent Step4とStep5の並行実行\n\n### 📦 このグループに含まれるノード\n\n**1. 議題並列バッチ** (split_batch_g6_01)\n- タイプ: Split In Batches\n- 役割: 議題を3個ずつバッチに分割\n- 設定: batchSize=3\n- Output 1（ループバック）: AI Agent Step4 → AI Agent Step5へ（並行実行）\n- Output 0（完了後）: 全議題処理完了後、Group 8（Merge）へ\n\n### 🔗 フロー\n**Group 5** → split_batch_g6_01 → Output 1（ループ） → **Group 7 (AI Agent Step4 + Step5)** → split_batch_g6_01（ループバック） → 継続 → 全完了後 → Output 0 → **Group 8**\n\n### ⚙️ 依存関係\n- **入力**: Group 5からの個別議題アイテム（議題数分）\n- **Output 1**: AI Agent Step4 + AI Agent Step5へ（並行実行）\n- **Output 0**: 全議題完了後、Group 8へ\n- **並列処理**: 3議題同時処理\n\n### 📊 主要データ\n- **入力** (各議題アイテム):\n  - `$json.agenda_id`: 議題ID\n  - `$json.title`: 議題タイトル\n  - `$json.full_transcript`: 全文テキスト\n  - `$json.meeting_name`: 会議名\n  - `$json.speakers`: 話者リスト\n- **バッチ処理**:\n  - batchSize: 3（3議題同時）\n  - 議題9個の場合: バッチ1（議題1-3）→ バッチ2（議題4-6）→ バッチ3（議題7-9）\n\n### 🏗️ 12層マッピング\n- **L11 (Performance)**: split_batch_g6_01（並列処理・パフォーマンス最適化）\n\n### 🔄 並列処理パターン\n\n**Pattern 3: Batch Processing**\n- batchSize: 3（3議題同時並列処理）\n- ループバック: Split In Batches Output 1 → AI Agent Step4 → AI Agent Step5 → Split In Batches\n- 完了後: Split In Batches Output 0 → Group 8 (Merge)\n\n**並行実行**:\n```\nバッチ1（議題1-3）:\n  ├─ AI Agent Step4（議題分析）→ 並行 ─┐\n  └─ AI Agent Step5（議題別マッピング）─┘→ 結果統合\n\nバッチ2（議題4-6）:\n  ├─ AI Agent Step4 → 並行 ─┐\n  └─ AI Agent Step5 ─┘→ 結果統合\n\nバッチ3（議題7-9）:\n  ├─ AI Agent Step4 → 並行 ─┐\n  └─ AI Agent Step5 ─┘→ 結果統合\n\n全完了 → Group 8へ\n```\n\n### ⚡ パフォーマンス特性\n- **並列処理**: 3議題同時→処理時間大幅短縮\n- **並行実行**: AI Agent Step4 + Step5が同時実行\n- **スケーラビリティ**: 議題数に応じて自動バッチ分割\n- **効率化**: 9議題を3バッチで処理（逐次処理比1/3の時間）\n\n### 📈 処理例\n\n**入力（9議題）**:\n- 議題1-9の個別アイテム（9アイテム）\n\n**バッチ処理**:\n1. バッチ1: 議題1-3 → AI Agent Step4 + Step5（並行）\n2. ループバック → split_batch_g6_01\n3. バッチ2: 議題4-6 → AI Agent Step4 + Step5（並行）\n4. ループバック → split_batch_g6_01\n5. バッチ3: 議題7-9 → AI Agent Step4 + Step5（並行）\n6. 全完了 → Output 0 → Group 8へ\n\n### 🔗 次ステップへの準備\n- Group 7で2つのAI Agentが並行実行（Step4: 議題分析、Step5: 議題別マッピング）\n- 各バッチ完了後、ループバックして次のバッチを処理\n- 全議題処理完了後、Group 8で結果統合",
+        "height": 540,
+        "width": 540,
+        "color": 3
+      }
+    }
+  ],
+  "connections": {},
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-13T00:00:00.000Z",
+  "versionId": "v4.0"
+}

@@ -1,0 +1,177 @@
+{
+  "name": "Group 7: 議題分析・マッピング（並列）",
+  "nodes": [
+    {
+      "id": "ai_agent_step4_g7",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "name": "AI Agent Step4 - 議題分析",
+      "typeVersion": 3,
+      "position": [3600, 300],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.title + '\\n\\n' + $json.summary }}",
+        "hasOutputParser": false,
+        "options": {
+          "systemMessage": "あなたは議事録分析の専門家です。会議の議題から決定事項、宿題、保留事項を抽出します。\n\n【分析対象】\n- 議題タイトル: {{ $json.title }}\n- 議題要約: {{ $json.summary }}\n- 開始時刻: {{ $json.start_time }}\n- 終了時刻: {{ $json.end_time }}\n\n【抽出ルール】\n1. 決定事項（Decisions）: 合意された事項、確定した方針\n2. 宿題（Action Items）: 担当者とタスク内容、期限\n3. 保留事項（Pending）: 未決定の課題、次回検討事項\n\n【出力形式】\nJSON形式:\n{\n  \"decisions\": [\n    {\"id\": 1, \"content\": \"決定内容\", \"who\": \"関係者\", \"when\": \"決定時刻\"}\n  ],\n  \"action_items\": [\n    {\"id\": 1, \"task\": \"タスク内容\", \"assignee\": \"担当者\", \"deadline\": \"期限\"}\n  ],\n  \"pending\": [\n    {\"id\": 1, \"issue\": \"未決課題\", \"reason\": \"保留理由\"}\n  ]\n}\n\n【禁止事項】\n- 内容の推測や捏造\n- 議題にない情報の追加\n- 担当者や期限の勝手な設定",
+          "maxIterations": 5
+        },
+        "continueOnFail": false,
+        "retryOnFail": true,
+        "maxTries": 3,
+        "waitBetweenTries": 1000,
+        "onError": "continueRegularOutput"
+      },
+      "_comment": "AI Agent Step4は、Gemini 2.5 Flashを使用して各議題から決定事項、宿題、保留事項を抽出します。議題タイトルと要約を分析し、JSON形式（decisions、action_items、pending）で構造化します。3議題並列処理により、複数議題を同時に分析します。Memoryは不要（各議題は独立処理、Step020準拠）。",
+      "notes": "typeVersion: 3 | promptType: define | text: 議題タイトル+要約 | systemMessage: 議事録分析専門家 | maxIterations: 5 | retryOnFail: true | maxTries: 3 | Memory: なし（独立処理） | 並列処理: 3議題同時"
+    },
+    {
+      "id": "gemini_step4_g7",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "name": "Gemini Flash 2.5 (Step4)",
+      "typeVersion": 1,
+      "position": [3600, 480],
+      "parameters": {
+        "model": "models/gemini-2.5-flash",
+        "options": {
+          "temperature": 0.4,
+          "maxOutputTokens": 4000
+        }
+      },
+      "credentials": {
+        "googleGeminiOAuth2Api": {
+          "id": "google_gemini_oauth2",
+          "name": "Google Gemini OAuth2"
+        }
+      },
+      "_comment": "Gemini 2.5 Flash Chat Modelは、AI Agent Step4の推論エンジンです。temperature=0.4で安定した抽出を確保し、maxOutputTokens=4000で複雑な議題のJSON出力に対応します。高速処理により、3議題並列処理でも低レイテンシを維持します。",
+      "notes": "typeVersion: 1 | model: models/gemini-2.5-flash | temperature: 0.4（安定出力） | maxOutputTokens: 4000 | 接続タイプ: ai_languageModel | Step020準拠"
+    },
+    {
+      "id": "ai_agent_step5_g7",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "name": "AI Agent Step5 - 議題別マッピング",
+      "typeVersion": 3,
+      "position": [3800, 300],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ JSON.stringify($json) }}",
+        "hasOutputParser": false,
+        "options": {
+          "systemMessage": "あなたは議題マッピングの専門家です。議題の決定事項・宿題・保留事項を、文字起こしテキストの該当箇所に正確にマッピングします。\n\n【マッピング対象】\n- 議題ID: {{ $json.agenda_id }}\n- 議題タイトル: {{ $json.title }}\n- 決定事項: {{ $json.decisions }}\n- 宿題: {{ $json.action_items }}\n- 保留事項: {{ $json.pending }}\n\n【マッピングルール】\n1. 文字起こしテキストから該当発言を特定\n2. 各項目に発言者、タイムスタンプ、発言内容を紐付け\n3. 文脈を保持して正確にマッピング\n4. 複数の発言にまたがる場合は全て記録\n\n【出力形式】\nJSON形式:\n{\n  \"agenda_id\": {{ $json.agenda_id }},\n  \"title\": \"{{ $json.title }}\",\n  \"mapped_decisions\": [\n    {\n      \"id\": 1,\n      \"content\": \"決定内容\",\n      \"speaker\": \"話者名\",\n      \"timestamp\": \"00:15:30\",\n      \"transcript_excerpt\": \"該当発言テキスト\"\n    }\n  ],\n  \"mapped_action_items\": [...],\n  \"mapped_pending\": [...]\n}\n\n【禁止事項】\n- 推測によるマッピング\n- 文字起こしにない内容の追加\n- タイムスタンプの捏造",
+          "maxIterations": 5
+        },
+        "continueOnFail": false,
+        "retryOnFail": true,
+        "maxTries": 3,
+        "waitBetweenTries": 1000,
+        "onError": "continueRegularOutput"
+      },
+      "_comment": "AI Agent Step5は、Claude Sonnet 4.5を使用して議題の決定事項・宿題・保留事項を文字起こしテキストの該当箇所に正確にマッピングします。Memory（step5_memory）を使用して文脈を保持し、複数発言にまたがる項目も正確に紐付けます。3議題並列処理で効率化（Step020要件準拠、検証レポート修正反映）。",
+      "notes": "typeVersion: 3 | promptType: define | text: JSON.stringify($json) | systemMessage: 議題マッピング専門家 | maxIterations: 5 | retryOnFail: true | maxTries: 3 | Memory: step5_memory（あり） | 並列処理: 3議題同時 | モデル: Claude Sonnet 4.5"
+    },
+    {
+      "id": "claude_step5_g7",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "name": "Claude Sonnet 4.5 (Step5)",
+      "typeVersion": 1.3,
+      "position": [3800, 480],
+      "parameters": {
+        "model": "claude-4-5-sonnet-20250929",
+        "options": {
+          "temperature": 0.7,
+          "maxTokens": 8000
+        }
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "anthropic_api",
+          "name": "Anthropic API"
+        }
+      },
+      "_comment": "Claude Sonnet 4.5 Chat Modelは、AI Agent Step5の推論エンジンです。temperature=0.7で柔軟なマッピングを実現し、maxTokens=8000で長文議題に対応します。高精度な文脈理解により、複雑な議題マッピングでも正確性を維持します（Step020準拠、検証レポート修正：Gemini→Claude）。",
+      "notes": "typeVersion: 1.3 | model: claude-4-5-sonnet-20250929 | temperature: 0.7（柔軟出力） | maxTokens: 8000 | 接続タイプ: ai_languageModel | Step020準拠（修正：Gemini→Claude）"
+    },
+    {
+      "id": "memory_step5_g7",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "name": "Simple Memory (Step5)",
+      "typeVersion": 1.3,
+      "position": [3800, 560],
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "step5_memory",
+        "contextWindowLength": 10
+      },
+      "_comment": "Simple Memory (Buffer Window)は、AI Agent Step5の文脈保持機能です。sessionKey='step5_memory'で専用メモリ領域を確保し、contextWindowLength=10で直近10回の対話履歴を保持します。複数発言にまたがる項目のマッピング時に、文脈を保持して正確な紐付けを実現します（Step020要件準拠、検証レポート修正：Memory追加）。",
+      "notes": "typeVersion: 1.3 | sessionIdType: customKey | sessionKey: step5_memory | contextWindowLength: 10 | 接続タイプ: ai_memory | Step020要件準拠（追加：検証レポート修正反映）"
+    },
+    {
+      "id": "sticky_g7",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 7: 議題分析・マッピング（並列）",
+      "typeVersion": 1,
+      "position": [3540, 140],
+      "parameters": {
+        "content": "## Group 7: 議題分析・マッピング（並列）\n\n**目的**: AI Agent Step4で議題分析、AI Agent Step5で文字起こしマッピング（並行実行、3議題並列）\n\n### 🎯 このグループの役割\n- **L5 (Core Logic)**: AI Agent Step4 + Step5による議題分析とマッピング\n- **並行実行**: 2つのAI Agentが同時実行\n- **並列処理**: 3議題同時処理\n\n### 📦 このグループに含まれるノード\n\n**1. AI Agent Step4 - 議題分析** (ai_agent_step4_g7)\n- タイプ: AI Agent\n- 役割: 決定事項、宿題、保留事項を抽出\n- 入力: 議題タイトル + 要約（`={{ $json.title + '\\n\\n' + $json.summary }}`）\n- SystemMessage: 議事録分析専門家\n- 出力形式: JSON（decisions, action_items, pending）\n- Memory: なし（各議題は独立処理、Step020準拠）\n- エラー処理: maxTries=3、waitBetweenTries=1000ms\n\n**2. Gemini Flash 2.5 (Step4)** (gemini_step4_g7) - Sub-node\n- タイプ: Google Gemini Chat Model\n- 役割: AI Agent Step4の推論エンジン\n- 設定: model=models/gemini-2.5-flash、temperature=0.4、maxOutputTokens=4000\n- 接続: ai_languageModel → AI Agent Step4\n\n**3. AI Agent Step5 - 議題別マッピング** (ai_agent_step5_g7)\n- タイプ: AI Agent\n- 役割: 決定事項・宿題・保留事項を文字起こしテキストにマッピング\n- 入力: AI Agent Step4の出力（`={{ JSON.stringify($json) }}`）\n- SystemMessage: 議題マッピング専門家\n- 出力形式: JSON（mapped_decisions, mapped_action_items, mapped_pending）\n- Memory: step5_memory（あり、contextWindowLength=10）\n- エラー処理: maxTries=3、waitBetweenTries=1000ms\n- モデル: Claude Sonnet 4.5（Step020準拠、検証レポート修正）\n\n**4. Claude Sonnet 4.5 (Step5)** (claude_step5_g7) - Sub-node\n- タイプ: Anthropic Chat Model\n- 役割: AI Agent Step5の推論エンジン\n- 設定: model=claude-4-5-sonnet-20250929、temperature=0.7、maxTokens=8000\n- 接続: ai_languageModel → AI Agent Step5\n- Step020準拠: Gemini→Claude修正（検証レポート反映）\n\n**5. Simple Memory (Step5)** (memory_step5_g7) - Sub-node\n- タイプ: Buffer Window Memory\n- 役割: AI Agent Step5の文脈保持（直近10回の対話履歴）\n- 設定: sessionIdType=customKey、sessionKey=step5_memory、contextWindowLength=10\n- 接続: ai_memory → AI Agent Step5\n- Step020準拠: Memory追加（検証レポート修正反映）\n\n### 🔗 フロー\n**Group 6 (Split In Batches)** → Output 1（ループ） → ai_agent_step4_g7 → ai_agent_step5_g7 → **Group 6 (ループバック)** → 継続 → 全完了後 → Output 0 → **Group 8**\n\nSub-nodes:\n- gemini_step4_g7 → (ai_languageModel) → ai_agent_step4_g7\n- claude_step5_g7 → (ai_languageModel) → ai_agent_step5_g7\n- memory_step5_g7 → (ai_memory) → ai_agent_step5_g7\n\n### ⚙️ 依存関係\n- **入力**: Group 6からの議題アイテム（3議題バッチ）\n- **並行実行**: AI Agent Step4とStep5が直列実行（Step4 → Step5）\n- **出力**: マッピング済み議題データ → Group 6へループバック → 全完了後Group 8へ\n- **Sub-nodes**: Gemini Flash 2.5 (Step4) + Claude Sonnet 4.5 (Step5) + Simple Memory (Step5)\n\n### 📊 主要データ\n- **AI Agent Step4入力**:\n  - `$json.agenda_id`: 議題ID\n  - `$json.title`: 議題タイトル\n  - `$json.summary`: 議題要約\n  - `$json.start_time`: 開始時刻\n  - `$json.end_time`: 終了時刻\n- **AI Agent Step4出力**:\n  - `$json.decisions`: 決定事項配列\n  - `$json.action_items`: 宿題配列\n  - `$json.pending`: 保留事項配列\n- **AI Agent Step5入力**:\n  - AI Agent Step4の出力 + 全文テキスト\n- **AI Agent Step5出力**:\n  - `$json.mapped_decisions`: マッピング済み決定事項\n  - `$json.mapped_action_items`: マッピング済み宿題\n  - `$json.mapped_pending`: マッピング済み保留事項\n\n### 🏗️ 12層マッピング\n- **L5 (Core Logic)**: ai_agent_step4_g7 + ai_agent_step5_g7（AI判断・ビジネスロジック）\n\n### 🔄 パターン適用\n\n**Pattern 1: Error-First Design**\n- maxTries: 3（AI Agent Step4 + Step5）\n- waitBetweenTries: 1000ms\n- onError: continueRegularOutput\n- retryOnFail: true\n\n**Pattern 2: AI Agent with Sub-Nodes and Tools**\n- AI Agent Step4: Gemini 2.5 Flash + Memory なし\n- AI Agent Step5: Claude Sonnet 4.5 + Memory（step5_memory）\n- Step020準拠: Step5モデル修正（Gemini→Claude）、Memory追加\n\n**Pattern 3: Batch Processing**\n- 3議題並列処理（Group 6のSplit In Batchesと連携）\n- ループバック: Split In Batches Output 1 → AI Agent Step4 → AI Agent Step5 → Split In Batches\n\n### ⚡ パフォーマンス特性\n- **並列処理**: 3議題同時→処理時間大幅短縮\n- **モデル選択**: Step4=Gemini（高速）、Step5=Claude（高精度）\n- **Memory活用**: Step5で文脈保持、正確なマッピング",
+        "height": 640,
+        "width": 740,
+        "color": 4
+      }
+    }
+  ],
+  "connections": {
+    "AI Agent Step4 - 議題分析": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Step5 - 議題別マッピング",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Flash 2.5 (Step4)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Step4 - 議題分析",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude Sonnet 4.5 (Step5)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Step5 - 議題別マッピング",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory (Step5)": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent Step5 - 議題別マッピング",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-13T00:00:00.000Z",
+  "versionId": "v4.0"
+}

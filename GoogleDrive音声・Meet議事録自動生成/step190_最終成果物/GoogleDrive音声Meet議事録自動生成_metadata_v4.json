@@ -1,0 +1,454 @@
+{
+  "workflow": {
+    "name": "GoogleDrive音声Meet議事録自動生成システム",
+    "version": "v4.0",
+    "createdAt": "2025-11-13T00:00:00.000Z",
+    "author": "n8n AI自動設計システム（Claude Code + n8n-MCP）",
+    "description": "GoogleDrive内のM4A音声ファイル（Google Meet録音）を自動検知し、高速・低コストな文字起こし（Fireworks Whisper v3: 4秒/1時間、99%コスト削減）を実行後、AI分析を経て構造化された議事録Markdownを生成・保存する完全自動化ワークフロー"
+  },
+  "statistics": {
+    "totalNodes": 50,
+    "functionalNodes": 40,
+    "stickyNotes": 10,
+    "mainFlowGroups": 9,
+    "errorFlowGroups": 0,
+    "totalConnections": 41,
+    "groupInternalConnections": 33,
+    "groupExternalConnections": 10,
+    "loopbackConnections": 4,
+    "aiConnections": 12,
+    "estimatedExecutionTime": "1時間音声: 約5-7分（文字起こし4秒 + AI処理2-6分）",
+    "estimatedTokens": "1時間音声: 約15000-25000 tokens（Gemini + Claude合計）",
+    "performanceMetrics": {
+      "transcriptionSpeed": "4秒/1時間音声（Fireworks Whisper v3）",
+      "costReduction": "99%削減（Deepgram比較）",
+      "parallelProcessing": "5並列チャンク + 3並列議題",
+      "batchProcessing": "Pattern 3適用（5並列、3並列）"
+    }
+  },
+  "requirements": {
+    "business": {
+      "purpose": "Google Meet録音音声から議事録を自動生成",
+      "target": "1時間規模の会議録音（M4A形式）",
+      "output": "構造化された議事録Markdown（議題別、決定事項、アクションアイテム、保留事項）",
+      "automation": "完全自動化（M4A検知から議事録保存まで）"
+    },
+    "functional": {
+      "transcription": "Fireworks Whisper v3による高速文字起こし（4秒/1時間）",
+      "aiProcessing": "6段階AI処理（文字起こし整形、議題抽出、議題分析、議題別マッピング、フォーマット変換、品質保証）",
+      "parallel": "5並列チャンク処理、3並列議題処理",
+      "output": "議事録Markdown保存、M4A処理済み移動、Discord通知、監査ログ"
+    },
+    "nonFunctional": {
+      "performance": "99%コスト削減、処理時間大幅短縮",
+      "reliability": "Error-First Design（maxTries=3、全AI Agent適用）",
+      "scalability": "12層アーキテクチャによる拡張容易性",
+      "maintainability": "グループ化設計、Sticky Note完備"
+    },
+    "operational": {
+      "trigger": "Google Drive監視（M4Aファイル追加検知）",
+      "notification": "Discord Webhook（処理完了通知）",
+      "logging": "監査ログ送信（HTTP Request）",
+      "errorHandling": "各AI Agentに3回リトライ設定"
+    }
+  },
+  "architecture": {
+    "framework": "12層アーキテクチャフレームワーク",
+    "layers": {
+      "dataFlow": [
+        "L1 (Trigger): イベント検知・受信",
+        "L2 (Input): データ受信・初期化",
+        "L3 (Validation): 入力検証・フォーマット確認",
+        "L4 (Transformation): データ変換・加工",
+        "L5 (Core Logic): AI判断・ビジネスロジック",
+        "L6 (Integration): 外部連携・API呼び出し",
+        "L7 (Output): 結果出力・通知"
+      ],
+      "crossCutting": [
+        "L8 (Error Handling): エラー検知・リカバリ",
+        "L9 (Security): 認証・認可・暗号化",
+        "L10 (Monitoring): ログ出力・メトリクス収集",
+        "L11 (Performance): キャッシュ・並列処理",
+        "L12 (Orchestration): フロー制御・条件分岐"
+      ]
+    },
+    "mainFlowPattern": "Pattern B: 機能単位グループ化（9グループ）",
+    "errorHandlingPattern": "Pattern 1: Error-First Design（全AI Agentに適用）",
+    "designPatterns": [
+      "Pattern 1: Error-First Design（全AI Agent: maxTries=3）",
+      "Pattern 2: AI Agent with Sub-Nodes（6 AI Agents + 5 Memory + 6 Chat Models）",
+      "Pattern 3: Batch Processing（5並列チャンク、3並列議題）"
+    ]
+  },
+  "groups": [
+    {
+      "id": "group_1",
+      "name": "Group 1: データ受信・検証",
+      "nodes": 7,
+      "layers": ["L1 (Trigger)", "L2 (Input)", "L3 (Validation)"],
+      "mainFunction": "M4Aファイル検知、ファイル情報取得、妥当性チェック、ファイル名正規化"
+    },
+    {
+      "id": "group_2",
+      "name": "Group 2: 音声文字起こし・チャンク分割",
+      "nodes": 5,
+      "layers": ["L4 (Transformation)", "L6 (Integration)", "L11 (Performance)"],
+      "mainFunction": "Fireworks Whisper v3文字起こし（4秒/1時間）、チャンク分割、5並列バッチ処理"
+    },
+    {
+      "id": "group_3",
+      "name": "Group 3: 文字起こし整形（並列）",
+      "nodes": 4,
+      "layers": ["L5 (Core Logic)"],
+      "mainFunction": "AI Agent Step2 - 文字起こし整形（Gemini Flash 2.5）"
+    },
+    {
+      "id": "group_4",
+      "name": "Group 4: チャンク統合・議題抽出",
+      "nodes": 7,
+      "layers": ["L4 (Transformation)", "L5 (Core Logic)", "L11 (Performance)"],
+      "mainFunction": "チャンク統合、重複行除去、AI Agent Step3 - 議題抽出（Gemini Flash 2.5）"
+    },
+    {
+      "id": "group_5",
+      "name": "Group 5: 議題分析準備",
+      "nodes": 2,
+      "layers": ["L4 (Transformation)"],
+      "mainFunction": "議題分割処理（個別議題アイテム生成）"
+    },
+    {
+      "id": "group_6",
+      "name": "Group 6: 議題並列処理開始",
+      "nodes": 2,
+      "layers": ["L11 (Performance)"],
+      "mainFunction": "3並列議題バッチ処理制御"
+    },
+    {
+      "id": "group_7",
+      "name": "Group 7: 議題分析・マッピング（並行実行）",
+      "nodes": 6,
+      "layers": ["L5 (Core Logic)"],
+      "mainFunction": "AI Agent Step4 - 議題分析（Gemini）、AI Agent Step5 - 議題別マッピング（Claude）"
+    },
+    {
+      "id": "group_8",
+      "name": "Group 8: 議題統合・フォーマット変換",
+      "nodes": 7,
+      "layers": ["L4 (Transformation)", "L5 (Core Logic)", "L11 (Performance)"],
+      "mainFunction": "議題統合、重複除去、AI Agent Step6 - フォーマット変換（Claude Sonnet 4.5）"
+    },
+    {
+      "id": "group_9",
+      "name": "Group 9: 品質保証・出力・監視",
+      "nodes": 9,
+      "layers": ["L5 (Core Logic)", "L6 (Integration)", "L7 (Output)", "L9 (Security)", "L10 (Monitoring)"],
+      "mainFunction": "AI Agent Step7 - 品質保証（Claude）、議事録保存、M4A移動、Discord通知、監査ログ"
+    }
+  ],
+  "aiAgents": [
+    {
+      "id": "ai_agent_step2",
+      "name": "AI Agent Step2 - 文字起こし整形",
+      "responsibility": "音声文字起こしテキストを読みやすい議事録形式に整形（フィラー削除、重複表現統一、箇条書き化、話者情報保持）",
+      "model": "Gemini Flash 2.5",
+      "modelId": "models/gemini-2.5-flash",
+      "temperature": 0.4,
+      "maxTokens": 4000,
+      "systemPrompt": "あなたは議事録作成の専門家です。音声文字起こしテキストを読みやすい形式に整形します。",
+      "errorHandling": {
+        "maxTries": 3,
+        "retryOnFail": true,
+        "waitBetweenTries": 1000,
+        "onError": "continueRegularOutput"
+      },
+      "memory": {
+        "enabled": true,
+        "sessionKey": "step2_memory",
+        "contextWindowLength": 10
+      }
+    },
+    {
+      "id": "ai_agent_step3",
+      "name": "AI Agent Step3 - 議題抽出",
+      "responsibility": "会議の文字起こしテキストから議題を自動抽出（議題タイトル、開始・終了時刻、重要度、関連性分析）",
+      "model": "Gemini Flash 2.5",
+      "modelId": "models/gemini-2.5-flash",
+      "temperature": 0.4,
+      "maxTokens": 4000,
+      "systemPrompt": "あなたは会議分析の専門家です。会議の文字起こしテキストから議題を抽出します。",
+      "errorHandling": {
+        "maxTries": 3,
+        "retryOnFail": true,
+        "waitBetweenTries": 1000,
+        "onError": "continueRegularOutput"
+      },
+      "memory": {
+        "enabled": true,
+        "sessionKey": "step3_memory",
+        "contextWindowLength": 10
+      }
+    },
+    {
+      "id": "ai_agent_step4",
+      "name": "AI Agent Step4 - 議題分析",
+      "responsibility": "議題から決定事項、宿題（アクションアイテム）、保留事項を抽出、話者とタイムスタンプを記録",
+      "model": "Gemini Flash 2.5",
+      "modelId": "models/gemini-2.5-flash",
+      "temperature": 0.4,
+      "maxTokens": 3000,
+      "systemPrompt": "あなたは議事録分析の専門家です。会議の議題から決定事項、宿題、保留事項を抽出します。",
+      "errorHandling": {
+        "maxTries": 3,
+        "retryOnFail": true,
+        "waitBetweenTries": 1000,
+        "onError": "continueRegularOutput"
+      },
+      "memory": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "ai_agent_step5",
+      "name": "AI Agent Step5 - 議題別マッピング",
+      "responsibility": "議題の決定事項・宿題・保留事項を、文字起こしテキストの該当箇所に正確にマッピング、文字起こしテキスト抜粋を追加",
+      "model": "Claude Sonnet 4.5",
+      "modelId": "claude-4-5-sonnet-20250929",
+      "temperature": 0.5,
+      "maxTokens": 5000,
+      "systemPrompt": "あなたは議題マッピングの専門家です。議題の決定事項・宿題・保留事項を、文字起こしテキストの該当箇所に正確にマッピングします。",
+      "errorHandling": {
+        "maxTries": 3,
+        "retryOnFail": true,
+        "waitBetweenTries": 2000,
+        "onError": "continueRegularOutput"
+      },
+      "memory": {
+        "enabled": true,
+        "sessionKey": "step5_memory",
+        "contextWindowLength": 10
+      }
+    },
+    {
+      "id": "ai_agent_step6",
+      "name": "AI Agent Step6 - フォーマット変換",
+      "responsibility": "会議の議題データを、読みやすいMarkdown形式の議事録に変換、絵文字使用、階層的構造化",
+      "model": "Claude Sonnet 4.5",
+      "modelId": "claude-4-5-sonnet-20250929",
+      "temperature": 0.7,
+      "maxTokens": 8000,
+      "systemPrompt": "あなたはビジネス文書作成の専門家です。会議の議題データを、読みやすいMarkdown形式の議事録に変換します。",
+      "errorHandling": {
+        "maxTries": 3,
+        "retryOnFail": true,
+        "waitBetweenTries": 2000,
+        "onError": "continueRegularOutput"
+      },
+      "memory": {
+        "enabled": true,
+        "sessionKey": "step6_memory",
+        "contextWindowLength": 10
+      }
+    },
+    {
+      "id": "ai_agent_step7",
+      "name": "AI Agent Step7 - 品質保証",
+      "responsibility": "議事録の品質を最終チェック（完全性、整合性、誤字脱字確認）、品質保証済みMarkdownを出力",
+      "model": "Claude Sonnet 4.5",
+      "modelId": "claude-4-5-sonnet-20250929",
+      "temperature": 0.3,
+      "maxTokens": 8000,
+      "systemPrompt": "あなたは品質保証の専門家です。議事録の品質を最終チェックします。",
+      "errorHandling": {
+        "maxTries": 3,
+        "retryOnFail": true,
+        "waitBetweenTries": 2000,
+        "onError": "continueRegularOutput"
+      },
+      "memory": {
+        "enabled": true,
+        "sessionKey": "step7_memory",
+        "contextWindowLength": 10
+      }
+    }
+  ],
+  "credentials": [
+    {
+      "name": "Google Drive OAuth2",
+      "type": "googleDriveOAuth2Api",
+      "required": true,
+      "usage": "Google Drive Trigger、ファイル情報取得、M4Aダウンロード、議事録保存、M4A処理済み移動"
+    },
+    {
+      "name": "Fireworks AI API",
+      "type": "fireworksApi",
+      "required": true,
+      "usage": "Fireworks Whisper v3文字起こし（HTTP Request）"
+    },
+    {
+      "name": "Google Gemini OAuth2",
+      "type": "googleGeminiOAuth2Api",
+      "required": true,
+      "usage": "AI Agent Step2-4（Gemini Flash 2.5 Chat Model）"
+    },
+    {
+      "name": "Anthropic API",
+      "type": "anthropicApi",
+      "required": true,
+      "usage": "AI Agent Step5-7（Claude Sonnet 4.5 Chat Model）"
+    },
+    {
+      "name": "Discord Webhook",
+      "type": "httpRequest",
+      "required": false,
+      "usage": "Discord完了通知（HTTP Request）"
+    },
+    {
+      "name": "監査ログサーバー",
+      "type": "httpRequest",
+      "required": false,
+      "usage": "監査ログ送信（HTTP Request）"
+    }
+  ],
+  "steps": {
+    "phase1": {
+      "step010": {
+        "name": "業務理解",
+        "file": "業務理解書.md",
+        "status": "completed"
+      },
+      "step020": {
+        "name": "AI設定",
+        "file": "AI設定書.md",
+        "status": "completed"
+      },
+      "step030": {
+        "name": "技術要件変換",
+        "file": "技術要件書.md",
+        "status": "completed"
+      },
+      "step040": {
+        "name": "タスク分解とグループ化",
+        "file": "グループ構成表.md",
+        "status": "completed"
+      },
+      "step050": {
+        "name": "AIエージェント責務定義",
+        "file": "AIエージェント責務定義書.md",
+        "status": "completed"
+      },
+      "step060": {
+        "name": "パターン適用と詳細設計",
+        "file": "詳細設計書.md",
+        "status": "completed"
+      }
+    },
+    "phase2": {
+      "step070_092": {
+        "name": "メインフローグループJSON生成（Group 1-9）",
+        "files": [
+          "Group1_データ受信・検証.json",
+          "Group2_音声文字起こし・チャンク分割.json",
+          "Group3_文字起こし整形.json",
+          "Group4_チャンク統合・議題抽出.json",
+          "Group5_議題分析準備.json",
+          "Group6_議題並列処理開始.json",
+          "Group7_議題分析・マッピング.json",
+          "Group8_議題統合・フォーマット変換.json",
+          "Group9_品質保証・出力・監視.json"
+        ],
+        "status": "completed"
+      }
+    },
+    "phase3": {
+      "step150": {
+        "name": "グループ間接続統合",
+        "file": "GoogleDrive音声Meet議事録自動生成_workflow_integrated_v4.json",
+        "report": "統合完成レポート.md",
+        "status": "completed"
+      },
+      "step160": {
+        "name": "ワークフロー全体検証",
+        "file": "ワークフロー検証レポート.md",
+        "status": "completed",
+        "result": {
+          "errors": 0,
+          "warnings": 53,
+          "fixes": 6
+        }
+      },
+      "step170": {
+        "name": "配置最適化",
+        "status": "completed",
+        "note": "Pattern 1 Sticky Note左上配置、グループ別色分け維持"
+      },
+      "step180": {
+        "name": "Sticky Note完成",
+        "file": "Sticky Note設計ドキュメント.md",
+        "status": "completed",
+        "result": {
+          "pattern1": 1,
+          "pattern2": 9,
+          "total": 10
+        }
+      },
+      "step190": {
+        "name": "最終出力",
+        "directory": "step190_最終成果物/",
+        "status": "in_progress"
+      }
+    }
+  },
+  "validation": {
+    "step160_results": {
+      "structureValidation": "passed",
+      "connectionValidation": "passed",
+      "flowValidation": "passed",
+      "logicValidation": "passed",
+      "n8nMcpValidation": "passed",
+      "errorsFixes": 6,
+      "warningsCount": 53,
+      "finalStatus": "allErrorsFixed"
+    },
+    "step180_results": {
+      "pattern1Validation": "passed",
+      "pattern2Validation": "passed (9/9)",
+      "totalStickyNotes": 10,
+      "workflowStructure": "passed"
+    }
+  },
+  "stickyNotes": {
+    "pattern1": {
+      "count": 1,
+      "name": "GoogleDrive音声Meet議事録自動生成システム v4.0 - 全体フロー",
+      "position": [100, 50],
+      "size": "760×650",
+      "color": 7,
+      "contentLength": 5315
+    },
+    "pattern2": {
+      "count": 9,
+      "groups": [
+        "Group 1: データ受信・検証",
+        "Group 2: 音声文字起こし・チャンク分割",
+        "Group 3: 文字起こし整形（並列）",
+        "Group 4: チャンク統合・議題抽出",
+        "Group 5: 議題分析準備",
+        "Group 6: 議題並列処理開始",
+        "Group 7: 議題分析・マッピング（並行実行）",
+        "Group 8: 議題統合・フォーマット変換",
+        "Group 9: 品質保証・出力・監視"
+      ],
+      "minSize": "520×420",
+      "colors": [2, 3, 4, 5, 6]
+    }
+  },
+  "packageContents": {
+    "readme": "README.md",
+    "workflow": "GoogleDrive音声Meet議事録自動生成_workflow_integrated_v4.json",
+    "metadata": "GoogleDrive音声Meet議事録自動生成_metadata_v4.json",
+    "implementation": "実装手順書.md",
+    "validation": "検証レポート.md"
+  },
+  "version": "v4.0",
+  "generatedAt": "2025-11-13T00:00:00.000Z"
+}

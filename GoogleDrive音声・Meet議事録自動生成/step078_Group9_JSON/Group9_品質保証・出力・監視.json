@@ -1,0 +1,329 @@
+{
+  "name": "Group 9: 品質保証・出力・監視",
+  "nodes": [
+    {
+      "id": "ai_agent_step7_g9",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "name": "AI Agent Step7 - 品質保証",
+      "typeVersion": 3,
+      "position": [4800, 300],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.markdown }}",
+        "hasOutputParser": false,
+        "options": {
+          "systemMessage": "あなたは品質保証の専門家です。生成された議事録の完全性と正確性を検証し、不足項目を補完します。\n\n【検証項目】\n1. 必須項目の存在確認（会議名、日時、参加者、議題）\n2. 各議題の完全性（タイトル、時間、決定事項、アクションアイテム）\n3. フォーマットの一貫性（見出し階層、箇条書き、絵文字）\n4. データの整合性（タイムスタンプ、話者名、議題番号）\n5. 文法・表記の正確性\n\n【補完ルール】\n- 不足している必須項目を特定し、利用可能なデータから補完\n- フォーマットエラーを修正（見出しレベル、箇条書き形式）\n- 一貫性のない表記を統一（日時形式、話者名表記）\n- 明らかな誤字脱字を修正\n\n【出力形式】\nJSON形式:\n{\n  \"quality_score\": 85,\n  \"issues_found\": [\n    {\"type\": \"missing_field\", \"field\": \"meeting_date\", \"severity\": \"high\"},\n    {\"type\": \"format_error\", \"location\": \"議題2\", \"severity\": \"medium\"}\n  ],\n  \"corrected_markdown\": \"[修正済みMarkdown議事録]\",\n  \"validation_status\": \"passed_with_corrections\"\n}\n\n【禁止事項】\n- データにない情報の捏造\n- 議事録内容の改変や省略\n- 過度な編集や再構成",
+          "maxIterations": 5
+        },
+        "continueOnFail": false,
+        "retryOnFail": true,
+        "maxTries": 3,
+        "waitBetweenTries": 2000,
+        "onError": "continueRegularOutput"
+      },
+      "_comment": "AI Agent Step7は、Claude Sonnet 4.5を使用して生成された議事録の品質を検証し、不足項目を補完します（Step020準拠、検証レポート修正：新規追加）。必須項目の存在確認、フォーマット一貫性、データ整合性、文法チェックを実行し、品質スコア、発見された問題、修正済みMarkdown、検証ステータスをJSON形式で出力します。Memory（step7_memory）を使用して文脈を保持します。",
+      "notes": "typeVersion: 3 | promptType: define | text: ={{ $json.markdown }} | systemMessage: 品質保証専門家 | maxIterations: 5 | retryOnFail: true | maxTries: 3 | waitBetweenTries: 2000ms | Memory: step7_memory（あり） | モデル: Claude Sonnet 4.5 | Step020準拠（新規追加）"
+    },
+    {
+      "id": "claude_step7_g9",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "name": "Claude Sonnet 4.5 (Step7)",
+      "typeVersion": 1.3,
+      "position": [4800, 480],
+      "parameters": {
+        "model": "claude-4-5-sonnet-20250929",
+        "options": {
+          "temperature": 0.7,
+          "maxTokens": 8000
+        }
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "anthropic_api",
+          "name": "Anthropic API"
+        }
+      },
+      "_comment": "Claude Sonnet 4.5 Chat Modelは、AI Agent Step7の推論エンジンです。temperature=0.7で柔軟な品質検証を実現し、maxTokens=8000で長文議事録の検証・補完に対応します。高精度な品質判断により、ビジネス文書として完成度の高い議事録を保証します（Step020準拠、検証レポート修正：新規追加）。",
+      "notes": "typeVersion: 1.3 | model: claude-4-5-sonnet-20250929 | temperature: 0.7（柔軟出力） | maxTokens: 8000 | 接続タイプ: ai_languageModel | Step020準拠（新規追加）"
+    },
+    {
+      "id": "memory_step7_g9",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "name": "Simple Memory (Step7)",
+      "typeVersion": 1.3,
+      "position": [4800, 560],
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "step7_memory",
+        "contextWindowLength": 10
+      },
+      "_comment": "Simple Memory (Buffer Window)は、AI Agent Step7の文脈保持機能です。sessionKey='step7_memory'で専用メモリ領域を確保し、contextWindowLength=10で直近10回の対話履歴を保持します。複数の検証項目にまたがる品質チェック時に、一貫性のある判断基準を維持します（Step020要件準拠、検証レポート修正：新規追加）。",
+      "notes": "typeVersion: 1.3 | sessionIdType: customKey | sessionKey: step7_memory | contextWindowLength: 10 | 接続タイプ: ai_memory | Step020要件準拠（新規追加）"
+    },
+    {
+      "id": "drive_save_g9_02",
+      "type": "n8n-nodes-base.googleDrive",
+      "name": "議事録保存",
+      "typeVersion": 3,
+      "position": [5000, 300],
+      "parameters": {
+        "resource": "file",
+        "operation": "upload",
+        "name": "={{ $json.meeting_name + '_議事録_' + new Date().toISOString().split('T')[0] + '.md' }}",
+        "driveId": {
+          "__rl": true,
+          "value": "root",
+          "mode": "list"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "議事録_出力",
+          "mode": "list"
+        },
+        "options": {
+          "binaryData": false,
+          "stringData": "={{ JSON.parse($json.output).corrected_markdown }}"
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "google_drive_oauth2",
+          "name": "Google Drive OAuth2"
+        }
+      },
+      "_comment": "AI Agent Step7が品質保証した修正済みMarkdown議事録を、Google Driveの「議事録_出力」フォルダに保存します。ファイル名は「会議名_議事録_YYYY-MM-DD.md」形式で自動生成され、日付管理を容易にします。binaryData=false、stringData使用でテキストデータを直接アップロードします。",
+      "notes": "typeVersion: 3 | resource: file | operation: upload | name: 会議名_議事録_日付.md | folderId: 議事録_出力 | options.binaryData: false | options.stringData: JSON.parse($json.output).corrected_markdown | 出力: Markdown議事録ファイル"
+    },
+    {
+      "id": "drive_move_g9_03",
+      "type": "n8n-nodes-base.googleDrive",
+      "name": "M4A処理済み移動",
+      "typeVersion": 3,
+      "position": [5200, 300],
+      "parameters": {
+        "resource": "file",
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('M4Aファイル検知').first().json.id }}",
+          "mode": "id"
+        },
+        "driveId": {
+          "__rl": true,
+          "value": "root",
+          "mode": "list"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "processed",
+          "mode": "list"
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "google_drive_oauth2",
+          "name": "Google Drive OAuth2"
+        }
+      },
+      "_comment": "処理完了したM4Aファイルを「processed」フォルダに移動し、再処理を防ぎます。Group 1のトリガーで検知した元のファイルIDを参照（$('M4Aファイル検知').first().json.id）し、処理済みファイルを整理します。これにより、次回のポーリング時に同じファイルが再度トリガーされることを防ぎます。",
+      "notes": "typeVersion: 3 | resource: file | operation: move | fileId: $('M4Aファイル検知').first().json.id | folderId: processed | 目的: 再処理防止、ファイル整理"
+    },
+    {
+      "id": "http_discord_g9_04",
+      "type": "n8n-nodes-base.httpRequest",
+      "name": "Discord完了通知",
+      "typeVersion": 4,
+      "position": [5400, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.DISCORD_WEBHOOK_URL }}",
+        "authentication": "none",
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={{ JSON.stringify({\n  content: '✅ 議事録生成完了',\n  embeds: [{\n    title: $json.meeting_name + ' 議事録',\n    description: '処理が完了しました',\n    color: 3066993,\n    fields: [\n      {name: '総議題数', value: String($json.total_agendas), inline: true},\n      {name: '品質スコア', value: String(JSON.parse($json.output).quality_score) + '/100', inline: true},\n      {name: '生成日時', value: $json.generated_at, inline: false},\n      {name: '議事録リンク', value: '[Google Driveで開く](https://drive.google.com/drive/folders/議事録_出力)', inline: false}\n    ],\n    timestamp: new Date().toISOString()\n  }]\n}) }}",
+        "options": {}
+      },
+      "_comment": "処理完了をDiscord Webhookで通知します。会議名、総議題数、品質スコア、生成日時、議事録リンクを含むEmbed形式で送信し、視覚的に整理された通知を実現します。環境変数DISCORD_WEBHOOK_URLからWebhook URLを取得し、セキュアに管理します。",
+      "notes": "typeVersion: 4 | method: POST | url: $env.DISCORD_WEBHOOK_URL | bodyContentType: json | embeds: タイトル、説明、フィールド（議題数、品質スコア、日時、リンク） | color: 3066993（緑） | 目的: 完了通知"
+    },
+    {
+      "id": "set_summary_g9_05",
+      "type": "n8n-nodes-base.set",
+      "name": "処理結果まとめ",
+      "typeVersion": 3,
+      "position": [5600, 300],
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "summary_status",
+              "name": "status",
+              "type": "string",
+              "value": "completed"
+            },
+            {
+              "id": "summary_meeting_name",
+              "name": "meeting_name",
+              "type": "string",
+              "value": "={{ $json.meeting_name }}"
+            },
+            {
+              "id": "summary_file_id",
+              "name": "original_file_id",
+              "type": "string",
+              "value": "={{ $('M4Aファイル検知').first().json.id }}"
+            },
+            {
+              "id": "summary_saved_file_id",
+              "name": "saved_file_id",
+              "type": "string",
+              "value": "={{ $('議事録保存').first().json.id }}"
+            },
+            {
+              "id": "summary_quality_score",
+              "name": "quality_score",
+              "type": "number",
+              "value": "={{ JSON.parse($('AI Agent Step7 - 品質保証').first().json.output).quality_score }}"
+            },
+            {
+              "id": "summary_duration",
+              "name": "processing_duration_seconds",
+              "type": "number",
+              "value": "={{ Math.floor((new Date() - new Date($('M4Aファイル検知').first().json.createdTime)) / 1000) }}"
+            }
+          ]
+        }
+      },
+      "_comment": "ワークフロー全体の処理結果をまとめます。ステータス（completed）、会議名、元ファイルID、保存ファイルID、品質スコア、処理時間（秒）を設定し、監査ログ送信とワークフロー完了報告に使用します。複数の先行ノードを参照（$('M4Aファイル検知')、$('議事録保存')、$('AI Agent Step7')）して完全な処理結果を生成します。",
+      "notes": "mode: manual | assignments: 6個 (status, meeting_name, original_file_id, saved_file_id, quality_score, processing_duration_seconds) | 先行ノード参照: M4Aファイル検知、議事録保存、AI Agent Step7 | 処理時間計算: 現在時刻 - ファイル作成時刻"
+    },
+    {
+      "id": "http_audit_g9_06",
+      "type": "n8n-nodes-base.httpRequest",
+      "name": "監査ログ送信",
+      "typeVersion": 4,
+      "position": [5800, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.AUDIT_LOG_API_URL }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={{ JSON.stringify({\n  event_type: 'workflow_completed',\n  workflow_id: $workflow.id,\n  execution_id: $execution.id,\n  meeting_name: $json.meeting_name,\n  original_file_id: $json.original_file_id,\n  saved_file_id: $json.saved_file_id,\n  quality_score: $json.quality_score,\n  processing_duration_seconds: $json.processing_duration_seconds,\n  timestamp: new Date().toISOString()\n}) }}",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "audit_log_api_auth",
+          "name": "Audit Log API Auth"
+        }
+      },
+      "_comment": "ワークフロー実行の監査ログを外部APIに送信します（L10: Monitoring）。イベントタイプ、ワークフローID、実行ID、会議名、ファイルID、品質スコア、処理時間、タイムスタンプを記録し、コンプライアンスとトレーサビリティを確保します。環境変数AUDIT_LOG_API_URLとHTTP Header認証でセキュアに送信します。",
+      "notes": "typeVersion: 4 | method: POST | url: $env.AUDIT_LOG_API_URL | authentication: httpHeaderAuth | bodyContentType: json | 記録項目: event_type, workflow_id, execution_id, meeting_name, file_ids, quality_score, duration, timestamp | 目的: 監査証跡記録（L10）"
+    },
+    {
+      "id": "sticky_g9",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 9: 品質保証・出力・監視",
+      "typeVersion": 1,
+      "position": [4740, 140],
+      "parameters": {
+        "content": "## Group 9: 品質保証・出力・監視\n\n**目的**: AI Agent Step7で品質保証し、議事録を保存・通知・監査ログ送信\n\n### 🎯 このグループの役割\n- **L5 (Core Logic)**: AI Agent Step7による品質保証\n- **L6 (Integration)**: Google Drive、Discord、監査ログAPI連携\n- **L7 (Output)**: 議事録保存、通知\n- **L9 (Security)**: ファイル移動、アクセス制御\n- **L10 (Monitoring)**: 監査ログ送信\n\n### 📦 このグループに含まれるノード\n\n**1. AI Agent Step7 - 品質保証** (ai_agent_step7_g9)\n- タイプ: AI Agent\n- 役割: 議事録の完全性・正確性検証、不足項目補完\n- 入力: `={{ $json.markdown }}`\n- SystemMessage: 品質保証専門家\n- 検証項目: 必須項目、完全性、フォーマット一貫性、データ整合性、文法\n- 出力形式: JSON（quality_score, issues_found, corrected_markdown, validation_status）\n- Memory: step7_memory（あり）\n- モデル: Claude Sonnet 4.5\n- Step020準拠: 新規追加（検証レポート修正反映）\n\n**2. Claude Sonnet 4.5 (Step7)** (claude_step7_g9) - Sub-node\n- タイプ: Anthropic Chat Model\n- 役割: AI Agent Step7の推論エンジン\n- 設定: model=claude-4-5-sonnet-20250929、temperature=0.7、maxTokens=8000\n- 接続: ai_languageModel → AI Agent Step7\n- Step020準拠: 新規追加\n\n**3. Simple Memory (Step7)** (memory_step7_g9) - Sub-node\n- タイプ: Buffer Window Memory\n- 役割: AI Agent Step7の文脈保持（直近10回の対話履歴）\n- 設定: sessionIdType=customKey、sessionKey=step7_memory、contextWindowLength=10\n- 接続: ai_memory → AI Agent Step7\n- Step020準拠: 新規追加\n\n**4. 議事録保存** (drive_save_g9_02)\n- タイプ: Google Drive (Upload)\n- 役割: 修正済みMarkdown議事録をGoogle Driveに保存\n- ファイル名: 会議名_議事録_YYYY-MM-DD.md\n- 保存先: 議事録_出力フォルダ\n- データ: JSON.parse($json.output).corrected_markdown\n\n**5. M4A処理済み移動** (drive_move_g9_03)\n- タイプ: Google Drive (Move)\n- 役割: 処理完了したM4Aファイルをprocessedフォルダに移動\n- ファイルID: $('M4Aファイル検知').first().json.id\n- 移動先: processedフォルダ\n- 目的: 再処理防止\n\n**6. Discord完了通知** (http_discord_g9_04)\n- タイプ: HTTP Request\n- 役割: 処理完了をDiscord Webhookで通知\n- URL: $env.DISCORD_WEBHOOK_URL\n- 形式: Embed（タイトル、説明、フィールド、リンク）\n- 通知内容: 会議名、議題数、品質スコア、日時、リンク\n\n**7. 処理結果まとめ** (set_summary_g9_05)\n- タイプ: Set\n- 役割: ワークフロー全体の処理結果を集約\n- 設定: status, meeting_name, original_file_id, saved_file_id, quality_score, processing_duration_seconds\n- 先行ノード参照: M4Aファイル検知、議事録保存、AI Agent Step7\n\n**8. 監査ログ送信** (http_audit_g9_06)\n- タイプ: HTTP Request\n- 役割: ワークフロー実行の監査ログを外部APIに送信（L10: Monitoring）\n- URL: $env.AUDIT_LOG_API_URL\n- 認証: httpHeaderAuth\n- 記録項目: event_type, workflow_id, execution_id, meeting_name, file_ids, quality_score, duration, timestamp\n\n### 🔗 フロー\n**Group 8** → ai_agent_step7_g9 → drive_save_g9_02 → drive_move_g9_03 → http_discord_g9_04 → set_summary_g9_05 → http_audit_g9_06 → **完了**\n\nSub-nodes:\n- claude_step7_g9 → (ai_languageModel) → ai_agent_step7_g9\n- memory_step7_g9 → (ai_memory) → ai_agent_step7_g9\n\n### ⚙️ 依存関係\n- **入力**: Group 8からのMarkdown議事録ペイロード\n- **出力**: Google Drive議事録、Discord通知、監査ログ\n- **Sub-nodes**: Claude Sonnet 4.5 (Chat Model) + Simple Memory (Memory)\n- **外部連携**: Google Drive、Discord Webhook、監査ログAPI\n\n### 📊 主要データ\n- **AI Agent Step7出力**:\n  - `$json.output`: JSON（quality_score, issues_found, corrected_markdown, validation_status）\n- **処理結果まとめ出力**:\n  - `$json.status`: completed\n  - `$json.meeting_name`: 会議名\n  - `$json.original_file_id`: 元M4AファイルID\n  - `$json.saved_file_id`: 保存議事録ファイルID\n  - `$json.quality_score`: 品質スコア\n  - `$json.processing_duration_seconds`: 処理時間（秒）\n\n### 🏗️ 12層マッピング\n- **L5 (Core Logic)**: ai_agent_step7_g9（品質保証AI）\n- **L6 (Integration)**: drive_save_g9_02, drive_move_g9_03, http_discord_g9_04, http_audit_g9_06（外部連携）\n- **L7 (Output)**: drive_save_g9_02（議事録出力）、http_discord_g9_04（通知）\n- **L9 (Security)**: drive_move_g9_03（ファイル整理、再処理防止）\n- **L10 (Monitoring)**: http_audit_g9_06（監査ログ、トレーサビリティ）\n\n### 🔄 パターン適用\n\n**Pattern 1: Error-First Design**\n- maxTries: 3（AI Agent Step7）\n- waitBetweenTries: 2000ms\n- onError: continueRegularOutput\n- retryOnFail: true\n\n**Pattern 2: AI Agent with Sub-Nodes and Tools**\n- AI Agent: @n8n/n8n-nodes-langchain.agent (typeVersion 3)\n- Chat Model: Claude Sonnet 4.5 (ai_languageModel接続)\n- Memory: Buffer Window (ai_memory接続、step7_memory)\n- Step020準拠: 新規追加（検証レポート修正反映）\n\n### 🎯 品質保証の流れ\n1. AI Agent Step7が議事録を検証\n2. 品質スコア算出、問題特定\n3. 不足項目を補完、フォーマット修正\n4. 修正済みMarkdownを出力\n5. Google Driveに保存\n6. Discord通知\n7. 監査ログ送信",
+        "height": 740,
+        "width": 840,
+        "color": 2
+      }
+    }
+  ],
+  "connections": {
+    "AI Agent Step7 - 品質保証": {
+      "main": [
+        [
+          {
+            "node": "議事録保存",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude Sonnet 4.5 (Step7)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Step7 - 品質保証",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory (Step7)": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent Step7 - 品質保証",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "議事録保存": {
+      "main": [
+        [
+          {
+            "node": "M4A処理済み移動",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "M4A処理済み移動": {
+      "main": [
+        [
+          {
+            "node": "Discord完了通知",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord完了通知": {
+      "main": [
+        [
+          {
+            "node": "処理結果まとめ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "処理結果まとめ": {
+      "main": [
+        [
+          {
+            "node": "監査ログ送信",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-13T00:00:00.000Z",
+  "versionId": "v4.0"
+}

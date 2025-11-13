@@ -1,0 +1,216 @@
+{
+  "name": "Group 4: チャンク統合・議題抽出",
+  "nodes": [
+    {
+      "id": "merge_g4_01",
+      "type": "n8n-nodes-base.merge",
+      "name": "チャンク統合",
+      "typeVersion": 3.2,
+      "position": [2400, 300],
+      "parameters": {
+        "mode": "append",
+        "options": {}
+      },
+      "_comment": "AI Agent Step2で整形された全チャンクを統合します。Group 3の並列処理（5チャンク同時）で生成された複数の整形済みチャンクを、時系列順に結合して完全な文字起こしテキストを復元します。mode=appendで順序を保持します。",
+      "notes": "typeVersion: 3.2 | mode: append（順序保持） | 入力: Group 3の全整形済みチャンク | 出力: 統合された完全テキスト"
+    },
+    {
+      "id": "code_unique_g4_02",
+      "type": "n8n-nodes-base.code",
+      "name": "重複行除去",
+      "typeVersion": 2,
+      "position": [2600, 300],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// チャンクオーバーラップによる重複行を除去\nconst items = $input.all();\nconst uniqueLines = new Map();\n\nfor (const item of items) {\n  const formattedChunk = item.json.formatted_chunk || item.json.output || '';\n  const lines = formattedChunk.split('\\n').filter(line => line.trim().length > 0);\n  \n  for (let i = 0; i < lines.length; i++) {\n    const line = lines[i].trim();\n    const lineId = `${item.json.chunk_id}_${i}`;\n    \n    // line_idでユニーク化（重複を排除）\n    if (!uniqueLines.has(line)) {\n      uniqueLines.set(line, {\n        line_id: lineId,\n        chunk_id: item.json.chunk_id,\n        line_number: i + 1,\n        content: line,\n        speaker: line.match(/\\[([^\\]]+)\\]/)?.[1] || 'Unknown'\n      });\n    }\n  }\n}\n\n// 行番号順にソート\nconst sortedLines = Array.from(uniqueLines.values())\n  .sort((a, b) => {\n    const [aChunk, aLine] = a.line_id.split('_').map(Number);\n    const [bChunk, bLine] = b.line_id.split('_').map(Number);\n    return aChunk === bChunk ? aLine - bLine : aChunk - bChunk;\n  });\n\nreturn [{\n  json: {\n    full_transcript: sortedLines.map(l => l.content).join('\\n'),\n    total_lines: sortedLines.length,\n    lines: sortedLines,\n    speakers: [...new Set(sortedLines.map(l => l.speaker))]\n  }\n}];"
+      },
+      "_comment": "チャンクのオーバーラップ（6行）により発生した重複行を、line_idベースでユニーク化して除去します。各行に話者情報を抽出し、chunk_id・line_numberでソートして正しい順序を復元します。最終的にfull_transcript（全文）、total_lines（総行数）、lines（行配列）、speakers（話者リスト）を生成します。",
+      "notes": "mode: runOnceForAllItems | 処理: line_idでユニーク化、chunk_id/line_numberでソート | 出力: full_transcript, total_lines, lines（配列）, speakers（ユニークリスト） | 目的: オーバーラップ重複除去"
+    },
+    {
+      "id": "ai_agent_step3_g4",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "name": "AI Agent Step3 - 議題抽出",
+      "typeVersion": 3,
+      "position": [2800, 300],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.full_transcript }}",
+        "hasOutputParser": false,
+        "options": {
+          "systemMessage": "あなたは会議分析の専門家です。会議の文字起こしテキストから議題を抽出します。\n\n【議題抽出ルール】\n1. 会議で議論された主要なトピックを特定\n2. 各議題に明確なタイトルを付与（20文字以内）\n3. 議題の開始時刻と終了時刻を推定\n4. 議題の重要度を評価（高・中・低）\n5. 議題間の関連性を分析\n\n【出力形式】\nJSON配列で以下の形式:\n[\n  {\n    \"agenda_id\": 1,\n    \"title\": \"議題タイトル\",\n    \"start_time\": \"00:05:30\",\n    \"end_time\": \"00:15:20\",\n    \"importance\": \"高\",\n    \"summary\": \"議題の簡潔な要約（50文字以内）\",\n    \"related_agendas\": [2, 3]\n  }\n]\n\n【禁止事項】\n- 議題の捏造や推測\n- 文字起こしにない内容の追加\n- 議題の統合や省略",
+          "maxIterations": 5
+        },
+        "continueOnFail": false,
+        "retryOnFail": true,
+        "maxTries": 3,
+        "waitBetweenTries": 1000,
+        "onError": "continueRegularOutput"
+      },
+      "_comment": "AI Agent Step3は、Gemini 2.5 Flashを使用して統合された文字起こしテキストから会議議題を抽出します。各議題にタイトル、開始/終了時刻、重要度、要約、関連議題を付与し、JSON配列形式で出力します。maxIterations=5で複雑な議題構造に対応し、リトライ設定（maxTries=3）でAPI障害に対応します。",
+      "notes": "typeVersion: 3 | promptType: define | text: ={{ $json.full_transcript }} | systemMessage: 会議分析専門家 | maxIterations: 5 | retryOnFail: true | maxTries: 3 | 出力: JSON配列（議題リスト）"
+    },
+    {
+      "id": "set_agenda_g4_04",
+      "type": "n8n-nodes-base.set",
+      "name": "議題メタ生成",
+      "typeVersion": 3,
+      "position": [3000, 300],
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "meta_meeting_name",
+              "name": "meeting_name",
+              "type": "string",
+              "value": "={{ $('チャンク統合').first().json.meeting_name }}"
+            },
+            {
+              "id": "meta_agendas",
+              "name": "agendas",
+              "type": "object",
+              "value": "={{ JSON.parse($json.output) }}"
+            },
+            {
+              "id": "meta_agenda_count",
+              "name": "agenda_count",
+              "type": "number",
+              "value": "={{ JSON.parse($json.output).length }}"
+            },
+            {
+              "id": "meta_full_transcript",
+              "name": "full_transcript",
+              "type": "string",
+              "value": "={{ $('重複行除去').first().json.full_transcript }}"
+            },
+            {
+              "id": "meta_speakers",
+              "name": "speakers",
+              "type": "object",
+              "value": "={{ $('重複行除去').first().json.speakers }}"
+            }
+          ]
+        }
+      },
+      "_comment": "AI Agent Step3が抽出した議題リストを構造化し、会議名、議題配列、議題数、全文テキスト、話者リストなどのメタデータを設定します。この情報はGroup 5-7の議題分析・マッピング処理で使用されます。先行ノード（チャンク統合、重複行除去）のデータを参照して完全なメタデータを生成します。",
+      "notes": "mode: manual | assignments: 5個 (meeting_name, agendas, agenda_count, full_transcript, speakers) | agendas: JSON.parse($json.output)でパース | 先行ノード参照: $('チャンク統合').first(), $('重複行除去').first()"
+    },
+    {
+      "id": "gemini_step3_g4",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "name": "Gemini Flash 2.5 (Step3)",
+      "typeVersion": 1,
+      "position": [2800, 480],
+      "parameters": {
+        "model": "models/gemini-2.5-flash",
+        "options": {
+          "temperature": 0.4,
+          "maxOutputTokens": 4000
+        }
+      },
+      "credentials": {
+        "googleGeminiOAuth2Api": {
+          "id": "google_gemini_oauth2",
+          "name": "Google Gemini OAuth2"
+        }
+      },
+      "_comment": "Gemini 2.5 Flash Chat Modelは、AI Agent Step3の推論エンジンです。temperature=0.4で安定した議題抽出を確保し、maxOutputTokens=4000で複数議題のJSON出力に対応します。高速処理により、1時間会議の議題抽出を数秒で完了します。",
+      "notes": "typeVersion: 1 | model: models/gemini-2.5-flash | temperature: 0.4（安定出力） | maxOutputTokens: 4000 | 接続タイプ: ai_languageModel | Step020準拠"
+    },
+    {
+      "id": "memory_step3_g4",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "name": "Simple Memory (Step3)",
+      "typeVersion": 1.3,
+      "position": [2800, 560],
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "step3_memory",
+        "contextWindowLength": 10
+      },
+      "_comment": "Simple Memory (Buffer Window)は、AI Agent Step3の文脈保持機能です。sessionKey='step3_memory'で専用メモリ領域を確保し、contextWindowLength=10で直近10回の対話履歴を保持します。複雑な議題構造の分析時に、前の推論結果を参照して一貫性のある議題抽出を実現します。",
+      "notes": "typeVersion: 1.3 | sessionIdType: customKey | sessionKey: step3_memory | contextWindowLength: 10 | 接続タイプ: ai_memory | Step020要件準拠（Memory追加）"
+    },
+    {
+      "id": "sticky_g4",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 4: チャンク統合・議題抽出",
+      "typeVersion": 1,
+      "position": [2340, 140],
+      "parameters": {
+        "content": "## Group 4: チャンク統合・議題抽出\n\n**目的**: 整形済みチャンクを統合し、AI Agent Step3で会議議題を抽出\n\n### 🎯 このグループの役割\n- **L11 (Performance)**: Mergeでチャンク統合\n- **L4 (Transformation)**: 重複除去、データ整形\n- **L5 (Core Logic)**: AI Agent Step3による議題抽出\n\n### 📦 このグループに含まれるノード\n\n**1. チャンク統合** (merge_g4_01)\n- タイプ: Merge\n- 役割: Group 3の全整形済みチャンクを統合\n- 設定: mode=append（順序保持）\n- 入力: AI Agent Step2の並列処理結果（5チャンク同時）\n\n**2. 重複行除去** (code_unique_g4_02)\n- タイプ: Code\n- 役割: オーバーラップ重複行をline_idでユニーク化\n- 処理: line_idマップ生成 → 重複除去 → chunk_id/line_numberでソート\n- 出力: full_transcript（全文）, total_lines, lines（配列）, speakers（ユニークリスト）\n\n**3. AI Agent Step3 - 議題抽出** (ai_agent_step3_g4)\n- タイプ: AI Agent\n- 役割: 文字起こしテキストから会議議題を抽出\n- 入力: `={{ $json.full_transcript }}`\n- SystemMessage: 会議分析専門家\n- 出力形式: JSON配列（agenda_id, title, start_time, end_time, importance, summary, related_agendas）\n- エラー処理: maxTries=3、waitBetweenTries=1000ms\n\n**4. 議題メタ生成** (set_agenda_g4_04)\n- タイプ: Set\n- 役割: 議題リストを構造化、メタデータ設定\n- 設定: meeting_name, agendas（JSON配列）, agenda_count, full_transcript, speakers\n- 先行ノード参照: $('チャンク統合').first(), $('重複行除去').first()\n\n**5. Gemini Flash 2.5 (Step3)** (gemini_step3_g4) - Sub-node\n- タイプ: Google Gemini Chat Model\n- 役割: AI Agent Step3の推論エンジン\n- 設定: model=models/gemini-2.5-flash、temperature=0.4、maxOutputTokens=4000\n- 接続: ai_languageModel → AI Agent Step3\n\n**6. Simple Memory (Step3)** (memory_step3_g4) - Sub-node\n- タイプ: Buffer Window Memory\n- 役割: 議題抽出時の文脈保持（直近10回の対話履歴）\n- 設定: sessionIdType=customKey、sessionKey=step3_memory、contextWindowLength=10\n- 接続: ai_memory → AI Agent Step3\n\n### 🔗 フロー\n**Group 3** → merge_g4_01 → code_unique_g4_02 → ai_agent_step3_g4 → set_agenda_g4_04 → **Group 5**\n\nSub-nodes:\n- gemini_step3_g4 → (ai_languageModel) → ai_agent_step3_g4\n- memory_step3_g4 → (ai_memory) → ai_agent_step3_g4\n\n### ⚙️ 依存関係\n- **入力**: Group 3からの整形済みチャンク（並列処理完了後）\n- **出力**: 議題リスト（JSON配列） → Group 5へ\n- **Sub-nodes**: Gemini Flash 2.5 (Chat Model) + Simple Memory (Memory)\n\n### 📊 主要データ\n- **Merge出力**:\n  - 統合された全チャンク\n- **Code出力**:\n  - `$json.full_transcript`: 重複除去後の全文テキスト\n  - `$json.total_lines`: 総行数\n  - `$json.lines`: 行配列（line_id, chunk_id, content, speaker）\n  - `$json.speakers`: 話者リスト\n- **AI Agent出力**:\n  - `$json.output`: 議題JSON配列\n- **Set出力**:\n  - `$json.meeting_name`: 会議名\n  - `$json.agendas`: 議題配列（パース済み）\n  - `$json.agenda_count`: 議題数\n  - `$json.full_transcript`: 全文\n  - `$json.speakers`: 話者リスト\n\n### 🏗️ 12層マッピング\n- **L4 (Transformation)**: code_unique_g4_02（データ変換・加工）\n- **L5 (Core Logic)**: ai_agent_step3_g4（AI判断・ビジネスロジック）\n- **L11 (Performance)**: merge_g4_01（並列処理結果統合）\n\n### 🔄 パターン適用\n\n**Pattern 1: Error-First Design**\n- maxTries: 3（AI Agent Step3）\n- waitBetweenTries: 1000ms\n- onError: continueRegularOutput\n- retryOnFail: true\n\n**Pattern 2: AI Agent with Sub-Nodes and Tools**\n- AI Agent: @n8n/n8n-nodes-langchain.agent (typeVersion 3)\n- Chat Model: Gemini 2.5 Flash (ai_languageModel接続)\n- Memory: Buffer Window (ai_memory接続、step3_memory)\n- Step020準拠: Memory追加（検証レポート修正反映）",
+        "height": 540,
+        "width": 640,
+        "color": 6
+      }
+    }
+  ],
+  "connections": {
+    "チャンク統合": {
+      "main": [
+        [
+          {
+            "node": "重複行除去",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "重複行除去": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Step3 - 議題抽出",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Step3 - 議題抽出": {
+      "main": [
+        [
+          {
+            "node": "議題メタ生成",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Flash 2.5 (Step3)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Step3 - 議題抽出",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory (Step3)": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent Step3 - 議題抽出",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-13T00:00:00.000Z",
+  "versionId": "v4.0"
+}

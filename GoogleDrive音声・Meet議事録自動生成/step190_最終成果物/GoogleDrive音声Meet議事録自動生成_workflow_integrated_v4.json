@@ -1,0 +1,4140 @@
+{
+  "name": "GoogleDrive音声Meet議事録自動生成_workflow_integrated_v4",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "📌 このグループに含まれるノード:\n- Google Drive Trigger\n- Google Drive: Get File Info\n- Google Drive: M4Aダウンロード\n- Filter: M4A検証\n\n目的: Google Driveの新規M4Aファイルを検知\n背景: 5分ごとにポーリング\n処理の流れ: トリガー → 情報取得 → ダウンロード → 検証\n達成したいこと: M4Aバイナリ取得",
+        "height": 804,
+        "width": 500,
+        "color": 7
+      },
+      "id": "e9c2aa2d-42ea-443f-bed5-e9e65ad53421",
+      "name": "Sticky Note - トリガー&ファイル取得",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -3184,
+        176
+      ]
+    },
+    {
+      "parameters": {
+        "content": "📌 このグループに含まれるノード:\n- Google Gemini: Transcribe Audio\n\n目的: M4A音声を直接文字起こし\n背景: Geminiネイティブ、Deepgram不要、処理時間50%短縮、コスト75%削減\n処理の流れ: M4Aバイナリ → Gemini Transcribe → JSON配列（話者分離・タイムスタンプ付き）\n達成したいこと: 高品質な日本語文字起こし",
+        "height": 320,
+        "width": 480,
+        "color": 6
+      },
+      "id": "96b39150-5fb3-48a1-a647-41036a38d246",
+      "name": "Sticky Note - Gemini文字起こし",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2176,
+        -48
+      ]
+    },
+    {
+      "parameters": {
+        "content": "📌 このグループに含まれるノード:\n- Code: チャンク分割+オーバーラップ\n\n目的: 文字起こしを20-30行ごとに分割\n背景: 並列処理のための前準備、オーバーラップで文脈保持\n処理の流れ: Gemini JSON → チャンク分割 → オーバーラップ追加 → チャンク配列\n達成したいこと: 並列処理可能なデータ構造",
+        "height": 300,
+        "width": 460,
+        "color": 5
+      },
+      "id": "1995509e-8f26-48a3-9a4a-54edaa1b9615",
+      "name": "Sticky Note - チャンク分割",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1824,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "content": "📌 このグループに含まれるノード:\n- Split in Batches: チャンク並列処理\n- AI Agent: Step1 文字起こし整形\n- Loop Back: チャンク処理\n\n目的: フィラー除去と箇条書き化\n背景: 5チャンク並列で5倍高速化（240秒 → 48秒）\n処理の流れ: Split(5並列) → AI整形(並列実行) → Loop Back → 繰り返し\n達成したいこと: 読みやすい整形済みテキスト",
+        "height": 340,
+        "width": 500,
+        "color": 4
+      },
+      "id": "23f15002-1303-4c75-b4e3-02052ddadf72",
+      "name": "Sticky Note - Step1整形ループ",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1600,
+        496
+      ]
+    },
+    {
+      "parameters": {
+        "content": "📌 このグループに含まれるノード:\n- Code: チャンク統合+重複除去\n\n目的: 全チャンクを統合し重複除去\n背景: オーバーラップ部分の重複削除\n処理の流れ: 全チャンク収集 → line_idソート → 重複削除 → 統合JSON\n達成したいこと: クリーンな統合データ",
+        "height": 280,
+        "width": 440,
+        "color": 3
+      },
+      "id": "76de9b80-f8b7-4254-8817-1ea42fe9eb0b",
+      "name": "Sticky Note - チャンク統合",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1376,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "content": "📌 このグループに含まれるノード:\n- AI Agent: Step2 議題抽出\n\n目的: 会議の議題を自動抽出\n背景: 全文字起こしを分析し議題ごとにグループ化\n処理の流れ: 統合JSON → AI抽出 → 議題JSON（meeting_name + agendas）\n達成したいこと: 会議構造の自動理解",
+        "height": 280,
+        "width": 440,
+        "color": 2
+      },
+      "id": "524e3e7e-d25d-4a7d-8a85-8a5f3e35893a",
+      "name": "Sticky Note - Step2議題抽出",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1152,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "content": "📌 このグループに含まれるノード:\n- Code: 議題ごとのデータ再構成\n\n目的: 各議題の完全データセット構築\n背景: line_idsから該当文字起こし抽出\n処理の流れ: 議題JSON + 全文字起こし → line_ids抽出 → 議題別完全データ\n達成したいこと: 議題ごとの完全文脈",
+        "height": 280,
+        "width": 440
+      },
+      "id": "6398e4d0-b617-4f17-835f-651181568a71",
+      "name": "Sticky Note - 議題再構成",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -928,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "content": "📌 このグループに含まれるノード:\n- Split in Batches: 議題並列処理\n- AI Agent: Step3 議題分析\n- Loop Back: 議題処理\n\n目的: 決定事項・宿題・保留事項抽出\n背景: 3議題並列で3倍高速化（180秒 → 60秒）\n処理の流れ: Split(3並列) → AI分析(並列実行) → Loop Back → 繰り返し\n達成したいこと: 高速で正確な議題分析",
+        "height": 340,
+        "width": 500,
+        "color": 0
+      },
+      "id": "00a5e5b4-12e2-4d64-88fa-69d924c2df75",
+      "name": "Sticky Note - Step3分析ループ",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -704,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "content": "📌 このグループに含まれるノード:\n- AI Agent: Step4 フォーマット変換\n- AI Agent: Step5 品質保証\n\n目的: Markdown議事録生成と品質検証\n背景: Claude Sonnet 4.5で高品質生成\n処理の流れ: 全データ統合 → Claude Markdown生成 → Claude品質検証 → 最終議事録\n達成したいこと: 完全で読みやすい議事録",
+        "height": 300,
+        "width": 460,
+        "color": 7
+      },
+      "id": "9c88dd35-1481-4e38-aa03-a4ceb16a1369",
+      "name": "Sticky Note - Step4-5品質保証",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "content": "📌 このグループに含まれるノード:\n- IF: 品質保証ステータス判定\n- Google Drive: 議事録保存\n- Google Drive: M4Aファイル移動\n\n目的: 議事録保存とファイル整理\n背景: 品質保証成功時のみ保存\n処理の流れ: IF判定 → True: 保存 → ファイル移動\n達成したいこと: 自動ファイル整理",
+        "height": 300,
+        "width": 460,
+        "color": 6
+      },
+      "id": "b5bd41d0-ba8b-430e-b8bd-6658dd02feed",
+      "name": "Sticky Note - 保存&移動",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -32,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "content": "📌 このグループに含まれるノード:\n- HTTP Request: Discord Webhook\n\n目的: 処理完了通知\n背景: Discordで管理者に通知\n処理の流れ: 処理完了 → Webhook送信 → 管理者通知\n達成したいこと: リアルタイム処理状況可視化",
+        "height": 280,
+        "width": 420,
+        "color": 5
+      },
+      "id": "21d652f4-442e-4624-a3be-79eaf8c1a255",
+      "name": "Sticky Note - 完了通知",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        656,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "content": "📌 このグループに含まれるノード:\n- （Error Workflowへの接続）\n\n目的: エラー時の処理\n背景: IF False Path → Error Workflow\n処理の流れ: 品質保証失敗 → Error Workflow起動 → エラー処理\n達成したいこと: 適切なエラーハンドリング",
+        "height": 280,
+        "width": 400,
+        "color": 4
+      },
+      "id": "bc80b1f5-8aa6-4ec3-a477-312ef974c047",
+      "name": "Sticky Note - Error Workflow",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        128,
+        608
+      ]
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1Ddh7AFQooIcogKZeLNnWPqzrq2DX97QH"
+        },
+        "event": "fileCreated",
+        "options": {
+          "fileType": "all"
+        }
+      },
+      "id": "60bc2c0f-89aa-41d0-9731-4e48aa37c23f",
+      "name": "Google Drive Trigger",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        -2800,
+        448
+      ],
+      "notesInFlow": true,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "TFTiRBIR7HfeoxoO",
+          "name": "Google Drive account"
+        }
+      },
+      "notes": "Google Driveフォルダを5分ごとに監視し、新規M4Aファイルを検知する"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "options": {}
+      },
+      "id": "313ecb3c-a52e-4e0d-b0d8-2094b7560e3c",
+      "name": "Google Drive: Get File Info",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -2576,
+        448
+      ],
+      "notesInFlow": true,
+      "retryOnFail": false,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "TFTiRBIR7HfeoxoO",
+          "name": "Google Drive account"
+        }
+      },
+      "notes": "トリガーされたファイルの詳細情報を取得する"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "options": {}
+      },
+      "id": "fd5c9cc3-6e6a-438a-8cb3-e6d2e17a6205",
+      "name": "Google Drive: M4Aダウンロード",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -2352,
+        448
+      ],
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "TFTiRBIR7HfeoxoO",
+          "name": "Google Drive account"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "notes": "M4A音声ファイルをバイナリデータとしてダウンロードする"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "filter_cond_001",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              },
+              "leftValue": "={{ $('Google Drive: Get File Info').first().json.mimeType }}",
+              "rightValue": "audio"
+            },
+            {
+              "id": "filter_cond_002",
+              "operator": {
+                "type": "string",
+                "operation": "endsWith"
+              },
+              "leftValue": "={{ $('Google Drive: Get File Info').first().json.name }}",
+              "rightValue": ".m4a"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "68761b0b-9e6c-4b27-9785-65718b5272ae",
+      "name": "Filter: M4A検証",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        -2128,
+        448
+      ],
+      "notesInFlow": true,
+      "notes": "ファイル形式がM4Aであることを検証する。非M4Aファイルは処理しない。"
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "options": {}
+      },
+      "id": "c716b36e-aafa-4c9b-a10f-6a71f6f895a9",
+      "name": "Google Gemini: Transcribe Audio",
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1904,
+        448
+      ],
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "EZ0k3UGmSLSXnnKX",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "notes": "★ Gemini 2.0 FlashでM4A音声を直接文字起こし。Deepgram不要で処理時間50%短縮、コスト75%削減。"
+    },
+    {
+      "parameters": {
+        "jsCode": "const geminiOutput = $input.first().json;\nconst lines = Array.isArray(geminiOutput) ? geminiOutput : (geminiOutput.lines || []);\n\nconst chunkSize = 25;\nconst overlapSize = 6;\n\nconst chunks = [];\nfor (let i = 0; i < lines.length; i += chunkSize) {\n  const mainLines = lines.slice(i, i + chunkSize);\n  const overlapBefore = i > 0 ? lines.slice(Math.max(0, i - overlapSize), i) : null;\n  const overlapAfter = i + chunkSize < lines.length ? lines.slice(i + chunkSize, Math.min(lines.length, i + chunkSize + overlapSize)) : null;\n  \n  chunks.push({\n    chunk_id: Math.floor(i / chunkSize) + 1,\n    main_text: mainLines,\n    overlap_before: overlapBefore,\n    overlap_after: overlapAfter,\n    line_range: [mainLines[0].line_id, mainLines[mainLines.length - 1].line_id],\n    total_lines: mainLines.length\n  });\n}\n\nreturn chunks.map(chunk => ({ json: chunk }));"
+      },
+      "id": "4c403b1d-5e14-45b4-952f-bd89736588e9",
+      "name": "Code: チャンク分割+オーバーラップ",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1680,
+        448
+      ],
+      "notesInFlow": true,
+      "notes": "Gemini文字起こし結果をチャンクに分割し、前後6行のオーバーラップを追加"
+    },
+    {
+      "parameters": {
+        "batchSize": 5,
+        "options": {
+          "reset": false
+        }
+      },
+      "id": "6150b087-c96f-455a-be31-c4377e0162e0",
+      "name": "Split in Batches: チャンク並列処理",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -1456,
+        448
+      ],
+      "notesInFlow": true,
+      "notes": "チャンクを5個ずつのバッチに分割。⚠️ Output 0 (done) → node_010、Output 1 (loop) → node_008"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "以下の文字起こしテキストを整形してください：\n\n【メインテキスト】\n{{ $json.main_text }}\n\n【前後の文脈（参考用）】\n前: {{ $json.overlap_before }}\n後: {{ $json.overlap_after }}\n\n【指示】\n1. フィラー語を除去\n2. 意味のある文章単位で箇条書き化\n3. 話者情報とタイムスタンプを保持\n4. メインテキストのみ整形して返す\n\n【出力形式】\nJSON配列：[{\"line_id\": 1, \"content\": \"整形後の文章\", \"speaker\": \"A\", \"timestamp\": \"00:01:20\"}, ...]",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "あなたは日本語の文字起こしテキストを整形する専門家です。フィラー語を除去し、読みやすい箇条書き形式に変換してください。"
+        }
+      },
+      "id": "4f24c950-64ac-4042-b08c-9af79330b2c3",
+      "name": "AI Agent: Step1 文字起こし整形",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -1232,
+        656
+      ],
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "maxTries": 1,
+      "onError": "continueErrorOutput",
+      "notes": "フィラー語を除去し、箇条書き化する（並列実行5チャンク）"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "fa004cb7-f335-4aac-aa2e-53572d1a10df",
+      "name": "Loop Back: チャンク処理",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -1008,
+        656
+      ],
+      "notesInFlow": true,
+      "notes": "全バッチ処理が完了するまでループバック → node_007"
+    },
+    {
+      "parameters": {
+        "jsCode": "const allChunks = $input.all();\nconst allLines = [];\n\nfor (const chunk of allChunks) {\n  const chunkData = chunk.json;\n  if (chunkData && Array.isArray(chunkData)) {\n    allLines.push(...chunkData);\n  }\n}\n\nallLines.sort((a, b) => a.line_id - b.line_id);\n\nconst uniqueLines = Array.from(\n  new Map(allLines.map(line => [line.line_id, line])).values()\n);\n\nreturn [{ json: { lines: uniqueLines, total_lines: uniqueLines.length } }];"
+      },
+      "id": "2c46bd28-5f10-4e68-afca-0095f3cde9ab",
+      "name": "Code: チャンク統合+重複除去",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1232,
+        256
+      ],
+      "notesInFlow": true,
+      "notes": "全チャンクの整形結果を統合し、オーバーラップ部分の重複を除去"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "以下の整形済み文字起こしから、会議の議題を抽出してください：\n\n{{ $json.lines }}\n\n【指示】\n1. 会話の流れから自然な議題の区切りを見つける\n2. 各議題に適切なタイトルを付ける\n3. 各議題に該当する行番号（line_id）を配列で記録\n4. 会議名も推測して抽出\n\n【出力形式】\nJSON：{\"meeting_name\": \"会議名\", \"agendas\": [{\"agenda_id\": 1, \"title\": \"議題\", \"line_ids\": [1,2,3]}, ...]}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "あなたは会議の議事録作成の専門家です。文字起こしから議題を自動抽出し、構造化された形式で提供してください。"
+        }
+      },
+      "id": "d741d778-b929-4d0c-ad75-b64346fd8493",
+      "name": "AI Agent: Step2 議題抽出",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -1008,
+        256
+      ],
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "maxTries": 1,
+      "onError": "continueErrorOutput",
+      "notes": "統合された文字起こしから会議の議題を自動抽出"
+    },
+    {
+      "parameters": {
+        "jsCode": "const step2Output = $input.first().json;\nconst allLines = $('Code: チャンク統合+重複除去').first().json.lines;\n\nconst agendas = step2Output.agendas;\nconst reconstructedAgendas = [];\n\nfor (const agenda of agendas) {\n  const lines = agenda.line_ids.map(id => {\n    return allLines.find(line => line.line_id === id);\n  }).filter(line => line !== undefined);\n  \n  let duration = '0秒';\n  if (lines.length > 0 && lines[0].start_time !== undefined && lines[lines.length - 1].end_time !== undefined) {\n    const durationSeconds = Math.floor(lines[lines.length - 1].end_time - lines[0].start_time);\n    const minutes = Math.floor(durationSeconds / 60);\n    const seconds = durationSeconds % 60;\n    duration = minutes > 0 ? `${minutes}分${seconds}秒` : `${seconds}秒`;\n  }\n  \n  reconstructedAgendas.push({\n    agenda_id: agenda.agenda_id,\n    title: agenda.title,\n    lines: lines,\n    context: {\n      total_lines: lines.length,\n      duration: duration,\n      line_ids: agenda.line_ids\n    }\n  });\n}\n\nreturn reconstructedAgendas.map(agenda => ({ json: agenda }));"
+      },
+      "id": "a87d2032-60da-4b42-ba7f-9d683e20e48f",
+      "name": "Code: 議題ごとのデータ再構成",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -768,
+        256
+      ],
+      "notesInFlow": true,
+      "notes": "各議題のline_idsに対応する文字起こしを統合JSONから抽出"
+    },
+    {
+      "parameters": {
+        "batchSize": 3,
+        "options": {
+          "reset": false
+        }
+      },
+      "id": "366cecc4-be59-44b7-b052-906588161ae8",
+      "name": "Split in Batches: 議題並列処理",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -544,
+        256
+      ],
+      "notesInFlow": true,
+      "notes": "議題を3個ずつのバッチに分割。⚠️ Output 0 (done) → node_016、Output 1 (loop) → node_014"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "以下の議題から決定事項、宿題、保留事項を抽出してください：\n\n【議題】{{ $json.title }}\n【文字起こし】{{ $json.lines }}\n\n【出力形式】\nJSON：{\"agenda_id\": {{ $json.agenda_id }}, \"title\": \"{{ $json.title }}\", \"decisions\": [...], \"todos\": [...], \"pending\": [...]}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "あなたは会議の分析専門家です。議題ごとに決定事項、宿題、保留事項を正確に抽出してください。"
+        }
+      },
+      "id": "9b8a9ff6-951a-4adf-bfac-e62dfc9df8fe",
+      "name": "AI Agent: Step3 議題分析",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -320,
+        448
+      ],
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "maxTries": 1,
+      "onError": "continueErrorOutput",
+      "notes": "各議題から決定事項、宿題、保留事項を抽出（並列実行3議題）"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "8621cf64-af91-4c46-80b7-1e0382cb1f1d",
+      "name": "Loop Back: 議題処理",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -96,
+        448
+      ],
+      "notesInFlow": true,
+      "notes": "全バッチ処理が完了するまでループバック → node_013"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "以下のデータから指定フォーマットのMarkdown議事録を生成してください：\n\n【データ】\n- 会議名: {{ $('AI Agent: Step2 議題抽出').first().json.meeting_name }}\n- ファイル作成日時: {{ $('Google Drive: Get File Info').first().json.createdTime }}\n- 議題一覧: {{ $input.all() }}\n- 全文字起こし: {{ $('Code: チャンク統合+重複除去').first().json.lines }}\n\n【指定フォーマット】\n# 目的・背景\n# 日時\n# 参加者\n# 宿題事項\n# 決定事項\n# 次回の日時\n# 議事内容\n\n【出力】完全なMarkdownテキストを返してください。",
+        "options": {
+          "systemMessage": "あなたは議事録作成の専門家です。指定されたフォーマットに従って、読みやすく完全な議事録を作成してください。"
+        }
+      },
+      "id": "baaf68d5-0ca5-4e28-a6e1-d72644c94779",
+      "name": "AI Agent: Step4 フォーマット変換",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -320,
+        256
+      ],
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "maxTries": 1,
+      "onError": "continueErrorOutput",
+      "notes": "全データを統合し、指定フォーマットのMarkdown議事録を生成"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "以下の議事録の完全性を検証し、不足項目があれば補完してください：\n\n【生成された議事録】{{ $('AI Agent: Step4 フォーマット変換').first().json.output }}\n【元データ】全議題: {{ $('AI Agent: Step3 議題分析').all() }}\n\n【出力形式】\nJSON：{\"status\": \"ok|補完実施|警告\", \"markdown\": \"最終議事録\", \"warnings\": [...]}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "あなたは品質保証の専門家です。議事録の完全性を検証し、必要に応じて補完してください。"
+        }
+      },
+      "id": "f1398452-69f1-4bee-891b-f83a9daf6c70",
+      "name": "AI Agent: Step5 品質保証",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -96,
+        256
+      ],
+      "notesInFlow": true,
+      "retryOnFail": false,
+      "onError": "continueRegularOutput",
+      "notes": "生成された議事録の完全性を検証し、不足項目を補完"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "if_cond_001",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "ok"
+            },
+            {
+              "id": "if_cond_002",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "補完実施"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e5201b3b-c8fb-4f07-aefc-18970c6af259",
+      "name": "IF: 品質保証ステータス判定",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        128,
+        256
+      ],
+      "notesInFlow": true,
+      "notes": "品質保証のステータスがokまたは補完実施の場合のみ保存する"
+    },
+    {
+      "parameters": {
+        "name": "=minutes - {{ $now.format('YYYY-MM-DD') }} - {{ $('AI Agent: Step2 議題抽出').first().json.meeting_name }}.md",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "12J4nKaLa3veMHXKsv-bPOq1j5jsvacu5",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "11e72546-a5e0-4829-925e-1d069ca6386e",
+      "name": "Google Drive: 議事録保存",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        352,
+        256
+      ],
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "TFTiRBIR7HfeoxoO",
+          "name": "Google Drive account"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "notes": "最終議事録をGoogle Driveの指定フォルダに保存"
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Google Drive Trigger').first().json.id }}"
+        },
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1fja7UEFSM9XbcGF9PgkhNyH10MsIw9an",
+          "mode": "id"
+        }
+      },
+      "id": "174af165-20ed-4b60-9ba1-276f0d9326bb",
+      "name": "Google Drive: M4Aファイル移動",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        576,
+        256
+      ],
+      "notesInFlow": true,
+      "retryOnFail": false,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "TFTiRBIR7HfeoxoO",
+          "name": "Google Drive account"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "notes": "処理済みM4Aファイルをprocessed/フォルダに移動"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.DISCORD_WEBHOOK_URL }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "id": "98c244ee-af2c-4c3e-aa92-a18056aa6842",
+      "name": "HTTP Request: Discord Webhook",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        800,
+        256
+      ],
+      "notesInFlow": true,
+      "retryOnFail": false,
+      "onError": "continueRegularOutput",
+      "notes": "処理完了をDiscordに通知（オプション）"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-exp",
+        "options": {
+          "temperature": 0.4,
+          "topK": 40,
+          "topP": 0.9
+        }
+      },
+      "id": "de817b7c-7329-4b9c-9ca6-48cbf73f79f8",
+      "name": "Gemini Chat Model (Step1)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1232,
+        48
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "EZ0k3UGmSLSXnnKX",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-exp",
+        "options": {
+          "temperature": 0.4,
+          "topK": 40,
+          "topP": 0.9
+        }
+      },
+      "id": "4edf9168-e690-4038-91b5-c95f196426a3",
+      "name": "Gemini Chat Model (Step2)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1008,
+        48
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "EZ0k3UGmSLSXnnKX",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "step2_memory",
+        "contextWindowLength": 10
+      },
+      "id": "606fa383-88bf-4568-bdc0-ae0e3108d2c9",
+      "name": "Simple Memory (Step2)",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -1008,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-exp",
+        "options": {
+          "temperature": 0.4,
+          "topK": 40,
+          "topP": 0.9
+        }
+      },
+      "id": "727a5866-b050-41df-bd87-de64e7d5475b",
+      "name": "Gemini Chat Model (Step3)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -320,
+        48
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "EZ0k3UGmSLSXnnKX",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-5-20250929"
+        },
+        "options": {
+          "temperature": 0.7,
+          "topK": 1,
+          "topP": 0.9
+        }
+      },
+      "id": "4c546592-0b94-4714-935d-1ca2e8b2a359",
+      "name": "Claude Chat Model (Step4)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        -320,
+        48
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "id": "H3jlEsqpe4a6Q9rX",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "step4_memory",
+        "contextWindowLength": 10
+      },
+      "id": "bbd49ea1-be34-4a6b-9813-66995a86292c",
+      "name": "Simple Memory (Step4)",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -320,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-5-20250929"
+        },
+        "options": {
+          "temperature": 0.7,
+          "topK": 40,
+          "topP": 0.9
+        }
+      },
+      "id": "e8b80e5e-8c75-4d61-97d9-dc6889c0b34a",
+      "name": "Claude Chat Model (Step5)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        -96,
+        48
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "id": "H3jlEsqpe4a6Q9rX",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "step5_memory",
+        "contextWindowLength": 10
+      },
+      "id": "b11db4f8-28f9-41b9-a1f0-290c1795072f",
+      "name": "Simple Memory (Step5)",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -96,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -2368,
+        704
+      ],
+      "id": "b82e5ff1-9234-4456-8ea0-728ace5fe48d",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{$json.id}}",
+          "mode": "id"
+        },
+        "options": {
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "text/plain"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -2560,
+        640
+      ],
+      "id": "e4998008-443e-47f4-ad1d-b5e2b9aaf831",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "TFTiRBIR7HfeoxoO",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "fileCreated"
+      },
+      "id": "ab7dcc26-bf85-4c65-86ed-1817e94db3f7",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "name": "Google Drive: 新規ファイル検知",
+      "typeVersion": 1,
+      "position": [
+        -2832,
+        1712
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "TFTiRBIR7HfeoxoO",
+          "name": "Google Drive account"
+        }
+      },
+      "notes": "トリガー間隔: 5分ポーリング。対象: audio/m4aファイルのみ。フォルダ: /議事録_入力/"
+    },
+    {
+      "parameters": {
+        "operation": "get"
+      },
+      "id": "aee68ff0-5983-4786-88c5-b3b191f33e20",
+      "type": "n8n-nodes-base.googleDrive",
+      "name": "Google Drive: ファイル情報取得",
+      "typeVersion": 3,
+      "position": [
+        -2624,
+        1712
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "TFTiRBIR7HfeoxoO",
+          "name": "Google Drive account"
+        }
+      },
+      "notes": "取得フィールド: id, name, mimeType, size, createdTime, modifiedTime, webViewLink, webContentLink"
+    },
+    {
+      "parameters": {
+        "content": "## Group 1: トリガー & ファイル取得\n\n📌 **このグループに含まれるノード**:\n- Google Drive: 新規ファイル検知\n- Google Drive: ファイル情報取得\n- Google Drive: M4Aダウンロード\n\n**責務**: Google Drive新規M4Aファイル検知、ファイル情報取得、M4Aダウンロード\n\n**処理内容**:\n- /議事録_入力/フォルダを5分ごとにポーリング\n- 新規M4Aファイル作成を検知してワークフロー起動\n- ファイルメタデータ取得（name, size, createdTime等）\n- M4Aバイナリデータをダウンロード（m4a_dataプロパティ）\n\n**パフォーマンス**:\n- 推定処理時間: 2-5秒（ファイルサイズ依存）\n- ポーリング間隔: 5分\n\n**次ステップ**: Group 2（バリデーション）へ接続",
+        "height": 632,
+        "width": 542,
+        "color": 4
+      },
+      "id": "4637c3f9-e546-4b17-a9e0-acd69183389c",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 1: トリガー & ファイル取得",
+      "typeVersion": 1,
+      "position": [
+        -2864,
+        1248
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.mimeType }}",
+              "rightValue": "audio/m4a",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "leftValue": "={{ $json.size }}",
+              "rightValue": "1073741824",
+              "operator": {
+                "type": "number",
+                "operation": "smaller"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "cbbddad3-0f40-42e3-b8b0-1cf51dc3763f",
+      "type": "n8n-nodes-base.if",
+      "name": "IF: ファイル検証",
+      "typeVersion": 2,
+      "position": [
+        -2224,
+        1712
+      ],
+      "notes": "検証条件1: mimeType === 'audio/m4a'。検証条件2: size < 1GB (1073741824 bytes)。組み合わせ: AND（両方満たす必要あり）。True出力: Group 3へ。False出力: Error Group 1へ。"
+    },
+    {
+      "parameters": {
+        "content": "## Group 2: バリデーション\n\n📌 **このグループに含まれるノード**:\n- IF: ファイル検証\n\n**責務**: ファイル形式とサイズの検証\n\n**処理内容**:\n- mimeTypeチェック: audio/m4aであることを確認\n- サイズチェック: 1GB未満であることを確認\n- 両条件を満たす場合のみ次ステップへ進む\n- 検証失敗時はエラーフローへ分岐\n\n**パフォーマンス**:\n- 推定処理時間: <0.1秒\n\n**エラー処理**: \n- 検証失敗（False出力） → Error Group 1へ接続\n- エラー理由: ファイル形式不正 or サイズ超過",
+        "height": 260,
+        "width": 320,
+        "color": 4
+      },
+      "id": "5c32cef7-e961-4ddd-8b41-57025c6bee81",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 2: バリデーション",
+      "typeVersion": 1,
+      "position": [
+        -2288,
+        1520
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contents",
+              "value": "={{ [{\"parts\": [{\"inline_data\": {\"mime_type\": \"audio/m4a\", \"data\": $binary.m4a_data.data}}]}] }}"
+            },
+            {
+              "name": "generationConfig",
+              "value": "={{ {\"temperature\": 0.3, \"maxOutputTokens\": 100000, \"responseMimeType\": \"application/json\"} }}"
+            },
+            {
+              "name": "systemInstruction",
+              "value": "={{ {\"parts\": [{\"text\": \"あなたは日本語の音声文字起こし専門AIです。M4A音声ファイルを受け取り、以下の形式でJSON配列として文字起こし結果を返してください。\\n\\n出力形式:\\n```json\\n{\\n  \\\"lines\\\": [\\n    {\\n      \\\"line_id\\\": 1,\\n      \\\"content\\\": \\\"発言内容\\\",\\n      \\\"speaker\\\": \\\"A\\\",\\n      \\\"timestamp\\\": \\\"00:01:20\\\",\\n      \\\"start_time\\\": 80.5,\\n      \\\"end_time\\\": 85.2\\n    }\\n  ]\\n}\\n```\\n\\n要件:\\n1. 話者を自動分離してA, B, C...でラベル付け\\n2. タイムスタンプを秒単位とHH:MM:SS形式の両方で記録\\n3. 句読点を適切に挿入\\n4. フィラー語（えー、あのー等）はそのまま残す（Step1で除去）\\n5. すべての発言をline_id順に配列化\"}] } }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 120000
+        }
+      },
+      "id": "2ea74191-ee63-445f-86b6-df01b93e77fd",
+      "type": "n8n-nodes-base.httpRequest",
+      "name": "Gemini: 音声文字起こし (Step0)",
+      "typeVersion": 4.2,
+      "position": [
+        -2032,
+        1712
+      ],
+      "notes": "API: Gemini 2.0 Flash Experimental。Temperature: 0.3（高精度）。Max Tokens: 100,000（長時間会議対応）。Timeout: 120秒。出力: JSON配列（lines）。認証: GOOGLE_API_KEY環境変数。処理時間: 30-60秒（1時間会議）。"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Gemini APIレスポンスから文字起こし結果を抽出\nconst response = $input.all()[0].json;\nconst generatedContent = response.candidates[0].content.parts[0].text;\nconst transcription = JSON.parse(generatedContent);\n\nreturn {\n  json: transcription\n};"
+      },
+      "id": "2b7e4408-6101-48ea-9138-db198f3c92ea",
+      "type": "n8n-nodes-base.code",
+      "name": "Code: 文字起こし結果パース",
+      "typeVersion": 2,
+      "position": [
+        -1824,
+        1712
+      ],
+      "notes": "入力: Gemini APIレスポンス（candidates[0].content.parts[0].text）。出力: JSON配列（lines）。エラーハンドリング: JSON.parse失敗時はError Group 1へ。"
+    },
+    {
+      "parameters": {
+        "content": "## Group 3: Gemini音声文字起こし (Step0)\n\n📌 **このグループに含まれるノード**:\n- Gemini: 音声文字起こし (Step0)\n- Code: 文字起こし結果パース\n\n**責務**: M4A音声から日本語文字起こし生成\n\n**処理内容**:\n- Gemini 2.0 Flash Experimentalで音声認識\n- 話者自動分離（A, B, C...）\n- タイムスタンプ自動付与（秒 + HH:MM:SS）\n- 句読点自動挿入\n- JSON配列として出力（lines）\n\n**AI設定**:\n- Model: gemini-2.0-flash-exp\n- Temperature: 0.3（高精度）\n- Max Tokens: 100,000（長時間対応）\n- Memory: なし\n\n**パフォーマンス**:\n- 推定処理時間: 30-60秒（1時間会議）\n- Timeout: 120秒\n\n**出力形式**: JSON配列（line_id, content, speaker, timestamp, start_time, end_time）",
+        "height": 340,
+        "width": 360,
+        "color": 5
+      },
+      "id": "2d343289-768d-4346-8e75-653c3c21bf06",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 3: Gemini音声文字起こし",
+      "typeVersion": 1,
+      "position": [
+        -2080,
+        1472
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 文字起こしを20-30行ごとにチャンク分割し、前後6行のオーバーラップを追加\nconst lines = $input.all()[0].json.lines;\nconst chunkSize = 25;  // 20-30行の中央値\nconst overlapSize = 6;  // 前後6行オーバーラップ\n\nconst chunks = [];\n\nfor (let i = 0; i < lines.length; i += chunkSize) {\n  chunks.push({\n    chunk_id: Math.floor(i / chunkSize) + 1,\n    main_text: lines.slice(i, i + chunkSize),\n    overlap_before: i > 0 ? lines.slice(i - overlapSize, i) : null,\n    overlap_after: lines.slice(i + chunkSize, i + chunkSize + overlapSize).length > 0 \n      ? lines.slice(i + chunkSize, i + chunkSize + overlapSize) \n      : null\n  });\n}\n\n// 各チャンクを個別のアイテムとして返す（Split in Batchesで並列処理するため）\nreturn chunks.map(chunk => ({ json: chunk }));"
+      },
+      "id": "edd867d8-6486-47dd-819f-352d321bd960",
+      "type": "n8n-nodes-base.code",
+      "name": "Code: チャンク分割",
+      "typeVersion": 2,
+      "position": [
+        -1632,
+        1712
+      ],
+      "notes": "チャンクサイズ: 25行（20-30行の中央値）。オーバーラップ: 前後6行（文脈保持）。出力: chunk_id, main_text, overlap_before, overlap_afterを含む配列。並列処理準備: 各チャンクは独立したアイテム。推定チャンク数: 12チャンク（1時間会議、300行想定）。"
+    },
+    {
+      "parameters": {
+        "content": "## Group 4: チャンク分割\n\n📌 **このグループに含まれるノード**:\n- Code: チャンク分割\n\n**責務**: 文字起こしを20-30行ごとに分割、オーバーラップ追加\n\n**処理内容**:\n- 文字起こしlines配列を25行ごとに分割\n- 各チャンクに前6行のオーバーラップ追加（overlap_before）\n- 各チャンクに後6行のオーバーラップ追加（overlap_after）\n- 最初のチャンクはoverlap_before=null\n- 最後のチャンクはoverlap_after=null\n\n**パラメータ**:\n- chunkSize: 25行\n- overlapSize: 6行\n\n**出力形式**:\n```json\n{\n  \"chunk_id\": 1,\n  \"main_text\": [...],\n  \"overlap_before\": null,\n  \"overlap_after\": [...]\n}\n```\n\n**パフォーマンス**:\n- 推定処理時間: <0.5秒\n- 推定チャンク数: 12（300行想定）",
+        "height": 320,
+        "width": 340,
+        "color": 4
+      },
+      "id": "1c7fcdd7-4350-4715-bc17-f8962a26276a",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 4: チャンク分割",
+      "typeVersion": 1,
+      "position": [
+        -1680,
+        1472
+      ]
+    },
+    {
+      "parameters": {
+        "agent": "conversationalAgent",
+        "promptType": "define",
+        "text": "あなたは文字起こし整形専門AIです。チャンク化された文字起こしテキストを受け取り、フィラー語を除去して箇条書き化します。\n\n処理:\n1. フィラー語除去（\"えー\"、\"あのー\"、\"その\"、\"まあ\"等）\n2. 冗長な言い回しを簡潔化\n3. line_id、speaker、timestampは維持\n4. main_textのみ整形（overlapは参考情報）\n\n入力: チャンクJSON（$json形式）\n出力形式: JSON配列 lines[{line_id, content, speaker, timestamp, start_time, end_time}]",
+        "options": {}
+      },
+      "id": "071979f2-7103-41ef-b5c1-2954adebbd85",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "name": "Gemini: 文字起こし整形 (Step1)",
+      "typeVersion": 1.7,
+      "position": [
+        -1232,
+        1712
+      ],
+      "subnodes": {
+        "chatModel": {
+          "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+          "parameters": {
+            "modelName": "gemini-2.0-flash-exp",
+            "options": {
+              "temperature": 0.4,
+              "maxOutputTokens": 4000
+            }
+          }
+        },
+        "memory": null,
+        "tools": []
+      },
+      "notes": "Model: gemini-2.0-flash-exp。Temperature: 0.4。Max Tokens: 4000。Memory: なし"
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.all()[0].json;\nconst generatedContent = response.candidates[0].content.parts[0].text;\nconst parsed = JSON.parse(generatedContent);\nreturn { json: parsed };"
+      },
+      "id": "bb12efb6-b50b-4915-82a0-fcd3dd69910b",
+      "type": "n8n-nodes-base.code",
+      "name": "Code: Step1結果パース",
+      "typeVersion": 2,
+      "position": [
+        -960,
+        1696
+      ],
+      "notes": "入力: Gemini APIレスポンス。出力: lines配列（整形済み）。"
+    },
+    {
+      "parameters": {
+        "content": "## Group 5: チャンク並列処理 (Step1)\n\n📌 **ノード**:\n- Split in Batches: チャンク並列処理\n- Gemini: 文字起こし整形 (Step1)\n- Code: Step1結果パース\n\n**責務**: 5チャンク並列でフィラー語除去と箇条書き化\n\n**並列処理**:\n- バッチサイズ: 5並列\n- 推定処理時間: 15秒（連続だと60秒 → 75%短縮）\n\n**AI設定**:\n- Model: gemini-2.0-flash-exp\n- Temperature: 0.4\n- Max Tokens: 4000\n- Memory: なし",
+        "height": 260,
+        "width": 340,
+        "color": 5
+      },
+      "id": "3664947d-46ff-4230-aeb1-0b58d23cdb40",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 5: チャンク並列処理 (Step1)",
+      "typeVersion": 1,
+      "position": [
+        -1488,
+        1472
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "7a36d3ce-d9ed-4141-bf13-bf3b6da21219",
+      "type": "n8n-nodes-base.merge",
+      "name": "Merge: チャンク統合",
+      "typeVersion": 3,
+      "position": [
+        -832,
+        1712
+      ],
+      "notes": "入力1: ループ出力（Split in Batches）。入力2: 整形済みチャンク。モード: append。"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 全チャンクのlines配列をマージし、line_idでソート、重複除去\nconst allLines = [];\nfor (const item of $input.all()) {\n  if (item.json.lines && Array.isArray(item.json.lines)) {\n    allLines.push(...item.json.lines);\n  }\n}\n\n// line_id でソート\nallLines.sort((a, b) => a.line_id - b.line_id);\n\n// 重複除去（同じline_idは1つのみ保持）\nconst uniqueLines = [];\nlet lastLineId = -1;\nfor (const line of allLines) {\n  if (line.line_id !== lastLineId) {\n    uniqueLines.push(line);\n    lastLineId = line.line_id;\n  }\n}\n\nreturn { json: { lines: uniqueLines } };"
+      },
+      "id": "e0d0e70a-4297-4a3e-9d16-b2731c039d2c",
+      "type": "n8n-nodes-base.code",
+      "name": "Code: line_idソート + 重複除去",
+      "typeVersion": 2,
+      "position": [
+        -624,
+        1712
+      ],
+      "notes": "処理: 全チャンクをマージ → line_idソート → 重複除去。出力: 統合済みlines配列（重複なし、ソート済み）。"
+    },
+    {
+      "parameters": {
+        "content": "## Group 6: チャンク統合\n\n📌 **ノード**:\n- Merge: チャンク統合\n- Code: line_idソート + 重複除去\n\n**責務**: 全チャンクをマージ、line_idソート、重複除去\n\n**処理内容**:\n- Split in Batchesループ終了後、全チャンクをマージ\n- line_idでソート（昇順）\n- 重複行を除去（オーバーラップ部分）\n\n**パフォーマンス**:\n- 推定処理時間: <0.5秒",
+        "height": 240,
+        "width": 320,
+        "color": 4
+      },
+      "id": "e7f3770a-d898-4267-8074-21d2f02eda25",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 6: チャンク統合",
+      "typeVersion": 1,
+      "position": [
+        -880,
+        1504
+      ]
+    },
+    {
+      "parameters": {
+        "agent": "conversationalAgent",
+        "promptType": "define",
+        "text": "あなたは会議議題抽出専門AIです。統合された文字起こしから会議の議題を自動抽出します。\n\n処理:\n1. 会話の流れを理解し、議題の区切りを検出\n2. 各議題にタイトルを付与\n3. 議題に該当する行番号を記録（line_idsフィールド）\n4. 会議全体の名前を推測\n\n出力形式（JSON）:\n{\n  \"meeting_name\": \"会議名\",\n  \"agendas\": [\n    {\n      \"agenda_id\": 1,\n      \"title\": \"議題タイトル\",\n      \"line_ids\": [1, 2, 3, ..., 50]\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "4cb4a1a2-32c3-4ea1-b9d1-2070f468f30d",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "name": "Gemini: 議題抽出 (Step2 + Memory)",
+      "typeVersion": 1.7,
+      "position": [
+        -432,
+        1712
+      ],
+      "subnodes": {
+        "chatModel": {
+          "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+          "parameters": {
+            "modelName": "gemini-2.0-flash-exp",
+            "options": {
+              "temperature": 0.4,
+              "maxOutputTokens": 4000
+            }
+          }
+        },
+        "memory": {
+          "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+          "parameters": {
+            "sessionKey": "step2_memory",
+            "contextWindowLength": 10
+          }
+        },
+        "tools": []
+      },
+      "notes": "Model: gemini-2.0-flash-exp。Temperature: 0.4。Max Tokens: 4000。Memory: step2_memory（Window: 10）"
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.all()[0].json;\nconst generatedContent = response.candidates[0].content.parts[0].text;\nconst parsed = JSON.parse(generatedContent);\nreturn { json: parsed };"
+      },
+      "id": "b7098c4e-ae58-4ee9-95d6-934c48cc4bba",
+      "type": "n8n-nodes-base.code",
+      "name": "Code: Step2結果パース",
+      "typeVersion": 2,
+      "position": [
+        -176,
+        1680
+      ],
+      "notes": "入力: Gemini APIレスポンス。出力: meeting_name, agendas配列。"
+    },
+    {
+      "parameters": {
+        "content": "## Group 7: 議題抽出 (Step2)\n\n📌 **ノード**:\n- Gemini: 議題抽出 (Step2 + Memory)\n- Code: Step2結果パース\n\n**責務**: 統合テキストから会議の議題を自動抽出\n\n**AI設定**:\n- Model: gemini-2.0-flash-exp\n- Temperature: 0.4\n- Max Tokens: 4000\n- Memory: step2_memory（contextWindowLength: 10）\n\n**出力**: meeting_name, agendas[{agenda_id, title, line_ids}]\n\n**パフォーマンス**: 20-30秒",
+        "height": 260,
+        "width": 340,
+        "color": 5
+      },
+      "id": "23ed98e0-e15a-4171-bdfc-a90117d95a60",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 7: 議題抽出 (Step2)",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        1472
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 議題ごとに該当する文字起こしデータを収集\nconst step2Output = $input.all()[0].json;  // {meeting_name, agendas}\nconst step1Lines = $input.all()[1].json.lines;  // 統合済みlines配列\n\nconst agendaDataArray = [];\n\nfor (const agenda of step2Output.agendas) {\n  const agendaLines = [];\n  \n  // agenda.line_ids に該当する行を収集\n  for (const lineId of agenda.line_ids) {\n    const line = step1Lines.find(l => l.line_id === lineId);\n    if (line) {\n      agendaLines.push(line);\n    }\n  }\n  \n  agendaDataArray.push({\n    agenda_id: agenda.agenda_id,\n    title: agenda.title,\n    lines: agendaLines,\n    meeting_name: step2Output.meeting_name\n  });\n}\n\n// 各議題を個別のアイテムとして返す（Split in Batchesで並列処理するため）\nreturn agendaDataArray.map(agenda => ({ json: agenda }));"
+      },
+      "id": "e6244ce3-f387-41a8-bfa4-3e6833e229ee",
+      "type": "n8n-nodes-base.code",
+      "name": "Code: 議題データ再構成",
+      "typeVersion": 2,
+      "position": [
+        -32,
+        1712
+      ],
+      "notes": "入力1: Step2出力（meeting_name, agendas）。入力2: Step1統合済みlines配列。出力: 議題ごとのデータセット（agenda_id, title, lines, meeting_name）。推定議題数: 3-5個。"
+    },
+    {
+      "parameters": {
+        "content": "## Group 8: 議題データ再構成\n\n📌 **ノード**:\n- Code: 議題データ再構成\n\n**責務**: 議題ごとに該当する文字起こしを収集\n\n**処理内容**:\n- Step2の議題リスト（line_ids）を使用\n- 各議題に該当する行を収集\n- 議題ごとのデータセット作成\n  - agenda_id\n  - title\n  - lines（該当行のみ）\n  - meeting_name\n\n**出力**: 議題ごとの配列（並列処理準備）\n\n**パフォーマンス**: <0.5秒",
+        "height": 260,
+        "width": 320,
+        "color": 4
+      },
+      "id": "7ffbc86e-005a-435e-9eb4-0c4898b86735",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 8: 議題データ再構成",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        1472
+      ]
+    },
+    {
+      "parameters": {
+        "agent": "conversationalAgent",
+        "promptType": "define",
+        "text": "あなたは議題分析専門AIです。議題ごとの文字起こしから決定事項・宿題・保留事項を抽出します。\n\n処理:\n1. 決定事項抽出（decisions）: 会議で決定されたこと\n2. 宿題抽出（todos）: 誰が何をするか\n3. 保留事項抽出（pending）: 未決定・次回持ち越し\n\n出力形式（JSON）:\n{\n  \"agenda_id\": 1,\n  \"title\": \"議題タイトル\",\n  \"decisions\": [\"決定1\", \"決定2\"],\n  \"todos\": [{\"assignee\": \"担当者\", \"task\": \"タスク\", \"deadline\": \"期限\"}],\n  \"pending\": [\"保留1\", \"保留2\"]\n}",
+        "options": {}
+      },
+      "id": "a70ada17-6fa7-464c-abd2-5495d7a5e343",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "name": "Gemini: 議題分析 (Step3)",
+      "typeVersion": 1.7,
+      "position": [
+        384,
+        1712
+      ],
+      "subnodes": {
+        "chatModel": {
+          "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+          "parameters": {
+            "modelName": "gemini-2.0-flash-exp",
+            "options": {
+              "temperature": 0.4,
+              "maxOutputTokens": 4000
+            }
+          }
+        },
+        "memory": null,
+        "tools": []
+      },
+      "notes": "Model: gemini-2.0-flash-exp。Temperature: 0.4。Max Tokens: 4000。Memory: なし"
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.all()[0].json;\nconst generatedContent = response.candidates[0].content.parts[0].text;\nconst parsed = JSON.parse(generatedContent);\nreturn { json: parsed };"
+      },
+      "id": "bd0ef83b-14c4-4045-b59f-5d7b5dc3312a",
+      "type": "n8n-nodes-base.code",
+      "name": "Code: Step3結果パース",
+      "typeVersion": 2,
+      "position": [
+        576,
+        1712
+      ],
+      "notes": "入力: Gemini APIレスポンス。出力: agenda_id, title, decisions, todos, pending。"
+    },
+    {
+      "parameters": {
+        "content": "## Group 9: 議題並列処理 (Step3)\n\n📌 **ノード**:\n- Split in Batches: 議題並列処理\n- Gemini: 議題分析 (Step3)\n- Code: Step3結果パース\n\n**責務**: 3議題並列で決定事項・宿題・保留事項を抽出\n\n**並列処理**:\n- バッチサイズ: 3並列\n- 推定処理時間: 5秒（連続だと15秒 → 67%短縮）\n\n**AI設定**:\n- Model: gemini-2.0-flash-exp\n- Temperature: 0.4\n- Max Tokens: 4000\n- Memory: なし",
+        "height": 260,
+        "width": 360,
+        "color": 5
+      },
+      "id": "db7b9f60-03d1-4f8c-9cd1-5939744b2e44",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 9: 議題並列処理 (Step3)",
+      "typeVersion": 1,
+      "position": [
+        128,
+        1472
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "e8352641-0d8a-4bd0-b4d5-98b162098fc9",
+      "type": "n8n-nodes-base.merge",
+      "name": "Merge: 議題統合",
+      "typeVersion": 3,
+      "position": [
+        784,
+        1712
+      ],
+      "notes": "入力1: ループ出力（Split in Batches）。入力2: 分析済み議題。モード: append。"
+    },
+    {
+      "parameters": {
+        "agent": "conversationalAgent",
+        "promptType": "define",
+        "text": "あなたはMarkdown議事録生成専門AIです。全データを統合し、業務要件定義書フォーマットのMarkdown議事録を生成します。\n\n処理:\n1. データ統合（meeting_name, agendas[]）\n2. Markdown生成（見出し、箇条書き、表）\n3. フォーマット適用\n\n入力: JSON形式の全議題データ\n出力: Markdown形式の議事録（業務要件定義書準拠）",
+        "options": {}
+      },
+      "id": "830369b2-709c-4723-8451-aee6714d3f36",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "name": "Claude: フォーマット変換 (Step4 + Memory)",
+      "typeVersion": 1.7,
+      "position": [
+        976,
+        1712
+      ],
+      "subnodes": {
+        "chatModel": {
+          "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+          "parameters": {
+            "model": "claude-sonnet-4-5-20250929",
+            "options": {
+              "temperature": 0.7,
+              "maxTokens": 8000
+            }
+          }
+        },
+        "memory": {
+          "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+          "parameters": {
+            "sessionKey": "step4_memory",
+            "contextWindowLength": 5
+          }
+        },
+        "tools": []
+      },
+      "notes": "Model: claude-sonnet-4-5-20250929。Temperature: 0.7。Max Tokens: 8000。Memory: step4_memory（Window: 5）"
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.all()[0].json;\nconst markdown = response.content[0].text;\nreturn { json: { markdown: markdown } };"
+      },
+      "id": "3c070f0a-3803-4f1e-8d46-f186f621f9e7",
+      "type": "n8n-nodes-base.code",
+      "name": "Code: Step4結果パース",
+      "typeVersion": 2,
+      "position": [
+        1184,
+        1712
+      ],
+      "notes": "入力: Claude APIレスポンス。出力: markdown文字列。"
+    },
+    {
+      "parameters": {
+        "content": "## Group 10: 議題統合 + フォーマット変換 (Step4)\n\n📌 **ノード**:\n- Merge: 議題統合\n- Claude: フォーマット変換 (Step4 + Memory)\n- Code: Step4結果パース\n\n**責務**: 全議題をマージ、Markdown議事録を生成\n\n**AI設定**:\n- Model: claude-sonnet-4-5-20250929\n- Temperature: 0.7\n- Max Tokens: 8000\n- Memory: step4_memory（contextWindowLength: 5）\n\n**出力**: Markdown議事録\n\n**パフォーマンス**: 60-90秒",
+        "height": 260,
+        "width": 360,
+        "color": 6
+      },
+      "id": "9cbc42fa-a7a9-47e9-bb7a-e486a14a6c1e",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 10: 議題統合 + フォーマット変換 (Step4)",
+      "typeVersion": 1,
+      "position": [
+        720,
+        1472
+      ]
+    },
+    {
+      "parameters": {
+        "agent": "conversationalAgent",
+        "promptType": "define",
+        "text": "あなたは議事録品質保証専門AIです。生成された議事録の完全性を検証し、不足項目を補完します。\n\n処理:\n1. 完全性検証（全議題・決定事項・宿題が含まれているか）\n2. 不足項目補完（元データと照合）\n3. 警告生成（重要な欠落がある場合）\n\n出力形式（JSON）:\n{\n  \"markdown\": \"補完後のMarkdown\",\n  \"warnings\": [\"警告1\", \"警告2\"]\n}",
+        "options": {}
+      },
+      "id": "f8b1bad1-8369-4fca-bcd1-8f58ee7bf4bc",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "name": "Claude: 品質保証 (Step5 + Memory)",
+      "typeVersion": 1.7,
+      "position": [
+        1376,
+        1712
+      ],
+      "subnodes": {
+        "chatModel": {
+          "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+          "parameters": {
+            "model": "claude-sonnet-4-5-20250929",
+            "options": {
+              "temperature": 0.7,
+              "maxTokens": 8000
+            }
+          }
+        },
+        "memory": {
+          "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+          "parameters": {
+            "sessionKey": "step5_memory",
+            "contextWindowLength": 5
+          }
+        },
+        "tools": []
+      },
+      "notes": "Model: claude-sonnet-4-5-20250929。Temperature: 0.7。Max Tokens: 8000。Memory: step5_memory（Window: 5）"
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.all()[0].json;\nconst result = JSON.parse(response.content[0].text);\nreturn { json: result };"
+      },
+      "id": "6012f9eb-b05f-4bd5-8173-62bf0faf7eb5",
+      "type": "n8n-nodes-base.code",
+      "name": "Code: Step5結果パース",
+      "typeVersion": 2,
+      "position": [
+        1584,
+        1712
+      ],
+      "notes": "入力: Claude APIレスポンス。出力: markdown, warnings配列。"
+    },
+    {
+      "parameters": {
+        "content": "## Group 11: 品質保証 + 議事録保存 (Step5)\n\n📌 **ノード**:\n- Claude: 品質保証 (Step5 + Memory)\n- Code: Step5結果パース\n- Google Drive: 議事録保存\n\n**責務**: 議事録検証・補完、Google Driveに保存\n\n**AI設定**:\n- Model: claude-sonnet-4-5-20250929\n- Temperature: 0.7\n- Max Tokens: 8000\n- Memory: step5_memory\n\n**保存先**: /議事録_出力/\n\n**パフォーマンス**: 30-60秒",
+        "height": 260,
+        "width": 360,
+        "color": 6
+      },
+      "id": "18ede461-a59f-4c94-9f41-b2a8c1dd3959",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 11: 品質保証 + 議事録保存 (Step5)",
+      "typeVersion": 1,
+      "position": [
+        1328,
+        1472
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.DISCORD_WEBHOOK_URL }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "content",
+              "value": "={{ '✅ 議事録生成完了！\\n📄 ファイル: ' + $json.name + '\\n🔗 URL: ' + $json.webViewLink + '\\n⏱ 処理時間: ' + $executionTime + '秒' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e75b74ef-c7fd-46bb-9d10-4cf7de421e4b",
+      "type": "n8n-nodes-base.httpRequest",
+      "name": "Discord: 処理完了通知",
+      "typeVersion": 4.2,
+      "position": [
+        2176,
+        1712
+      ],
+      "notes": "Webhook URL: 環境変数 DISCORD_WEBHOOK_URL。通知内容: ファイル名、URL、処理時間。オプション: 環境変数未設定の場合はスキップ。"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "result_1",
+              "name": "success",
+              "value": "true",
+              "type": "boolean"
+            },
+            {
+              "id": "result_2",
+              "name": "meeting_name",
+              "value": "={{ $json.meeting_name }}",
+              "type": "string"
+            },
+            {
+              "id": "result_3",
+              "name": "minutes_file",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "result_4",
+              "name": "minutes_url",
+              "value": "={{ $json.webViewLink }}",
+              "type": "string"
+            },
+            {
+              "id": "result_5",
+              "name": "processing_time",
+              "value": "={{ $executionTime }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6c364afe-59ab-4a25-b96d-0c8e6dca26d4",
+      "type": "n8n-nodes-base.set",
+      "name": "Set: 最終結果セット",
+      "typeVersion": 3.4,
+      "position": [
+        2384,
+        1712
+      ],
+      "notes": "出力フィールド: success, meeting_name, minutes_file, minutes_url, processing_time。"
+    },
+    {
+      "parameters": {
+        "content": "## Group 12: ファイル移動 + 通知 + 最終結果\n\n📌 **ノード**:\n- Google Drive: M4Aファイル移動\n- Discord: 処理完了通知\n- Set: 最終結果セット\n\n**責務**: M4Aファイル移動、Discord通知、最終結果セット\n\n**処理内容**:\n- M4Aファイルを/processed/フォルダに移動\n- Discord Webhook通知（オプション）\n- 最終結果セット（success, meeting_name, minutes_file, minutes_url, processing_time）\n\n**パフォーマンス**: <5秒",
+        "height": 280,
+        "width": 340,
+        "color": 4
+      },
+      "id": "faf3d462-c1d9-45b2-b403-bb34f1794ba7",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 12: ファイル移動 + 通知",
+      "typeVersion": 1,
+      "position": [
+        1920,
+        1472
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "4c98d341-d6e2-4d8d-a133-57f1091e547d",
+      "type": "n8n-nodes-base.errorTrigger",
+      "name": "Error Trigger",
+      "typeVersion": 1,
+      "position": [
+        -2832,
+        2016
+      ],
+      "notes": "自動起動: いずれかのノードでエラー発生時。エラー情報: error.message, error.stack, node.name等。"
+    },
+    {
+      "parameters": {
+        "jsCode": "// エラー情報を整理し、種別を判定\nconst error = $input.all()[0].json.error;\nconst nodeName = $input.all()[0].json.node?.name || 'Unknown';\nconst fileName = $input.all()[0].json.file_name || 'Unknown';\n\nlet errorType = 'unknown';\n\n// エラー種別判定\nif (nodeName.includes('Gemini') || nodeName.includes('音声文字起こし')) {\n  errorType = 'gemini';\n} else if (nodeName.includes('AI Agent') || nodeName.includes('Claude')) {\n  errorType = 'ai';\n} else if (nodeName.includes('Google Drive')) {\n  errorType = 'drive';\n}\n\nreturn {\n  json: {\n    error_type: errorType,\n    error_message: error?.message || 'No error message',\n    error_stack: error?.stack || 'No stack trace',\n    node_name: nodeName,\n    file_name: fileName,\n    timestamp: new Date().toISOString()\n  }\n};"
+      },
+      "id": "faf40190-26fe-47da-97d2-5e267f6c2d04",
+      "type": "n8n-nodes-base.code",
+      "name": "Code: エラー情報整理",
+      "typeVersion": 2,
+      "position": [
+        -2624,
+        2016
+      ],
+      "notes": "エラー種別: gemini（音声文字起こし失敗）、ai（AI処理失敗）、drive（Google Drive操作失敗）、unknown（その他）。出力: error_type, error_message, error_stack, node_name, file_name, timestamp。"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.error_type }}",
+              "rightValue": "gemini",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "05063318-06e3-4dfd-919b-cf001a753840",
+      "type": "n8n-nodes-base.if",
+      "name": "IF: エラー種別判定",
+      "typeVersion": 2,
+      "position": [
+        -2432,
+        2016
+      ],
+      "notes": "True出力（Gemini失敗）: M4Aファイルを/エラー/フォルダに移動。False出力（AI/Drive失敗）: 部分議事録保存またはn8n一時保存。"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "fileId": "={{ $('Google Drive: 新規ファイル検知').item.json.id }}",
+        "options": {}
+      },
+      "id": "0728966b-c649-4340-9228-b02dfa780917",
+      "type": "n8n-nodes-base.googleDrive",
+      "name": "Google Drive: エラーファイル移動",
+      "typeVersion": 3,
+      "position": [
+        -2224,
+        1920
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "TFTiRBIR7HfeoxoO",
+          "name": "Google Drive account"
+        }
+      },
+      "notes": "移動先: /エラー/。トリガー: Gemini失敗時のみ（IF True出力）。"
+    },
+    {
+      "parameters": {
+        "operation": "create"
+      },
+      "id": "7b4a3cdc-57d2-4287-bf77-538c1604c154",
+      "type": "n8n-nodes-base.googleDrive",
+      "name": "Google Drive: エラー議事録保存",
+      "typeVersion": 3,
+      "position": [
+        -2224,
+        2112
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "TFTiRBIR7HfeoxoO",
+          "name": "Google Drive account"
+        }
+      },
+      "notes": "保存先: /議事録_出力/。ファイル名形式: [ERROR]minutes - YYYY-MM-DD - ファイル名.md。トリガー: AI失敗時（IF False出力）。"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "error_1",
+              "name": "error_logged",
+              "value": "true",
+              "type": "boolean"
+            },
+            {
+              "id": "error_2",
+              "name": "error_type",
+              "value": "={{ $json.error_type }}",
+              "type": "string"
+            },
+            {
+              "id": "error_3",
+              "name": "error_message",
+              "value": "={{ $json.error_message }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b8fd57fb-2b78-44d7-b4e9-bcf3c66b5ba4",
+      "type": "n8n-nodes-base.set",
+      "name": "Set: エラー一時保存",
+      "typeVersion": 3.4,
+      "position": [
+        -2032,
+        2016
+      ],
+      "notes": "出力フィールド: error_logged, error_type, error_message。"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.DISCORD_WEBHOOK_URL }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "content",
+              "value": "={{ '🚨 議事録生成エラー発生\\n📄 ファイル: ' + $json.file_name + '\\n❌ エラータイプ: ' + $json.error_type + '\\n💬 メッセージ: ' + $json.error_message + '\\n🔧 発生ノード: ' + $json.node_name + '\\n⏰ 時刻: ' + $json.timestamp }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "84ea130b-3f3c-4208-978e-47afbb25afbe",
+      "type": "n8n-nodes-base.httpRequest",
+      "name": "Discord: エラー通知",
+      "typeVersion": 4.2,
+      "position": [
+        -1824,
+        2016
+      ],
+      "notes": "Webhook URL: 環境変数 DISCORD_WEBHOOK_URL。通知内容: file_name, error_type, error_message, node_name, timestamp。"
+    },
+    {
+      "parameters": {
+        "content": "## Error Group 1: エラーハンドリング\n\n📌 **ノード**:\n- Error Trigger\n- Code: エラー情報整理\n- IF: エラー種別判定\n- Google Drive: エラーファイル移動\n- Google Drive: エラー議事録保存\n- Set: エラー一時保存\n- Discord: エラー通知\n\n**責務**: 全ノードのエラー検知、種別判定、リカバリー、通知\n\n**エラー種別**:\n1. **Gemini失敗**: M4Aファイルを/エラー/フォルダに移動\n2. **AI失敗**: [ERROR]議事録を保存\n3. **Drive失敗**: n8n内部ストレージに一時保存\n\n**全エラー**: Discord通知",
+        "height": 300,
+        "width": 360,
+        "color": 7
+      },
+      "id": "add414a8-6155-4756-beee-9cbd223c3ded",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Error Group 1: エラーハンドリング",
+      "typeVersion": 1,
+      "position": [
+        -2880,
+        1824
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": "={{ $json.id }}",
+        "options": {
+          "binaryPropertyName": "m4a_data",
+          "googleFileConversion": {}
+        }
+      },
+      "id": "c82b7f51-1f25-4251-b51b-072ec125f5bd",
+      "type": "n8n-nodes-base.googleDrive",
+      "name": "Google Drive: M4Aダウンロード1",
+      "typeVersion": 3,
+      "position": [
+        -2432,
+        1712
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "TFTiRBIR7HfeoxoO",
+          "name": "Google Drive account"
+        }
+      },
+      "notes": "バイナリプロパティ名: m4a_data（Gemini Step0で参照）。ファイル変換なし（M4Aのまま）。"
+    },
+    {
+      "parameters": {
+        "batchSize": 5,
+        "options": {}
+      },
+      "id": "44cf0b9c-8336-4aad-95d5-b0006f2a42c6",
+      "type": "n8n-nodes-base.splitInBatches",
+      "name": "Split in Batches: チャンク並列処理1",
+      "typeVersion": 3,
+      "position": [
+        -1424,
+        1712
+      ],
+      "notes": "バッチサイズ: 5並列。推定バッチ数: 3バッチ（12チャンク÷5）。ループ: Mergeノードまで。"
+    },
+    {
+      "parameters": {
+        "batchSize": 3,
+        "options": {}
+      },
+      "id": "51561716-a8b3-44fd-931d-16d02818baac",
+      "type": "n8n-nodes-base.splitInBatches",
+      "name": "Split in Batches: 議題並列処理1",
+      "typeVersion": 3,
+      "position": [
+        176,
+        1712
+      ],
+      "notes": "バッチサイズ: 3並列。推定バッチ数: 1-2バッチ（3-5議題）。ループ: Mergeノードまで。"
+    },
+    {
+      "parameters": {
+        "operation": "create"
+      },
+      "id": "d5025dbe-2261-4c1b-b4a6-a90055958faa",
+      "type": "n8n-nodes-base.googleDrive",
+      "name": "Google Drive: 議事録保存1",
+      "typeVersion": 3,
+      "position": [
+        1776,
+        1712
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "TFTiRBIR7HfeoxoO",
+          "name": "Google Drive account"
+        }
+      },
+      "notes": "フォルダ: /議事録_出力/。ファイル名形式: minutes - YYYY-MM-DD - 会議名.md。MIMEタイプ: text/markdown。"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "fileId": "={{ $('Google Drive: 新規ファイル検知').item.json.id }}",
+        "options": {}
+      },
+      "id": "65cc7a6a-77c0-4e25-97bd-17b26cea5bce",
+      "type": "n8n-nodes-base.googleDrive",
+      "name": "Google Drive: M4Aファイル移動1",
+      "typeVersion": 3,
+      "position": [
+        1984,
+        1712
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "TFTiRBIR7HfeoxoO",
+          "name": "Google Drive account"
+        }
+      },
+      "notes": "移動先: /processed/。元ファイルID参照: Group 1のトリガーノードから取得。"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -576,
+        1920
+      ],
+      "id": "97d803b5-887d-4288-930d-7ea31fcd8cec",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "9iOvDYEl5OJWSioP",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# 【GoogleDrive音声Meet議事録自動生成システム v4.0 - 全体フロー】\n\n## このワークフローに含まれる全ノード（40個）\n\n📌 **M4Aファイル検知** (googleDriveTrigger)\n📌 **ファイル情報取得** (googleDrive)\n📌 **M4Aダウンロード** (googleDrive)\n📌 **初期メタデータ設定** (set)\n📌 **ファイル妥当性チェック** (filter)\n📌 **ファイル名正規化** (code)\n📌 **Fireworks Whisper v3文字起こし** (httpRequest)\n📌 **文字起こしメタ整形** (set)\n📌 **チャンク並列バッチ** (splitInBatches)\n📌 **AI Agent Step2 - 文字起こし整形** (@n8n/n8n-nodes-langchain.agent)\n📌 **Gemini Flash 2.5 (Step2)** (@n8n/n8n-nodes-langchain.lmChatGoogleGemini)\n📌 **step2_memory** (@n8n/n8n-nodes-langchain.memoryBufferWindow)\n📌 **チャンク統合** (merge)\n📌 **重複行除去** (code)\n📌 **議題抽出入力整形** (set)\n📌 **AI Agent Step3 - 議題抽出** (@n8n/n8n-nodes-langchain.agent)\n📌 **Gemini Flash 2.5 (Step3)** (@n8n/n8n-nodes-langchain.lmChatGoogleGemini)\n📌 **step3_memory** (@n8n/n8n-nodes-langchain.memoryBufferWindow)\n📌 **議題メタ生成** (set)\n📌 **議題分割処理** (code)\n📌 **議題並列バッチ** (splitInBatches)\n📌 **AI Agent Step4 - 議題分析** (@n8n/n8n-nodes-langchain.agent)\n📌 **Gemini Flash 2.5 (Step4)** (@n8n/n8n-nodes-langchain.lmChatGoogleGemini)\n📌 **AI Agent Step5 - 議題別マッピング** (@n8n/n8n-nodes-langchain.agent)\n📌 **Claude Sonnet 4.5 (Step5)** (@n8n/n8n-nodes-langchain.lmChatAnthropic)\n📌 **step5_memory** (@n8n/n8n-nodes-langchain.memoryBufferWindow)\n📌 **議題統合** (merge)\n📌 **重複除去** (code)\n📌 **議事録ペイロード生成** (set)\n📌 **AI Agent Step6 - フォーマット変換** (@n8n/n8n-nodes-langchain.agent)\n📌 **Claude Sonnet 4.5 (Step6)** (@n8n/n8n-nodes-langchain.lmChatAnthropic)\n📌 **step6_memory** (@n8n/n8n-nodes-langchain.memoryBufferWindow)\n📌 **AI Agent Step7 - 品質保証** (@n8n/n8n-nodes-langchain.agent)\n📌 **Claude Sonnet 4.5 (Step7)** (@n8n/n8n-nodes-langchain.lmChatAnthropic)\n📌 **step7_memory** (@n8n/n8n-nodes-langchain.memoryBufferWindow)\n📌 **議事録保存** (googleDrive)\n📌 **M4A処理済み移動** (googleDrive)\n📌 **Discord完了通知** (httpRequest)\n📌 **処理結果まとめ** (set)\n📌 **監査ログ送信** (httpRequest)\n\n## グループブロック（9グループ - 再現サマリ）\n\n> ### 🔵 Group 1: データ受信・検証（7ノード）\n> **主要機能**: M4Aファイル検知、ファイル情報取得、妥当性チェック、ファイル名正規化\n> **層マッピング**: L1 (Trigger), L2 (Input), L3 (Validation)\n> **引き渡し**: ファイル名正規化 → Group 2 (Fireworks Whisper v3)\n\n> ### 🟢 Group 2: 音声文字起こし・チャンク分割（5ノード）\n> **主要機能**: Fireworks Whisper v3文字起こし（4秒/1時間）、チャンク分割、5並列バッチ処理\n> **層マッピング**: L4 (Transformation), L6 (Integration), L11 (Performance)\n> **デザインパターン**: Pattern 3 (Batch Processing) - 5並列\n> **引き渡し**: チャンク並列バッチ → Group 3 (AI Agent Step2) → ループバック → 全完了後 Group 4\n\n> ### 🟡 Group 3: 文字起こし整形（並列）（4ノード）\n> **主要機能**: AI Agent Step2 - 文字起こし整形（Gemini Flash 2.5）\n> **層マッピング**: L5 (Core Logic)\n> **デザインパターン**: Pattern 1 (Error-First Design), Pattern 2 (AI Agent with Sub-Nodes)\n> **引き渡し**: AI Agent Step2 → Group 2 (ループバック)\n\n> ### 🔵 Group 4: チャンク統合・議題抽出（7ノード）\n> **主要機能**: チャンク統合、重複行除去、AI Agent Step3 - 議題抽出（Gemini Flash 2.5）\n> **層マッピング**: L4 (Transformation), L5 (Core Logic), L11 (Performance)\n> **デザインパターン**: Pattern 1, Pattern 2\n> **引き渡し**: 議題メタ生成 → Group 5\n\n> ### 🟢 Group 5: 議題分析準備（2ノード）\n> **主要機能**: 議題分割処理（個別議題アイテム生成）\n> **層マッピング**: L4 (Transformation)\n> **引き渡し**: 議題分割処理 → Group 6 (議題並列バッチ)\n\n> ### 🟡 Group 6: 議題並列処理開始（2ノード）\n> **主要機能**: 3並列議題バッチ処理制御\n> **層マッピング**: L11 (Performance)\n> **デザインパターン**: Pattern 3 (Batch Processing) - 3並列\n> **引き渡し**: 議題並列バッチ → Group 7 (AI Agent Step4 + Step5) → ループバック → 全完了後 Group 8\n\n> ### 🔵 Group 7: 議題分析・マッピング（並行実行）（6ノード）\n> **主要機能**: AI Agent Step4 - 議題分析（Gemini）、AI Agent Step5 - 議題別マッピング（Claude）\n> **層マッピング**: L5 (Core Logic)\n> **デザインパターン**: Pattern 1, Pattern 2（2つのAIエージェント並行実行）\n> **引き渡し**: AI Agent Step5 → Group 6 (ループバック)\n\n> ### 🟢 Group 8: 議題統合・フォーマット変換（7ノード）\n> **主要機能**: 議題統合、重複除去、AI Agent Step6 - フォーマット変換（Claude Sonnet 4.5）\n> **層マッピング**: L4 (Transformation), L5 (Core Logic), L11 (Performance)\n> **デザインパターン**: Pattern 1, Pattern 2\n> **引き渡し**: 議事録ペイロード生成 → Group 9\n\n> ### 🟡 Group 9: 品質保証・出力・監視（9ノード）\n> **主要機能**: AI Agent Step7 - 品質保証（Claude）、議事録保存、M4A移動、Discord通知、監査ログ\n> **層マッピング**: L5 (Core Logic), L6 (Integration), L7 (Output), L9 (Security), L10 (Monitoring)\n> **デザインパターン**: Pattern 1, Pattern 2\n> **引き渡し**: 監査ログ送信 → 完了\n\n## このワークフローの目的\n\nGoogleDrive内のM4A音声ファイル（Google Meet録音）を**自動検知**し、**高速・低コストな文字起こし**（Fireworks Whisper v3: 4秒/1時間、99%コスト削減）を実行後、**AI分析**を経て**構造化された議事録Markdown**を生成・保存する完全自動化ワークフローです。\n\n**処理フロー**:\n1. M4Aファイル検知 → ファイル検証 → 文字起こし（4秒/1時間）\n2. チャンク分割 → 5並列整形（Gemini Flash 2.5高速処理）\n3. 議題抽出（Gemini） → 3並列分析・マッピング（Gemini + Claude並行実行）\n4. フォーマット変換（Claude高精度） → 品質保証（Claude） → 保存・通知\n\n## 背景\n\n**業務課題**:\n- Google Meet録音音声（1時間規模）から議事録を手動作成する業務負担が大きい\n- Deepgramによる文字起こしコストが高額（1時間あたり高コスト）\n- 議題抽出・構造化が困難で、議事録の品質が不安定\n\n**技術要件**:\n- 99%コスト削減を実現する文字起こしエンジン（Fireworks Whisper v3）\n- AIモデルの適材適所配置（高速処理: Gemini Flash 2.5、高精度分析: Claude Sonnet 4.5）\n- 並列処理による処理時間短縮（5並列チャンク、3並列議題）\n- 12層アーキテクチャによる保守性・拡張性確保\n\n## 従来の課題\n\n❌ **コスト問題**: Deepgram文字起こしで高額コスト発生（1時間音声で高額）\n❌ **処理時間問題**: 逐次処理により1時間音声の処理に長時間必要\n❌ **品質問題**: 手動の議題抽出・構造化で品質が不安定、見落としリスク\n❌ **拡張性問題**: 単一AIモデルによる処理で柔軟性不足\n\n## ソリューション概要\n\n✅ **99%コスト削減**: Fireworks Whisper v3採用（4秒/1時間、Deepgram比99%削減）\n✅ **処理時間短縮**: 5並列チャンク処理 + 3並列議題処理で大幅短縮\n✅ **AIモデル適材適所**:\n   - **Gemini Flash 2.5** (Step2-4): 高速・低コスト処理（文字起こし整形、議題抽出、議題分析）\n   - **Claude Sonnet 4.5** (Step5-7): 高精度分析（議題別マッピング、フォーマット変換、品質保証）\n✅ **12層アーキテクチャ**: L1 (Trigger) → L12 (Orchestration) の体系的設計\n✅ **3つのデザインパターン**:\n   - Pattern 1: Error-First Design（全AI Agentに適用、maxTries=3）\n   - Pattern 2: AI Agent with Sub-Nodes（6 AI Agents + 5 Memory + 6 Chat Models）\n   - Pattern 3: Batch Processing（5並列チャンク、3並列議題）\n\n## 全体フロー\n\n",
+        "height": 1610,
+        "width": 760,
+        "color": 7
+      },
+      "id": "e005efd8-89af-4784-8334-d87d96a3d448",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "GoogleDrive音声Meet議事録自動生成システム v4.0 - 全体フロー",
+      "typeVersion": 1,
+      "position": [
+        -1056,
+        3920
+      ]
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFile",
+        "fileToWatch": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "id": "0d67ce78-396f-4a0a-8921-af15a0b0c63a",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "name": "M4Aファイル検知",
+      "typeVersion": 1,
+      "position": [
+        -464,
+        4480
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "TFTiRBIR7HfeoxoO",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get"
+      },
+      "id": "c2f2047e-a026-4c58-87b0-64383fd4e896",
+      "type": "n8n-nodes-base.googleDrive",
+      "name": "ファイル情報取得",
+      "typeVersion": 3,
+      "position": [
+        -256,
+        4480
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "TFTiRBIR7HfeoxoO",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {
+          "binaryPropertyName": "m4a_data"
+        }
+      },
+      "id": "4b7372de-f9ef-4747-9242-90d73ce25e36",
+      "type": "n8n-nodes-base.googleDrive",
+      "name": "M4Aダウンロード",
+      "typeVersion": 3,
+      "position": [
+        -64,
+        4480
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "TFTiRBIR7HfeoxoO",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "3b24fb1b-6b75-49ed-b1b9-b80b7149fefb",
+      "type": "n8n-nodes-base.set",
+      "name": "初期メタデータ設定",
+      "typeVersion": 3,
+      "position": [
+        144,
+        4480
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition_mime_type",
+              "leftValue": "={{ $json.mimeType }}",
+              "rightValue": "audio/m4a",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "condition_file_size",
+              "leftValue": "={{ $json.file_size_bytes }}",
+              "rightValue": "1073741824",
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "2483f240-3a4e-4b73-aa90-9ebbea5590fa",
+      "type": "n8n-nodes-base.filter",
+      "name": "ファイル妥当性チェック",
+      "typeVersion": 2.2,
+      "position": [
+        352,
+        4480
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ファイル名正規化とタイムスタンプパース\nconst items = $input.all();\nconst normalizedItems = [];\n\nfor (const item of items) {\n  const meetingName = item.json.meeting_name;\n  const timestamp = item.json.timestamp;\n  \n  // ファイル名から日時情報を抽出（例: \"2024-01-15_14-30_定例会議.m4a\"）\n  const datePattern = /(\\d{4})-(\\d{2})-(\\d{2})_(\\d{2})-(\\d{2})/;\n  const match = meetingName.match(datePattern);\n  \n  let parsedDate = null;\n  let cleanMeetingName = meetingName;\n  \n  if (match) {\n    const [_, year, month, day, hour, minute] = match;\n    parsedDate = `${year}-${month}-${day}T${hour}:${minute}:00Z`;\n    cleanMeetingName = meetingName.replace(datePattern, '').trim().replace(/^_+|_+$/g, '');\n  }\n  \n  normalizedItems.push({\n    json: {\n      ...item.json,\n      meeting_name: cleanMeetingName,\n      meeting_date: parsedDate || timestamp,\n      original_filename: meetingName\n    },\n    binary: item.binary\n  });\n}\n\nreturn normalizedItems;"
+      },
+      "id": "7e7b1004-77e9-45be-bbcf-82a5108f9d30",
+      "type": "n8n-nodes-base.code",
+      "name": "ファイル名正規化",
+      "typeVersion": 2,
+      "position": [
+        544,
+        4480
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Group 1: データ受信・検証\n\n**目的**: Google DriveからM4Aファイルを検知し、ダウンロード・検証を行う\n\n### 🎯 このグループの役割\n- **L1 (Trigger)**: 5分間隔でGoogle Driveをポーリング\n- **L2 (Input)**: ファイル情報取得とバイナリダウンロード\n- **L3 (Validation)**: MIME Type・サイズ検証、ファイル名正規化",
+        "height": 452,
+        "width": 1132,
+        "color": 2
+      },
+      "id": "2488b284-f905-4f2b-9994-80d64c200dcd",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 1: データ受信・検証",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        4208
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.fireworks.ai/v1/audio/transcriptions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "fireworksApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "file"
+            },
+            {
+              "name": "model",
+              "value": "whisper-v3-large"
+            },
+            {
+              "name": "language",
+              "value": "ja"
+            },
+            {
+              "name": "diarization",
+              "value": "true"
+            },
+            {
+              "name": "response_format",
+              "value": "verbose_json"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "id": "4b16b7cd-bba2-4dda-8519-e19270914bfe",
+      "type": "n8n-nodes-base.httpRequest",
+      "name": "Fireworks Whisper v3文字起こし",
+      "typeVersion": 4,
+      "position": [
+        752,
+        4480
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "fab7f732-ac1a-49cf-afed-285216327a42",
+      "type": "n8n-nodes-base.set",
+      "name": "文字起こしメタ整形",
+      "typeVersion": 3,
+      "position": [
+        944,
+        4480
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 文字起こしテキストをチャンク分割（25行 + オーバーラップ6行）\nconst items = $input.all();\nconst chunks = [];\n\nfor (const item of items) {\n  const transcript = item.json.transcript;\n  const segments = item.json.segments || [];\n  const lines = transcript.split('\\n').filter(line => line.trim().length > 0);\n  \n  const CHUNK_SIZE = 25;\n  const OVERLAP = 6;\n  const chunkCount = Math.ceil(lines.length / (CHUNK_SIZE - OVERLAP));\n  \n  for (let i = 0; i < chunkCount; i++) {\n    const startIndex = i * (CHUNK_SIZE - OVERLAP);\n    const endIndex = Math.min(startIndex + CHUNK_SIZE, lines.length);\n    const chunkLines = lines.slice(startIndex, endIndex);\n    \n    // 該当セグメント情報を抽出\n    const chunkSegments = segments.filter(seg => {\n      const segmentText = seg.text || '';\n      return chunkLines.some(line => line.includes(segmentText));\n    });\n    \n    chunks.push({\n      json: {\n        ...item.json,\n        chunk_id: i + 1,\n        chunk_total: chunkCount,\n        chunk: chunkLines.join('\\n'),\n        chunk_lines: chunkLines.length,\n        chunk_start_line: startIndex + 1,\n        chunk_end_line: endIndex,\n        chunk_segments: chunkSegments,\n        has_overlap: i > 0\n      }\n    });\n  }\n}\n\nreturn chunks;"
+      },
+      "id": "c008764c-a993-48ae-b5fd-0b5c3902ab6f",
+      "type": "n8n-nodes-base.code",
+      "name": "チャンク分割処理",
+      "typeVersion": 2,
+      "position": [
+        1152,
+        4480
+      ]
+    },
+    {
+      "parameters": {
+        "batchSize": 5,
+        "options": {}
+      },
+      "id": "4b775f5a-269f-41b6-8300-0ffd6236f07e",
+      "type": "n8n-nodes-base.splitInBatches",
+      "name": "チャンク並列バッチ",
+      "typeVersion": 3,
+      "position": [
+        1408,
+        4480
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Group 2: 音声文字起こし・チャンク分割\n\n**目的**: Fireworks Whisper v3でM4A音声を超高速文字起こしし、チャンク分割で並列処理準備\n\n### 🎯 このグループの役割\n- **L4 (Transformation)**: 音声→テキスト変換、チャンク分割\n- **L6 (Integration)**: Fireworks AI API連携\n- **L11 (Performance)**: 5並列バッチ処理",
+        "height": 460,
+        "width": 640,
+        "color": 3
+      },
+      "id": "e62bb66e-02ca-4c2e-833b-c539ad2b7cff",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 2: 音声文字起こし・チャンク分割",
+      "typeVersion": 1,
+      "position": [
+        704,
+        4208
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chunk }}",
+        "options": {
+          "systemMessage": "あなたは議事録作成の専門家です。音声文字起こしテキストを読みやすい形式に整形します。\n\n【整形ルール】\n1. フィラー（「えー」「あのー」「うーん」など）を削除\n2. 重複表現を統一（「それでそれで」→「それで」）\n3. 話し言葉を適切に整理（意味を損なわない範囲で）\n4. 箇条書き形式に変換（各発言を独立した項目に）\n5. 話者情報を保持（Speaker 1、Speaker 2など）\n6. タイムスタンプ情報を保持\n\n【出力形式】\n- 各行: [話者] 発言内容\n- 例: [Speaker 1] プロジェクトの進捗について報告します。\n\n【禁止事項】\n- 内容の要約や省略（全内容を保持）\n- 話者の推測や特定\n- 発言順序の変更",
+          "maxIterations": 3
+        }
+      },
+      "id": "c29027c2-e35e-4ee0-994f-df89211c227d",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "name": "AI Agent Step2 - 文字起こし整形",
+      "typeVersion": 3,
+      "position": [
+        1600,
+        4592
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "options": {
+          "maxOutputTokens": 4000,
+          "temperature": 0.4
+        }
+      },
+      "id": "ac7e582e-21d9-490d-941c-2875fec2cbad",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "name": "Gemini Flash 2.5 (Step2)",
+      "typeVersion": 1,
+      "position": [
+        1568,
+        4784
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "EZ0k3UGmSLSXnnKX",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Group 3: 文字起こし整形（並列）\n\n**目的**: AI Agent Step2でチャンクテキストを読みやすい議事録形式に整形（5並列処理）\n\n### 🎯 このグループの役割\n- **L5 (Core Logic)**: AI Agent Step2による文字起こし整形\n- **パターン2適用**: AI Agent with Sub-Nodes and Tools\n- **パターン3適用**: Batch Processing (5並列)",
+        "height": 732,
+        "width": 640,
+        "color": 4
+      },
+      "id": "9a029fa4-63ec-4dc4-9ae6-6c1429eac270",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 3: 文字起こし整形（並列）",
+      "typeVersion": 1,
+      "position": [
+        1392,
+        4208
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "fd13e329-547d-4707-88fe-1ae4c4da8682",
+      "type": "n8n-nodes-base.merge",
+      "name": "チャンク統合",
+      "typeVersion": 3.2,
+      "position": [
+        2112,
+        4480
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// チャンクオーバーラップによる重複行を除去\nconst items = $input.all();\nconst uniqueLines = new Map();\n\nfor (const item of items) {\n  const formattedChunk = item.json.formatted_chunk || item.json.output || '';\n  const lines = formattedChunk.split('\\n').filter(line => line.trim().length > 0);\n  \n  for (let i = 0; i < lines.length; i++) {\n    const line = lines[i].trim();\n    const lineId = `${item.json.chunk_id}_${i}`;\n    \n    // line_idでユニーク化（重複を排除）\n    if (!uniqueLines.has(line)) {\n      uniqueLines.set(line, {\n        line_id: lineId,\n        chunk_id: item.json.chunk_id,\n        line_number: i + 1,\n        content: line,\n        speaker: line.match(/\\[([^\\]]+)\\]/)?.[1] || 'Unknown'\n      });\n    }\n  }\n}\n\n// 行番号順にソート\nconst sortedLines = Array.from(uniqueLines.values())\n  .sort((a, b) => {\n    const [aChunk, aLine] = a.line_id.split('_').map(Number);\n    const [bChunk, bLine] = b.line_id.split('_').map(Number);\n    return aChunk === bChunk ? aLine - bLine : aChunk - bChunk;\n  });\n\nreturn [{\n  json: {\n    full_transcript: sortedLines.map(l => l.content).join('\\n'),\n    total_lines: sortedLines.length,\n    lines: sortedLines,\n    speakers: [...new Set(sortedLines.map(l => l.speaker))]\n  }\n}];"
+      },
+      "id": "eb3a9461-dfe0-4ce3-933c-10eaf9a3113b",
+      "type": "n8n-nodes-base.code",
+      "name": "重複行除去",
+      "typeVersion": 2,
+      "position": [
+        2256,
+        4480
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.full_transcript }}",
+        "options": {
+          "systemMessage": "あなたは会議分析の専門家です。会議の文字起こしテキストから議題を抽出します。\n\n【議題抽出ルール】\n1. 会議で議論された主要なトピックを特定\n2. 各議題に明確なタイトルを付与（20文字以内）\n3. 議題の開始時刻と終了時刻を推定\n4. 議題の重要度を評価（高・中・低）\n5. 議題間の関連性を分析\n\n【出力形式】\nJSON配列で以下の形式:\n[\n  {\n    \"agenda_id\": 1,\n    \"title\": \"議題タイトル\",\n    \"start_time\": \"00:05:30\",\n    \"end_time\": \"00:15:20\",\n    \"importance\": \"高\",\n    \"summary\": \"議題の簡潔な要約（50文字以内）\",\n    \"related_agendas\": [2, 3]\n  }\n]\n\n【禁止事項】\n- 議題の捏造や推測\n- 文字起こしにない内容の追加\n- 議題の統合や省略",
+          "maxIterations": 5
+        }
+      },
+      "id": "38ebe96f-eaa8-46a0-b62f-20f3568965e1",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "name": "AI Agent Step3 - 議題抽出",
+      "typeVersion": 3,
+      "position": [
+        2432,
+        4480
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "8e7f8e38-e4cb-4e31-9863-68b3830b578c",
+      "type": "n8n-nodes-base.set",
+      "name": "議題メタ生成",
+      "typeVersion": 3,
+      "position": [
+        2784,
+        4480
+      ]
+    },
+    {
+      "parameters": {
+        "options": {
+          "maxOutputTokens": 4000,
+          "temperature": 0.4
+        }
+      },
+      "id": "2c028408-98ad-43a7-873e-557e67ea0521",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "name": "Gemini Flash 2.5 (Step3)",
+      "typeVersion": 1,
+      "position": [
+        2432,
+        4640
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "EZ0k3UGmSLSXnnKX",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "step3_memory",
+        "contextWindowLength": 10
+      },
+      "id": "0fbea53a-5787-4883-b26b-d8f3ce4b24df",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "name": "Simple Memory (Step3)",
+      "typeVersion": 1.3,
+      "position": [
+        2528,
+        4640
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Group 4: チャンク統合・議題抽出\n\n**目的**: 整形済みチャンクを統合し、AI Agent Step3で会議議題を抽出\n\n### 🎯 このグループの役割\n- **L11 (Performance)**: Mergeでチャンク統合\n- **L4 (Transformation)**: 重複除去、データ整形\n- **L5 (Core Logic)**: AI Agent Step3による議題抽出",
+        "height": 636,
+        "width": 640,
+        "color": 6
+      },
+      "id": "e3f84f06-c378-4e73-a877-739d6a4c51da",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 4: チャンク統合・議題抽出",
+      "typeVersion": 1,
+      "position": [
+        2080,
+        4208
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 議題配列を個別アイテムに分割\nconst items = $input.all();\nconst agendaItems = [];\n\nfor (const item of items) {\n  const agendas = item.json.agendas || [];\n  const meetingName = item.json.meeting_name;\n  const fullTranscript = item.json.full_transcript;\n  const speakers = item.json.speakers || [];\n  \n  // 各議題を独立したアイテムに展開\n  for (let i = 0; i < agendas.length; i++) {\n    const agenda = agendas[i];\n    \n    agendaItems.push({\n      json: {\n        // 会議全体のメタデータ\n        meeting_name: meetingName,\n        full_transcript: fullTranscript,\n        speakers: speakers,\n        total_agendas: agendas.length,\n        \n        // 個別議題データ\n        agenda_id: agenda.agenda_id || (i + 1),\n        title: agenda.title,\n        start_time: agenda.start_time,\n        end_time: agenda.end_time,\n        importance: agenda.importance,\n        summary: agenda.summary,\n        related_agendas: agenda.related_agendas || [],\n        \n        // 処理制御用\n        current_index: i,\n        is_first: i === 0,\n        is_last: i === agendas.length - 1\n      }\n    });\n  }\n}\n\nreturn agendaItems;"
+      },
+      "id": "fd7fbe4e-da0e-4b53-a1e2-3e6b4c91176f",
+      "type": "n8n-nodes-base.code",
+      "name": "議題分割処理",
+      "typeVersion": 2,
+      "position": [
+        2944,
+        4480
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Group 5: 議題分析準備\n\n**目的**: 議題配列を個別アイテムに分割し、並列処理準備を行う\n\n### 🎯 このグループの役割\n- **L4 (Transformation)**: 議題配列を個別アイテムに展開\n- **並列処理準備**: Group 6の3議題並列バッチ処理に対応",
+        "height": 540,
+        "width": 588,
+        "color": 2
+      },
+      "id": "b75c0cec-9d07-4a0e-a6eb-022c925e179f",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 5: 議題分析準備",
+      "typeVersion": 1,
+      "position": [
+        2752,
+        4208
+      ]
+    },
+    {
+      "parameters": {
+        "batchSize": 3,
+        "options": {}
+      },
+      "id": "cd1fca5e-643e-48e6-ac25-7b42f42d9578",
+      "type": "n8n-nodes-base.splitInBatches",
+      "name": "議題並列バッチ",
+      "typeVersion": 3,
+      "position": [
+        3152,
+        4480
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Group 6: 議題並列処理開始\n\n**目的**: 議題を3個ずつバッチに分割し、AI Agent Step4 + Step5の並列処理を開始\n\n### 🎯 このグループの役割\n- **L11 (Performance)**: 3議題並列バッチ処理\n- **並列制御**: AI Agent Step4とStep5の並行実行",
+        "height": 1740,
+        "width": 908,
+        "color": 3
+      },
+      "id": "f8c27159-6273-483f-bd6f-c945209cabff",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 6: 議題並列処理開始",
+      "typeVersion": 1,
+      "position": [
+        3360,
+        3968
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.title + '\\n\\n' + $json.summary }}",
+        "options": {
+          "systemMessage": "あなたは議事録分析の専門家です。会議の議題から決定事項、宿題、保留事項を抽出します。\n\n【分析対象】\n- 議題タイトル: {{ $json.title }}\n- 議題要約: {{ $json.summary }}\n\n【抽出ルール】\n1. **決定事項**: 会議で合意・決定された内容\n2. **宿題（アクションアイテム）**: 誰かが実行すべきタスク、担当者、期限\n3. **保留事項**: 未解決の課題、次回持ち越し項目\n\n【出力形式】\nJSON形式で以下の構造:\n{\n  \"decisions\": [\n    {\"id\": 1, \"content\": \"決定内容\", \"speaker\": \"Speaker 1\", \"timestamp\": \"00:12:30\"}\n  ],\n  \"action_items\": [\n    {\"id\": 1, \"task\": \"タスク内容\", \"assignee\": \"担当者\", \"deadline\": \"期限\", \"timestamp\": \"00:15:00\"}\n  ],\n  \"pending_issues\": [\n    {\"id\": 1, \"issue\": \"未解決課題\", \"reason\": \"理由\", \"timestamp\": \"00:20:10\"}\n  ]\n}\n\n【禁止事項】\n- データにない情報の追加\n- 推測による項目の捏造\n- 議題の統合や省略",
+          "maxIterations": 5
+        }
+      },
+      "id": "977f363f-f30b-4f7a-8fa4-959f17fd3dec",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "name": "AI Agent Step4 - 議題分析",
+      "typeVersion": 3,
+      "position": [
+        3440,
+        5200
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "options": {
+          "maxOutputTokens": 3000,
+          "temperature": 0.4
+        }
+      },
+      "id": "112fa17c-7345-4cd5-bc5d-9653ed8f314a",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "name": "Gemini Flash 2.5 (Step4)",
+      "typeVersion": 1,
+      "position": [
+        3440,
+        5360
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "EZ0k3UGmSLSXnnKX",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ JSON.stringify($json) }}",
+        "options": {
+          "systemMessage": "あなたは議題マッピングの専門家です。議題の決定事項・宿題・保留事項を、文字起こしテキストの該当箇所に正確にマッピングします。\n\n【入力データ】\n- 議題タイトル: {{ $json.title }}\n- 全文テキスト: {{ $json.full_transcript }}\n- 分析結果（decisions, action_items, pending_issues）: {{ $json.output }}\n\n【マッピングルール】\n1. 各決定事項・宿題・保留事項の発言箇所を特定\n2. 該当する文字起こしテキストの抜粋を追加\n3. 話者とタイムスタンプを正確に記録\n\n【出力形式】\nJSON形式で以下の構造:\n{\n  \"agenda_id\": {{ $json.agenda_id }},\n  \"title\": \"{{ $json.title }}\",\n  \"decisions\": [\n    {\n      \"id\": 1,\n      \"content\": \"決定内容\",\n      \"speaker\": \"Speaker 1\",\n      \"timestamp\": \"00:12:30\",\n      \"transcript_excerpt\": \"該当する文字起こしテキストの抜粋\"\n    }\n  ],\n  \"action_items\": [\n    {\n      \"id\": 1,\n      \"task\": \"タスク内容\",\n      \"assignee\": \"担当者\",\n      \"deadline\": \"期限\",\n      \"timestamp\": \"00:15:00\",\n      \"transcript_excerpt\": \"該当する文字起こしテキストの抜粋\"\n    }\n  ],\n  \"pending_issues\": [\n    {\n      \"id\": 1,\n      \"issue\": \"未解決課題\",\n      \"reason\": \"理由\",\n      \"timestamp\": \"00:20:10\",\n      \"transcript_excerpt\": \"該当する文字起こしテキストの抜粋\"\n    }\n  ]\n}\n\n【禁止事項】\n- 存在しない発言の追加\n- タイムスタンプの改変\n- テキスト抜粋の捏造",
+          "maxIterations": 5
+        }
+      },
+      "id": "52488052-c048-4c78-b560-1e8d7aab1315",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "name": "AI Agent Step5 - 議題別マッピング",
+      "typeVersion": 3,
+      "position": [
+        3760,
+        5200
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": "claude-4-5-sonnet-20250929",
+        "options": {
+          "temperature": 0.5
+        }
+      },
+      "id": "606e513a-94a1-45e9-9f9f-7d83a1d7dd74",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "name": "Claude Sonnet 4.5 (Step5)",
+      "typeVersion": 1.3,
+      "position": [
+        3744,
+        5376
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "id": "H3jlEsqpe4a6Q9rX",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Group 7: 議題分析・マッピング\n\n**目的**: AI Agent Step4（議題分析）+ AI Agent Step5（議題別マッピング）の並行実行\n\n### 🎯 このグループの役割\n- **L5 (Core Logic)**: AI Agent Step4 + Step5による並行処理\n- **並行実行**: 決定事項・宿題・保留事項の抽出とマッピング",
+        "height": 636,
+        "width": 752,
+        "color": 4
+      },
+      "id": "6d8ba6ed-fc23-4135-b3a2-5ec7f77cd37c",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 7: 議題分析・マッピング",
+      "typeVersion": 1,
+      "position": [
+        3408,
+        4896
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "ba26549b-ec1e-4327-9481-4707e2a41cd0",
+      "type": "n8n-nodes-base.merge",
+      "name": "議題統合",
+      "typeVersion": 3.2,
+      "position": [
+        3408,
+        4448
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 議題ID重複除去とソート\nconst items = $input.all();\nconst uniqueAgendas = new Map();\n\nfor (const item of items) {\n  const agendaId = item.json.agenda_id;\n  \n  // agenda_idでユニーク化（重複を排除）\n  if (!uniqueAgendas.has(agendaId)) {\n    uniqueAgendas.set(agendaId, item.json);\n  }\n}\n\n// agenda_id順にソート\nconst sortedAgendas = Array.from(uniqueAgendas.values())\n  .sort((a, b) => a.agenda_id - b.agenda_id);\n\nreturn [{\n  json: {\n    agendas: sortedAgendas,\n    total_agendas: sortedAgendas.length,\n    meeting_name: sortedAgendas[0]?.meeting_name || 'Unknown Meeting',\n    speakers: [...new Set(sortedAgendas.flatMap(a => a.speakers || []))]\n  }\n}];"
+      },
+      "id": "d13de558-7013-4bea-98c1-e97242ac6d45",
+      "type": "n8n-nodes-base.code",
+      "name": "重複除去",
+      "typeVersion": 2,
+      "position": [
+        3568,
+        4448
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ JSON.stringify($json.agendas) }}",
+        "options": {
+          "systemMessage": "あなたはビジネス文書作成の専門家です。会議の議題データを、読みやすいMarkdown形式の議事録に変換します。\n\n【変換対象】\n- 会議名: {{ $json.meeting_name }}\n- 総議題数: {{ $json.total_agendas }}\n- 議題データ: {{ JSON.stringify($json.agendas) }}\n\n【出力形式】\nMarkdown形式の議事録:\n```markdown\n# {{ $json.meeting_name }} 議事録\n\n**日時**: [会議日時]\n**参加者**: [話者リスト]\n**議題数**: {{ $json.total_agendas }}\n\n---\n\n## 議題1: [議題タイトル]\n**時間**: [開始時刻] - [終了時刻]\n**重要度**: [高/中/低]\n\n### 📋 決定事項\n1. [決定内容]\n   - 発言者: [Speaker]\n   - 時刻: [timestamp]\n   - 発言: \"[transcript_excerpt]\"\n\n### ✅ アクションアイテム\n1. [タスク内容]\n   - 担当者: [assignee]\n   - 期限: [deadline]\n   - 発言: \"[transcript_excerpt]\"\n\n### ⏸️ 保留事項\n1. [未決課題]\n   - 理由: [reason]\n   - 発言: \"[transcript_excerpt]\"\n\n---\n\n[議題2以降も同様の形式]\n```\n\n【書式ルール】\n- 見出しは階層的に構造化\n- 絵文字を適切に使用（📋 決定事項、✅ アクションアイテム、⏸️ 保留事項）\n- 発言引用は引用符で明示\n- タイムスタンプは HH:MM:SS 形式\n\n【禁止事項】\n- データにない情報の追加\n- 発言内容の改変\n- 議題の統合や省略",
+          "maxIterations": 5
+        }
+      },
+      "id": "e263f1d6-ba52-4245-a649-fb1d0e1f5f78",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "name": "AI Agent Step6 - フォーマット変換",
+      "typeVersion": 3,
+      "position": [
+        3760,
+        4448
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "9117b597-78f5-4ed1-a45b-c01b85fb9918",
+      "type": "n8n-nodes-base.set",
+      "name": "議事録ペイロード生成",
+      "typeVersion": 3,
+      "position": [
+        4032,
+        4448
+      ]
+    },
+    {
+      "parameters": {
+        "model": "claude-4-5-sonnet-20250929",
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "id": "b64e5f3b-c320-4793-be9a-e32ba493c8e2",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "name": "Claude Sonnet 4.5 (Step6)",
+      "typeVersion": 1.3,
+      "position": [
+        3760,
+        4656
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "id": "H3jlEsqpe4a6Q9rX",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "step6_memory",
+        "contextWindowLength": 10
+      },
+      "id": "a6217562-106f-42c7-bc18-8f29e6085141",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "name": "Simple Memory (Step6)",
+      "typeVersion": 1.3,
+      "position": [
+        3856,
+        4656
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Group 8: 議題統合・フォーマット変換\n\n**目的**: 全議題を統合し、AI Agent Step6でMarkdown議事録に変換\n\n### 🎯 このグループの役割\n- **L11 (Performance)**: Mergeで議題統合\n- **L4 (Transformation)**: 重複除去、データ整形\n- **L5 (Core Logic)**: AI Agent Step6によるMarkdown変換",
+        "height": 640,
+        "width": 740,
+        "color": 6
+      },
+      "id": "d8fa5542-3907-4e04-9052-5ece76c85ab7",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 8: 議題統合・フォーマット変換",
+      "typeVersion": 1,
+      "position": [
+        3392,
+        4208
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.markdown }}",
+        "options": {
+          "systemMessage": "あなたは品質保証の専門家です。生成された議事録の完全性と正確性を検証し、不足項目を補完します。\n\n【検証項目】\n1. 必須項目の存在確認（会議名、日時、参加者、議題）\n2. 各議題の完全性（タイトル、時間、決定事項、アクションアイテム）\n3. フォーマットの一貫性（見出し階層、箇条書き、絵文字）\n4. データの整合性（タイムスタンプ、話者名、議題番号）\n5. 文法・表記の正確性\n\n【出力形式】\nJSON形式で以下の構造:\n{\n  \"corrected_markdown\": \"修正後のMarkdown議事録\",\n  \"quality_score\": 95,\n  \"issues_found\": [\"発見された問題点のリスト\"],\n  \"corrections_made\": [\"実施した修正のリスト\"]\n}\n\n【禁止事項】\n- 内容の大幅な書き換え\n- データにない情報の追加\n- 議題の統合や省略",
+          "maxIterations": 5
+        }
+      },
+      "id": "1dcf1c58-6605-40ca-aeb3-0a94fe5fcd21",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "name": "AI Agent Step7 - 品質保証",
+      "typeVersion": 3,
+      "position": [
+        4288,
+        4448
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": "claude-4-5-sonnet-20250929",
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "id": "0349003f-e7a8-4741-91e4-d1481adbe995",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "name": "Claude Sonnet 4.5 (Step7)",
+      "typeVersion": 1.3,
+      "position": [
+        4288,
+        4624
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "id": "H3jlEsqpe4a6Q9rX",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "step7_memory",
+        "contextWindowLength": 10
+      },
+      "id": "b0d0d1a2-e92a-4911-b3bf-02944460b822",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "name": "Simple Memory (Step7)",
+      "typeVersion": 1.3,
+      "position": [
+        4384,
+        4624
+      ]
+    },
+    {
+      "parameters": {
+        "name": "={{ $json.meeting_name + '_議事録_' + new Date().toISOString().split('T')[0] + '.md' }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "議事録_出力",
+          "mode": "list"
+        },
+        "options": {}
+      },
+      "id": "153101ac-d94c-4155-92bf-196eb039592f",
+      "type": "n8n-nodes-base.googleDrive",
+      "name": "議事録保存",
+      "typeVersion": 3,
+      "position": [
+        4544,
+        4448
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "TFTiRBIR7HfeoxoO",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('初期メタデータ設定').first().json.file_id }}",
+          "mode": "id"
+        },
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "処理済み",
+          "mode": "list"
+        }
+      },
+      "id": "52fbbe7c-3d69-4e54-b20f-e4ec85dcead0",
+      "type": "n8n-nodes-base.googleDrive",
+      "name": "M4A処理済み移動",
+      "typeVersion": 3,
+      "position": [
+        4688,
+        4448
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "TFTiRBIR7HfeoxoO",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.DISCORD_WEBHOOK_URL }}",
+        "options": {}
+      },
+      "id": "c01d5934-2c13-4a74-becb-c93e1d25c03d",
+      "type": "n8n-nodes-base.httpRequest",
+      "name": "Discord完了通知",
+      "typeVersion": 4,
+      "position": [
+        4896,
+        4448
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "46d9a3a6-6114-494f-ab3c-07772d582a0b",
+      "type": "n8n-nodes-base.set",
+      "name": "処理結果まとめ",
+      "typeVersion": 3,
+      "position": [
+        5088,
+        4448
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.AUDIT_LOG_API_URL }}",
+        "options": {}
+      },
+      "id": "d63da82e-9b4a-49b9-ab66-4a2a1c7296e1",
+      "type": "n8n-nodes-base.httpRequest",
+      "name": "監査ログ送信",
+      "typeVersion": 4,
+      "position": [
+        5296,
+        4448
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Group 9: 品質保証・出力・監視\n\n**目的**: AI Agent Step7による品質保証、Google Drive出力、通知、監査ログ送信\n\n### 🎯 このグループの役割\n- **L5 (Core Logic)**: AI Agent Step7による品質保証\n- **L6 (Integration)**: Google Drive保存、Discord通知、監査ログAPI\n- **L7 (Output)**: 結果出力・通知\n- **L9 (Security)**: 監査ログ記録\n- **L10 (Monitoring)**: 処理状況監視",
+        "height": 560,
+        "width": 1284,
+        "color": 5
+      },
+      "id": "0111a487-8a1f-4131-971c-adc871882b42",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 9: 品質保証・出力・監視",
+      "typeVersion": 1,
+      "position": [
+        4256,
+        4192
+      ]
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "step2_memory",
+        "contextWindowLength": 10
+      },
+      "id": "f685a635-ed57-48ea-a3cd-1dbcf5ff542e",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "name": "Simple Memory (Step2)1",
+      "typeVersion": 1.3,
+      "position": [
+        1712,
+        4784
+      ]
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "step5_memory",
+        "contextWindowLength": 10
+      },
+      "id": "cf47575a-dfe9-4045-854c-43fce8a73fb5",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "name": "Simple Memory (Step5)1",
+      "typeVersion": 1.3,
+      "position": [
+        3856,
+        5376
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Drive Trigger": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive: Get File Info": {
+      "main": [
+        []
+      ]
+    },
+    "Google Drive: M4Aダウンロード": {
+      "main": [
+        [
+          {
+            "node": "Filter: M4A検証",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter: M4A検証": {
+      "main": [
+        [
+          {
+            "node": "Google Gemini: Transcribe Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini: Transcribe Audio": {
+      "main": [
+        [
+          {
+            "node": "Code: チャンク分割+オーバーラップ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: チャンク分割+オーバーラップ": {
+      "main": [
+        [
+          {
+            "node": "Split in Batches: チャンク並列処理",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split in Batches: チャンク並列処理": {
+      "main": [
+        [
+          {
+            "node": "Code: チャンク統合+重複除去",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent: Step1 文字起こし整形",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent: Step1 文字起こし整形": {
+      "main": [
+        [
+          {
+            "node": "Loop Back: チャンク処理",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: チャンク統合+重複除去": {
+      "main": [
+        [
+          {
+            "node": "AI Agent: Step2 議題抽出",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent: Step2 議題抽出": {
+      "main": [
+        [
+          {
+            "node": "Code: 議題ごとのデータ再構成",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: 議題ごとのデータ再構成": {
+      "main": [
+        [
+          {
+            "node": "Split in Batches: 議題並列処理",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split in Batches: 議題並列処理": {
+      "main": [
+        [
+          {
+            "node": "AI Agent: Step4 フォーマット変換",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent: Step3 議題分析",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent: Step3 議題分析": {
+      "main": [
+        [
+          {
+            "node": "Loop Back: 議題処理",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent: Step4 フォーマット変換": {
+      "main": [
+        [
+          {
+            "node": "AI Agent: Step5 品質保証",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent: Step5 品質保証": {
+      "main": [
+        [
+          {
+            "node": "IF: 品質保証ステータス判定",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: 品質保証ステータス判定": {
+      "main": [
+        [
+          {
+            "node": "Google Drive: 議事録保存",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive: 議事録保存": {
+      "main": [
+        [
+          {
+            "node": "Google Drive: M4Aファイル移動",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive: M4Aファイル移動": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request: Discord Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Back: チャンク処理": {
+      "main": [
+        [
+          {
+            "node": "Split in Batches: チャンク並列処理",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Back: 議題処理": {
+      "main": [
+        [
+          {
+            "node": "Split in Batches: 議題並列処理",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Chat Model (Step1)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent: Step1 文字起こし整形",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Chat Model (Step2)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent: Step2 議題抽出",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory (Step2)": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent: Step2 議題抽出",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Chat Model (Step3)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent: Step3 議題分析",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude Chat Model (Step4)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent: Step4 フォーマット変換",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory (Step4)": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent: Step4 フォーマット変換",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude Chat Model (Step5)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent: Step5 品質保証",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory (Step5)": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent: Step5 品質保証",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive: 新規ファイル検知": {
+      "main": [
+        [
+          {
+            "node": "Google Drive: ファイル情報取得",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive: ファイル情報取得": {
+      "main": [
+        [
+          {
+            "node": "Google Drive: M4Aダウンロード1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: ファイル検証": {
+      "main": [
+        [
+          {
+            "node": "Gemini: 音声文字起こし (Step0)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini: 音声文字起こし (Step0)": {
+      "main": [
+        [
+          {
+            "node": "Code: 文字起こし結果パース",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini: 文字起こし整形 (Step1)": {
+      "main": [
+        [
+          {
+            "node": "Code: Step1結果パース",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge: チャンク統合": {
+      "main": [
+        [
+          {
+            "node": "Code: line_idソート + 重複除去",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Gemini: 議題抽出 (Step2 + Memory)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini: 議題抽出 (Step2 + Memory)": {
+      "main": [
+        [
+          {
+            "node": "Code: Step2結果パース",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini: 議題分析 (Step3)": {
+      "main": [
+        [
+          {
+            "node": "Code: Step3結果パース",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge: 議題統合": {
+      "main": [
+        [
+          {
+            "node": "Claude: フォーマット変換 (Step4 + Memory)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude: フォーマット変換 (Step4 + Memory)": {
+      "main": [
+        [
+          {
+            "node": "Code: Step4結果パース",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude: 品質保証 (Step5 + Memory)": {
+      "main": [
+        [
+          {
+            "node": "Code: Step5結果パース",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Step5結果パース": {
+      "main": [
+        [
+          {
+            "node": "Google Drive: 議事録保存1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord: 処理完了通知": {
+      "main": [
+        [
+          {
+            "node": "Set: 最終結果セット",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Code: エラー情報整理",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: エラー情報整理": {
+      "main": [
+        [
+          {
+            "node": "IF: エラー種別判定",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: エラー種別判定": {
+      "main": [
+        [
+          {
+            "node": "Google Drive: エラーファイル移動",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Drive: エラー議事録保存",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive: エラーファイル移動": {
+      "main": [
+        [
+          {
+            "node": "Set: エラー一時保存",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive: エラー議事録保存": {
+      "main": [
+        [
+          {
+            "node": "Set: エラー一時保存",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: エラー一時保存": {
+      "main": [
+        [
+          {
+            "node": "Discord: エラー通知",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: 文字起こし結果パース": {
+      "main": [
+        [
+          {
+            "node": "Code: チャンク分割",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: チャンク分割": {
+      "main": [
+        [
+          {
+            "node": "Split in Batches: チャンク並列処理1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Step1結果パース": {
+      "main": [
+        [
+          {
+            "node": "Merge: チャンク統合",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Step2結果パース": {
+      "main": [
+        [
+          {
+            "node": "Code: 議題データ再構成",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: 議題データ再構成": {
+      "main": [
+        [
+          {
+            "node": "Split in Batches: 議題並列処理1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Step3結果パース": {
+      "main": [
+        [
+          {
+            "node": "Merge: 議題統合",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Step4結果パース": {
+      "main": [
+        [
+          {
+            "node": "Claude: 品質保証 (Step5 + Memory)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive: M4Aダウンロード1": {
+      "main": [
+        [
+          {
+            "node": "IF: ファイル検証",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split in Batches: チャンク並列処理1": {
+      "main": [
+        [
+          {
+            "node": "Gemini: 文字起こし整形 (Step1)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split in Batches: 議題並列処理1": {
+      "main": [
+        [
+          {
+            "node": "Gemini: 議題分析 (Step3)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive: M4Aファイル移動1": {
+      "main": [
+        [
+          {
+            "node": "Discord: 処理完了通知",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Gemini: 議題抽出 (Step2 + Memory)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "M4Aファイル検知": {
+      "main": [
+        [
+          {
+            "node": "ファイル情報取得",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ファイル情報取得": {
+      "main": [
+        [
+          {
+            "node": "M4Aダウンロード",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "M4Aダウンロード": {
+      "main": [
+        [
+          {
+            "node": "初期メタデータ設定",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "初期メタデータ設定": {
+      "main": [
+        [
+          {
+            "node": "ファイル妥当性チェック",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ファイル妥当性チェック": {
+      "main": [
+        [
+          {
+            "node": "ファイル名正規化",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ファイル名正規化": {
+      "main": [
+        [
+          {
+            "node": "Fireworks Whisper v3文字起こし",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fireworks Whisper v3文字起こし": {
+      "main": [
+        [
+          {
+            "node": "文字起こしメタ整形",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "文字起こしメタ整形": {
+      "main": [
+        [
+          {
+            "node": "チャンク分割処理",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "チャンク分割処理": {
+      "main": [
+        [
+          {
+            "node": "チャンク並列バッチ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "チャンク並列バッチ": {
+      "main": [
+        [
+          {
+            "node": "チャンク統合",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent Step2 - 文字起こし整形",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Step2 - 文字起こし整形": {
+      "main": [
+        [
+          {
+            "node": "チャンク並列バッチ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Flash 2.5 (Step2)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Step2 - 文字起こし整形",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "チャンク統合": {
+      "main": [
+        [
+          {
+            "node": "重複行除去",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "重複行除去": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Step3 - 議題抽出",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Step3 - 議題抽出": {
+      "main": [
+        [
+          {
+            "node": "議題メタ生成",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "議題メタ生成": {
+      "main": [
+        [
+          {
+            "node": "議題分割処理",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Flash 2.5 (Step3)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Step3 - 議題抽出",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory (Step3)": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent Step3 - 議題抽出",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "議題分割処理": {
+      "main": [
+        [
+          {
+            "node": "議題並列バッチ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "議題並列バッチ": {
+      "main": [
+        [
+          {
+            "node": "議題統合",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent Step4 - 議題分析",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Step4 - 議題分析": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Step5 - 議題別マッピング",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Flash 2.5 (Step4)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Step4 - 議題分析",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Step5 - 議題別マッピング": {
+      "main": [
+        [
+          {
+            "node": "議題並列バッチ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude Sonnet 4.5 (Step5)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Step5 - 議題別マッピング",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "議題統合": {
+      "main": [
+        [
+          {
+            "node": "重複除去",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "重複除去": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Step6 - フォーマット変換",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Step6 - フォーマット変換": {
+      "main": [
+        [
+          {
+            "node": "議事録ペイロード生成",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "議事録ペイロード生成": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Step7 - 品質保証",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude Sonnet 4.5 (Step6)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Step6 - フォーマット変換",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory (Step6)": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent Step6 - フォーマット変換",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Step7 - 品質保証": {
+      "main": [
+        [
+          {
+            "node": "議事録保存",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude Sonnet 4.5 (Step7)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Step7 - 品質保証",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory (Step7)": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent Step7 - 品質保証",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "議事録保存": {
+      "main": [
+        [
+          {
+            "node": "M4A処理済み移動",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "M4A処理済み移動": {
+      "main": [
+        [
+          {
+            "node": "Discord完了通知",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord完了通知": {
+      "main": [
+        [
+          {
+            "node": "処理結果まとめ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "処理結果まとめ": {
+      "main": [
+        [
+          {
+            "node": "監査ログ送信",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory (Step2)1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent Step2 - 文字起こし整形",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory (Step5)1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent Step5 - 議題別マッピング",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c44fc368-335d-4efc-bff6-575487903e64",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6e75e8f079210beec465fab155cc98933ed7ec15eddda941632685f566a0e3bb"
+  },
+  "id": "f2WVu0yJC4AQbUf2",
+  "tags": [
+    {
+      "updatedAt": "2025-11-10T16:52:05.178Z",
+      "createdAt": "2025-11-10T16:52:05.178Z",
+      "id": "XMN4Mfg0UwEdFLxh",
+      "name": "ai-agent-nodes"
+    },
+    {
+      "updatedAt": "2025-11-10T16:52:05.175Z",
+      "createdAt": "2025-11-10T16:52:05.175Z",
+      "id": "SZSh8FSlFcGnTYMw",
+      "name": "meeting-minutes"
+    },
+    {
+      "updatedAt": "2025-11-10T16:52:05.171Z",
+      "createdAt": "2025-11-10T16:52:05.171Z",
+      "id": "z8LRWYBsRtCgc2Ml",
+      "name": "auto-generated"
+    },
+    {
+      "updatedAt": "2025-11-10T16:52:05.191Z",
+      "createdAt": "2025-11-10T16:52:05.191Z",
+      "id": "vLg3IS8WMhiMPxdK",
+      "name": "v4.0"
+    },
+    {
+      "updatedAt": "2025-11-08T11:28:35.324Z",
+      "createdAt": "2025-11-08T11:28:35.324Z",
+      "id": "WuTY3qP3oUps41mN",
+      "name": "File Management"
+    },
+    {
+      "updatedAt": "2025-11-06T14:45:30.614Z",
+      "createdAt": "2025-11-06T14:45:30.614Z",
+      "id": "OEqXV0WPvJljZLTE",
+      "name": "Error Handling"
+    },
+    {
+      "updatedAt": "2025-11-09T13:20:36.967Z",
+      "createdAt": "2025-11-09T13:20:36.967Z",
+      "id": "IbbMHdraz0iNw41p",
+      "name": "議事録自動化"
+    },
+    {
+      "updatedAt": "2025-11-09T13:20:36.930Z",
+      "createdAt": "2025-11-09T13:20:36.930Z",
+      "id": "Ezjg2IZSMyNZgDrs",
+      "name": "Gemini最適化"
+    },
+    {
+      "updatedAt": "2025-11-12T17:11:51.168Z",
+      "createdAt": "2025-11-12T17:11:51.168Z",
+      "id": "mtkFDxJxJHFH98Oo",
+      "name": "自動化"
+    },
+    {
+      "updatedAt": "2025-11-12T17:11:51.174Z",
+      "createdAt": "2025-11-12T17:11:51.174Z",
+      "id": "ZiX0oboVD27p7QVb",
+      "name": "AI"
+    },
+    {
+      "updatedAt": "2025-11-12T17:11:51.174Z",
+      "createdAt": "2025-11-12T17:11:51.174Z",
+      "id": "j7R3EcAjA927eXEa",
+      "name": "文字起こし"
+    },
+    {
+      "updatedAt": "2025-11-12T17:11:51.177Z",
+      "createdAt": "2025-11-12T17:11:51.177Z",
+      "id": "4kBxWbl7NzC9GKsO",
+      "name": "GoogleDrive"
+    }
+  ]
+}
