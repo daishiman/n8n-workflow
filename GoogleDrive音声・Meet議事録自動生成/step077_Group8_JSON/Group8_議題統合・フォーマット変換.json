@@ -1,0 +1,216 @@
+{
+  "name": "Group 8: 議題統合・フォーマット変換",
+  "nodes": [
+    {
+      "id": "merge_g8_01",
+      "type": "n8n-nodes-base.merge",
+      "name": "議題統合",
+      "typeVersion": 3.2,
+      "position": [4000, 300],
+      "parameters": {
+        "mode": "append",
+        "options": {}
+      },
+      "_comment": "AI Agent Step5（Group 7）で処理された全議題のマッピング結果を統合します。Group 7の並列処理（3議題同時）で生成された複数のマッピング済み議題データを、時系列順に結合して完全な議事録データを復元します。mode=appendで順序を保持します。",
+      "notes": "typeVersion: 3.2 | mode: append（順序保持） | 入力: Group 7の全マッピング済み議題データ | 出力: 統合された全議題データ"
+    },
+    {
+      "id": "code_unique_g8_02",
+      "type": "n8n-nodes-base.code",
+      "name": "重複除去",
+      "typeVersion": 2,
+      "position": [4200, 300],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// 議題ID重複除去とソート\nconst items = $input.all();\nconst uniqueAgendas = new Map();\n\nfor (const item of items) {\n  const agendaId = item.json.agenda_id;\n  \n  // agenda_idでユニーク化（重複を排除）\n  if (!uniqueAgendas.has(agendaId)) {\n    uniqueAgendas.set(agendaId, item.json);\n  }\n}\n\n// agenda_id順にソート\nconst sortedAgendas = Array.from(uniqueAgendas.values())\n  .sort((a, b) => a.agenda_id - b.agenda_id);\n\nreturn [{\n  json: {\n    agendas: sortedAgendas,\n    total_agendas: sortedAgendas.length,\n    meeting_name: sortedAgendas[0]?.meeting_name || 'Unknown Meeting',\n    speakers: [...new Set(sortedAgendas.flatMap(a => a.speakers || []))]\n  }\n}];"
+      },
+      "_comment": "議題並列処理により発生した可能性のある重複議題を、agenda_idベースでユニーク化して除去します。各議題をagenda_id順にソートして正しい順序を復元し、全議題配列（agendas）、総議題数（total_agendas）、会議名（meeting_name）、話者リスト（speakers）を生成します。",
+      "notes": "mode: runOnceForAllItems | 処理: agenda_idでユニーク化、agenda_id順ソート | 出力: agendas（配列）, total_agendas, meeting_name, speakers（ユニークリスト） | 目的: 並列処理重複除去"
+    },
+    {
+      "id": "ai_agent_step6_g8",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "name": "AI Agent Step6 - フォーマット変換",
+      "typeVersion": 3,
+      "position": [4400, 300],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ JSON.stringify($json.agendas) }}",
+        "hasOutputParser": false,
+        "options": {
+          "systemMessage": "あなたはビジネス文書作成の専門家です。会議の議題データを、読みやすいMarkdown形式の議事録に変換します。\n\n【変換対象】\n- 会議名: {{ $json.meeting_name }}\n- 総議題数: {{ $json.total_agendas }}\n- 議題データ: {{ JSON.stringify($json.agendas) }}\n\n【出力形式】\nMarkdown形式の議事録:\n```markdown\n# {{ $json.meeting_name }} 議事録\n\n**日時**: [会議日時]\n**参加者**: [話者リスト]\n**議題数**: {{ $json.total_agendas }}\n\n---\n\n## 議題1: [議題タイトル]\n**時間**: [開始時刻] - [終了時刻]\n**重要度**: [高/中/低]\n\n### 📋 決定事項\n1. [決定内容]\n   - 発言者: [Speaker]\n   - 時刻: [timestamp]\n   - 発言: \"[transcript_excerpt]\"\n\n### ✅ アクションアイテム\n1. [タスク内容]\n   - 担当者: [assignee]\n   - 期限: [deadline]\n   - 発言: \"[transcript_excerpt]\"\n\n### ⏸️ 保留事項\n1. [未決課題]\n   - 理由: [reason]\n   - 発言: \"[transcript_excerpt]\"\n\n---\n\n[議題2以降も同様の形式]\n```\n\n【書式ルール】\n- 見出しは階層的に構造化\n- 絵文字を適切に使用（📋 決定事項、✅ アクションアイテム、⏸️ 保留事項）\n- 発言引用は引用符で明示\n- タイムスタンプは HH:MM:SS 形式\n\n【禁止事項】\n- データにない情報の追加\n- 発言内容の改変\n- 議題の統合や省略",
+          "maxIterations": 5
+        },
+        "continueOnFail": false,
+        "retryOnFail": true,
+        "maxTries": 3,
+        "waitBetweenTries": 2000,
+        "onError": "continueRegularOutput"
+      },
+      "_comment": "AI Agent Step6は、Claude Sonnet 4.5を使用して統合された議題データを読みやすいMarkdown形式の議事録に変換します。会議名、日時、参加者、議題ごとの決定事項・宿題・保留事項を構造化し、見出し階層と絵文字で視覚的に整理します。Memory（step6_memory）を使用して一貫性のある文書を生成します（Step020準拠、検証レポート修正反映）。",
+      "notes": "typeVersion: 3 | promptType: define | text: JSON.stringify($json.agendas) | systemMessage: ビジネス文書作成専門家 | maxIterations: 5 | retryOnFail: true | maxTries: 3 | waitBetweenTries: 2000ms | Memory: step6_memory（あり） | モデル: Claude Sonnet 4.5"
+    },
+    {
+      "id": "set_payload_g8_04",
+      "type": "n8n-nodes-base.set",
+      "name": "議事録ペイロード生成",
+      "typeVersion": 3,
+      "position": [4600, 300],
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "payload_markdown",
+              "name": "markdown",
+              "type": "string",
+              "value": "={{ $json.output }}"
+            },
+            {
+              "id": "payload_meeting_name",
+              "name": "meeting_name",
+              "type": "string",
+              "value": "={{ $('重複除去').first().json.meeting_name }}"
+            },
+            {
+              "id": "payload_total_agendas",
+              "name": "total_agendas",
+              "type": "number",
+              "value": "={{ $('重複除去').first().json.total_agendas }}"
+            },
+            {
+              "id": "payload_speakers",
+              "name": "speakers",
+              "type": "object",
+              "value": "={{ $('重複除去').first().json.speakers }}"
+            },
+            {
+              "id": "payload_timestamp",
+              "name": "generated_at",
+              "type": "string",
+              "value": "={{ new Date().toISOString() }}"
+            }
+          ]
+        }
+      },
+      "_comment": "AI Agent Step6が生成したMarkdown議事録を最終ペイロードに構造化します。markdown（議事録本文）、meeting_name（会議名）、total_agendas（総議題数）、speakers（話者リスト）、generated_at（生成タイムスタンプ）を設定します。この情報はGroup 9の品質保証と出力処理で使用されます。",
+      "notes": "mode: manual | assignments: 5個 (markdown, meeting_name, total_agendas, speakers, generated_at) | markdown: AI Agent Step6の出力（$json.output） | 先行ノード参照: $('重複除去').first() | 生成タイムスタンプ: new Date().toISOString()"
+    },
+    {
+      "id": "claude_step6_g8",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "name": "Claude Sonnet 4.5 (Step6)",
+      "typeVersion": 1.3,
+      "position": [4400, 480],
+      "parameters": {
+        "model": "claude-4-5-sonnet-20250929",
+        "options": {
+          "temperature": 0.7,
+          "maxTokens": 8000
+        }
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "anthropic_api",
+          "name": "Anthropic API"
+        }
+      },
+      "_comment": "Claude Sonnet 4.5 Chat Modelは、AI Agent Step6の推論エンジンです。temperature=0.7で柔軟な文書生成を実現し、maxTokens=8000で長文議事録に対応します。高品質な文書生成により、ビジネス文書として完成度の高いMarkdown議事録を出力します（Step020準拠、検証レポート修正反映）。",
+      "notes": "typeVersion: 1.3 | model: claude-4-5-sonnet-20250929 | temperature: 0.7（柔軟出力） | maxTokens: 8000 | 接続タイプ: ai_languageModel | Step020準拠（検証レポート修正反映）"
+    },
+    {
+      "id": "memory_step6_g8",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "name": "Simple Memory (Step6)",
+      "typeVersion": 1.3,
+      "position": [4400, 560],
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "step6_memory",
+        "contextWindowLength": 10
+      },
+      "_comment": "Simple Memory (Buffer Window)は、AI Agent Step6の文脈保持機能です。sessionKey='step6_memory'で専用メモリ領域を確保し、contextWindowLength=10で直近10回の対話履歴を保持します。複数議題にまたがる文書生成時に、一貫性のある文体とフォーマットを維持します（Step020要件準拠、検証レポート修正：Memory追加）。",
+      "notes": "typeVersion: 1.3 | sessionIdType: customKey | sessionKey: step6_memory | contextWindowLength: 10 | 接続タイプ: ai_memory | Step020要件準拠（追加：検証レポート修正反映）"
+    },
+    {
+      "id": "sticky_g8",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 8: 議題統合・フォーマット変換",
+      "typeVersion": 1,
+      "position": [3940, 140],
+      "parameters": {
+        "content": "## Group 8: 議題統合・フォーマット変換\n\n**目的**: 全議題を統合し、AI Agent Step6でMarkdown議事録に変換\n\n### 🎯 このグループの役割\n- **L11 (Performance)**: Mergeで議題統合\n- **L4 (Transformation)**: 重複除去、データ整形\n- **L5 (Core Logic)**: AI Agent Step6によるMarkdown変換\n\n### 📦 このグループに含まれるノード\n\n**1. 議題統合** (merge_g8_01)\n- タイプ: Merge\n- 役割: Group 7の全マッピング済み議題データを統合\n- 設定: mode=append（順序保持）\n- 入力: AI Agent Step5の並列処理結果（3議題同時）\n\n**2. 重複除去** (code_unique_g8_02)\n- タイプ: Code\n- 役割: 並列処理重複議題をagenda_idでユニーク化\n- 処理: agenda_idマップ生成 → 重複除去 → agenda_id順ソート\n- 出力: agendas（配列）, total_agendas, meeting_name, speakers（ユニークリスト）\n\n**3. AI Agent Step6 - フォーマット変換** (ai_agent_step6_g8)\n- タイプ: AI Agent\n- 役割: 議題データをMarkdown議事録に変換\n- 入力: `={{ JSON.stringify($json.agendas) }}`\n- SystemMessage: ビジネス文書作成専門家\n- 出力形式: Markdown（見出し階層、絵文字、引用符）\n- エラー処理: maxTries=3、waitBetweenTries=2000ms\n- Memory: step6_memory（あり）\n- モデル: Claude Sonnet 4.5（Step020準拠）\n\n**4. 議事録ペイロード生成** (set_payload_g8_04)\n- タイプ: Set\n- 役割: Markdown議事録を最終ペイロードに構造化\n- 設定: markdown, meeting_name, total_agendas, speakers, generated_at\n- 先行ノード参照: $('重複除去').first()\n\n**5. Claude Sonnet 4.5 (Step6)** (claude_step6_g8) - Sub-node\n- タイプ: Anthropic Chat Model\n- 役割: AI Agent Step6の推論エンジン\n- 設定: model=claude-4-5-sonnet-20250929、temperature=0.7、maxTokens=8000\n- 接続: ai_languageModel → AI Agent Step6\n- Step020準拠（検証レポート修正反映）\n\n**6. Simple Memory (Step6)** (memory_step6_g8) - Sub-node\n- タイプ: Buffer Window Memory\n- 役割: AI Agent Step6の文脈保持（直近10回の対話履歴）\n- 設定: sessionIdType=customKey、sessionKey=step6_memory、contextWindowLength=10\n- 接続: ai_memory → AI Agent Step6\n- Step020準拠（Memory追加、検証レポート修正反映）\n\n### 🔗 フロー\n**Group 7** → merge_g8_01 → code_unique_g8_02 → ai_agent_step6_g8 → set_payload_g8_04 → **Group 9**\n\nSub-nodes:\n- claude_step6_g8 → (ai_languageModel) → ai_agent_step6_g8\n- memory_step6_g8 → (ai_memory) → ai_agent_step6_g8\n\n### ⚙️ 依存関係\n- **入力**: Group 7からのマッピング済み議題データ（並列処理完了後）\n- **出力**: Markdown議事録ペイロード → Group 9へ\n- **Sub-nodes**: Claude Sonnet 4.5 (Chat Model) + Simple Memory (Memory)\n\n### 📊 主要データ\n- **Merge出力**:\n  - 統合された全議題マッピングデータ\n- **Code出力**:\n  - `$json.agendas`: 議題配列（重複除去・ソート済み）\n  - `$json.total_agendas`: 総議題数\n  - `$json.meeting_name`: 会議名\n  - `$json.speakers`: 話者リスト\n- **AI Agent出力**:\n  - `$json.output`: Markdown議事録\n- **Set出力**:\n  - `$json.markdown`: Markdown議事録本文\n  - `$json.meeting_name`: 会議名\n  - `$json.total_agendas`: 総議題数\n  - `$json.speakers`: 話者リスト\n  - `$json.generated_at`: 生成タイムスタンプ\n\n### 🏗️ 12層マッピング\n- **L4 (Transformation)**: code_unique_g8_02（データ変換・加工）\n- **L5 (Core Logic)**: ai_agent_step6_g8（AI判断・ビジネスロジック）\n- **L11 (Performance)**: merge_g8_01（並列処理結果統合）\n\n### 🔄 パターン適用\n\n**Pattern 1: Error-First Design**\n- maxTries: 3（AI Agent Step6）\n- waitBetweenTries: 2000ms\n- onError: continueRegularOutput\n- retryOnFail: true\n\n**Pattern 2: AI Agent with Sub-Nodes and Tools**\n- AI Agent: @n8n/n8n-nodes-langchain.agent (typeVersion 3)\n- Chat Model: Claude Sonnet 4.5 (ai_languageModel接続)\n- Memory: Buffer Window (ai_memory接続、step6_memory)\n- Step020準拠: Claude使用、Memory追加（検証レポート修正反映）\n\n### 📝 出力形式例\n```markdown\n# プロジェクト定例会議 議事録\n\n**日時**: 2025-11-13 14:00-15:30\n**参加者**: Speaker 1, Speaker 2, Speaker 3\n**議題数**: 3\n\n---\n\n## 議題1: プロジェクト進捗確認\n**時間**: 00:05:30 - 00:15:20\n**重要度**: 高\n\n### 📋 決定事項\n1. 次回リリースは12月15日に決定\n   - 発言者: Speaker 1\n   - 時刻: 00:08:45\n   - 発言: \"12月15日でリリースを確定します\"\n\n### ✅ アクションアイテム\n1. テスト計画書の作成\n   - 担当者: Speaker 2\n   - 期限: 11月20日\n   ...\n```",
+        "height": 640,
+        "width": 740,
+        "color": 6
+      }
+    }
+  ],
+  "connections": {
+    "議題統合": {
+      "main": [
+        [
+          {
+            "node": "重複除去",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "重複除去": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Step6 - フォーマット変換",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Step6 - フォーマット変換": {
+      "main": [
+        [
+          {
+            "node": "議事録ペイロード生成",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude Sonnet 4.5 (Step6)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Step6 - フォーマット変換",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory (Step6)": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent Step6 - フォーマット変換",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-13T00:00:00.000Z",
+  "versionId": "v4.0"
+}

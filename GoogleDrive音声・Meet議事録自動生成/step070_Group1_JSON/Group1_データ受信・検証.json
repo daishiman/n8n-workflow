@@ -1,0 +1,261 @@
+{
+  "name": "Group 1: データ受信・検証",
+  "nodes": [
+    {
+      "id": "trigger_g1_01",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "name": "M4Aファイル検知",
+      "typeVersion": 1,
+      "position": [200, 300],
+      "parameters": {
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "mode": "list",
+          "value": "1Ddh7AFQooIcogKZeLNnWPqzrq2DX97QH"
+        },
+        "event": "fileCreated",
+        "options": {
+          "fileType": "audio/m4a"
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "google_drive_oauth2",
+          "name": "Google Drive OAuth2"
+        }
+      },
+      "_comment": "5分ごとにGoogle Driveをポーリングし、新規M4Aファイルを検知します。監視フォルダは2つ（Google Meet録画保存先、手動アップロード保存先）。ポーリング間隔はワークフロー設定で5分に設定されています。",
+      "notes": "triggerOn: specificFolder | event: fileCreated | fileType filter: audio/m4a | ポーリング: ワークフロー設定で5分間隔 | 監視フォルダ: 2個（Meet録画保存先 + 手動アップロード保存先）"
+    },
+    {
+      "id": "get_file_g1_02",
+      "type": "n8n-nodes-base.googleDrive",
+      "name": "ファイル情報取得",
+      "typeVersion": 3,
+      "position": [400, 300],
+      "parameters": {
+        "resource": "file",
+        "operation": "get",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "google_drive_oauth2",
+          "name": "Google Drive OAuth2"
+        }
+      },
+      "_comment": "トリガーで検知したファイルIDを使用して、Google Driveからファイルのメタデータ（名前、MIME Type、サイズ、作成日時、所有者など）を取得します。このメタデータは後続の検証とメタ情報初期化で使用されます。",
+      "notes": "resource: file | operation: get | fileId: ={{ $json.id }} | 取得情報: name, mimeType, size, createdTime, owners"
+    },
+    {
+      "id": "download_g1_03",
+      "type": "n8n-nodes-base.googleDrive",
+      "name": "M4Aダウンロード",
+      "typeVersion": 3,
+      "position": [600, 300],
+      "parameters": {
+        "resource": "file",
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {
+          "binaryPropertyName": "m4a_data"
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "google_drive_oauth2",
+          "name": "Google Drive OAuth2"
+        }
+      },
+      "_comment": "M4Aファイルのバイナリデータをダウンロードし、'm4a_data'プロパティ名で保存します。最大1GBのファイルサイズに対応しています。このバイナリデータはGroup 2のFireworks Whisper v3文字起こしAPIに送信されます。",
+      "notes": "resource: file | operation: download | binaryPropertyName: m4a_data | 最大サイズ: 1GB | 次処理: Group 2 Fireworks Whisper v3へ"
+    },
+    {
+      "id": "set_meta_g1_04",
+      "type": "n8n-nodes-base.set",
+      "name": "初期メタデータ設定",
+      "typeVersion": 3,
+      "position": [800, 300],
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "meta_owner",
+              "name": "owner",
+              "type": "string",
+              "value": "={{ $json.owners[0].emailAddress }}"
+            },
+            {
+              "id": "meta_meeting_name",
+              "name": "meeting_name",
+              "type": "string",
+              "value": "={{ $json.name.replace('.m4a', '') }}"
+            },
+            {
+              "id": "meta_timestamp",
+              "name": "timestamp",
+              "type": "string",
+              "value": "={{ $json.createdTime }}"
+            },
+            {
+              "id": "meta_file_id",
+              "name": "file_id",
+              "type": "string",
+              "value": "={{ $json.id }}"
+            },
+            {
+              "id": "meta_file_size",
+              "name": "file_size_bytes",
+              "type": "number",
+              "value": "={{ $json.size }}"
+            }
+          ]
+        }
+      },
+      "_comment": "ファイル所有者（owner）、会議名（meeting_name）、作成タイムスタンプ（timestamp）などの初期メタデータを設定します。これらの情報はワークフロー全体で使用され、最終的な議事録のヘッダー情報や監査ログに含まれます。",
+      "notes": "mode: manual | assignments: 5個 (owner, meeting_name, timestamp, file_id, file_size_bytes) | owner: 所有者メールアドレス | meeting_name: ファイル名から.m4a除去"
+    },
+    {
+      "id": "filter_g1_05",
+      "type": "n8n-nodes-base.filter",
+      "name": "ファイル妥当性チェック",
+      "typeVersion": 2.2,
+      "position": [1000, 300],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition_mime_type",
+              "leftValue": "={{ $json.mimeType }}",
+              "rightValue": "audio/m4a",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "condition_file_size",
+              "leftValue": "={{ $json.file_size_bytes }}",
+              "rightValue": "1073741824",
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "_comment": "MIME Typeが'audio/m4a'であること、ファイルサイズが1GB（1073741824バイト）未満であることを検証します。検証に失敗した場合、データフローはここで停止し、Error Group 1（入力/検証エラー）がトリガーされます。",
+      "notes": "typeVersion: 2.2 | combinator: and | 条件1: mimeType = audio/m4a | 条件2: file_size < 1GB | 失敗時: Error Group 1トリガー（別ワークフロー）"
+    },
+    {
+      "id": "code_normalize_g1_06",
+      "type": "n8n-nodes-base.code",
+      "name": "ファイル名正規化",
+      "typeVersion": 2,
+      "position": [1200, 300],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// ファイル名正規化とタイムスタンプパース\nconst items = $input.all();\nconst normalizedItems = [];\n\nfor (const item of items) {\n  const meetingName = item.json.meeting_name;\n  const timestamp = item.json.timestamp;\n  \n  // ファイル名から日時情報を抽出（例: \"2024-01-15_14-30_定例会議.m4a\"）\n  const datePattern = /(\\d{4})-(\\d{2})-(\\d{2})_(\\d{2})-(\\d{2})/;\n  const match = meetingName.match(datePattern);\n  \n  let parsedDate = null;\n  let cleanMeetingName = meetingName;\n  \n  if (match) {\n    const [_, year, month, day, hour, minute] = match;\n    parsedDate = `${year}-${month}-${day}T${hour}:${minute}:00Z`;\n    cleanMeetingName = meetingName.replace(datePattern, '').trim().replace(/^_+|_+$/g, '');\n  }\n  \n  normalizedItems.push({\n    json: {\n      ...item.json,\n      meeting_name: cleanMeetingName,\n      meeting_date: parsedDate || timestamp,\n      original_filename: meetingName\n    },\n    binary: item.binary\n  });\n}\n\nreturn normalizedItems;"
+      },
+      "_comment": "ファイル名を正規化し、タイムスタンプ情報を抽出します。ファイル名が「YYYY-MM-DD_HH-MM_会議名」形式の場合、日時情報をパースして独立したフィールド（meeting_date）に格納します。これにより、後続のAI処理で会議日時を正確に認識できます。",
+      "notes": "mode: runOnceForAllItems | 処理: ファイル名パース（YYYY-MM-DD_HH-MM形式） | 出力: meeting_name（正規化）、meeting_date（パース済日時）、original_filename | バイナリデータ: 保持"
+    },
+    {
+      "id": "sticky_g1",
+      "type": "n8n-nodes-base.stickyNote",
+      "name": "Group 1: データ受信・検証",
+      "typeVersion": 1,
+      "position": [140, 140],
+      "parameters": {
+        "content": "## Group 1: データ受信・検証\n\n**目的**: Google DriveからM4Aファイルを検知し、ダウンロード・検証を行う\n\n### 🎯 このグループの役割\n- **L1 (Trigger)**: 5分間隔でGoogle Driveをポーリング\n- **L2 (Input)**: ファイル情報取得とバイナリダウンロード\n- **L3 (Validation)**: MIME Type・サイズ検証、ファイル名正規化\n\n### 📦 このグループに含まれるノード\n\n**1. M4Aファイル検知** (trigger_g1_01)\n- タイプ: Google Drive Trigger\n- 役割: 監視フォルダで新規M4Aファイルを検知\n- 設定: specificFolder、fileCreated、5分ポーリング\n\n**2. ファイル情報取得** (get_file_g1_02)\n- タイプ: Google Drive (Get File)\n- 役割: ファイルメタデータ取得（名前、サイズ、MIME、所有者）\n- 出力: name, mimeType, size, createdTime, owners\n\n**3. M4Aダウンロード** (download_g1_03)\n- タイプ: Google Drive (Download)\n- 役割: M4Aファイルのバイナリデータダウンロード\n- 設定: binaryPropertyName=m4a_data、最大1GB\n\n**4. 初期メタデータ設定** (set_meta_g1_04)\n- タイプ: Set\n- 役割: ワークフロー全体で使用する初期メタ情報設定\n- 設定: owner, meeting_name, timestamp, file_id, file_size_bytes\n\n**5. ファイル妥当性チェック** (filter_g1_05)\n- タイプ: Filter\n- 役割: MIME Type=audio/m4a、サイズ<1GBを検証\n- 失敗時: Error Group 1トリガー\n\n**6. ファイル名正規化** (code_normalize_g1_06)\n- タイプ: Code\n- 役割: ファイル名パース（YYYY-MM-DD_HH-MM形式）、日時抽出\n- 出力: meeting_name, meeting_date, original_filename\n\n### 🔗 フロー\ntrigger_g1_01 → get_file_g1_02 → download_g1_03 → set_meta_g1_04 → filter_g1_05 → code_normalize_g1_06 → **Group 2**\n\n### ⚙️ 依存関係\n- **入力**: Google Drive監視フォルダ（2個）\n- **出力**: バイナリデータ（m4a_data）+ メタデータ → Group 2へ\n- **エラー処理**: Filter失敗時 → Error Group 1（別WF）\n\n### 📊 主要データ\n- `$json.id`: ファイルID\n- `$json.name`: ファイル名\n- `$json.mimeType`: MIME Type（audio/m4a）\n- `$json.size`: ファイルサイズ（バイト）\n- `$json.owner`: 所有者メールアドレス\n- `$json.meeting_name`: 正規化された会議名\n- `$json.meeting_date`: パース済み会議日時\n- `$binary.m4a_data`: M4Aバイナリデータ\n\n### 🏗️ 12層マッピング\n- **L1 (Trigger)**: trigger_g1_01\n- **L2 (Input)**: get_file_g1_02, download_g1_03\n- **L3 (Validation)**: set_meta_g1_04, filter_g1_05, code_normalize_g1_06",
+        "height": 420,
+        "width": 540,
+        "color": 2
+      }
+    }
+  ],
+  "connections": {
+    "M4Aファイル検知": {
+      "main": [
+        [
+          {
+            "node": "ファイル情報取得",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ファイル情報取得": {
+      "main": [
+        [
+          {
+            "node": "M4Aダウンロード",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "M4Aダウンロード": {
+      "main": [
+        [
+          {
+            "node": "初期メタデータ設定",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "初期メタデータ設定": {
+      "main": [
+        [
+          {
+            "node": "ファイル妥当性チェック",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ファイル妥当性チェック": {
+      "main": [
+        [
+          {
+            "node": "ファイル名正規化",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2025-11-13T00:00:00.000Z",
+  "versionId": "v4.0"
+}
