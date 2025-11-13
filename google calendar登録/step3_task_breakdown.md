@@ -77,7 +77,7 @@
     "request_timestamp": "={{ $json.body.timestamp }}"
   }
   ```
-- **エラーハンドリング**: 
+- **エラーハンドリング**:
   - 戦略: continueOnFail
   - フォールバック: Discordにエラー返信
 
@@ -96,7 +96,7 @@
   const staticData = this.getWorkflowStaticData('global');
   const userId = $input.first().json.user_id;
   const savedState = staticData[userId];
-  
+
   return [{
     json: {
       ...($input.first().json),
@@ -131,7 +131,7 @@
     }
   }
   ```
-- **エラーハンドリング**: 
+- **エラーハンドリング**:
   - 戦略: retry (3回)
   - フォールバック: Error Workflow
 
@@ -155,7 +155,7 @@
     start_ts: new Date(event.start.dateTime).getTime(),
     end_ts: new Date(event.end.dateTime).getTime()
   }));
-  
+
   return [{
     json: {
       ...($input.first().json),
@@ -180,7 +180,7 @@
   const staticData = this.getWorkflowStaticData('global');
   const userId = $input.first().json.user_id;
   const savedState = staticData[userId];
-  
+
   return [{
     json: {
       ...savedState,
@@ -243,12 +243,12 @@
 - **検証ロジック**:
   ```javascript
   const data = $input.first().json;
-  const isValid = 
+  const isValid =
     data.event_title && typeof data.event_title === 'string' &&
     data.event_datetime && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(data.event_datetime) &&
     data.duration_minutes && typeof data.duration_minutes === 'number' &&
     Array.isArray(data.attendee_emails);
-  
+
   return [{
     json: {
       ...data,
@@ -350,7 +350,7 @@
     }
   }
   ```
-- **エラーハンドリング**: 
+- **エラーハンドリング**:
   - 戦略: retry (2回)
   - フォールバック: NODE-038（エラー返信）
 
@@ -368,17 +368,17 @@
   ```javascript
   const response = $input.first().json;
   const content = response.choices[0].message.content;
-  
+
   // JSONブロックを抽出（```json ... ``` または { ... } を検索）
-  const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/) || 
+  const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/) ||
                     content.match(/(\{[\s\S]*\})/);
-  
+
   if (!jsonMatch) {
     throw new Error("AI response does not contain valid JSON");
   }
-  
+
   const extractedData = JSON.parse(jsonMatch[1]);
-  
+
   return [{
     json: {
       ...($input.first().json),
@@ -404,7 +404,7 @@
   const data = $input.first().json;
   const startDate = new Date(data.event_datetime);
   const endDate = new Date(startDate.getTime() + data.duration_minutes * 60 * 1000);
-  
+
   return [{
     json: {
       ...data,
@@ -434,7 +434,7 @@
   const emailSubject = data.email_subject;
   const emailBody = data.email_body_html;
   const attendees = data.attendee_emails || [];
-  
+
   const emailMessages = attendees.map(email => {
     const rawMessage = [
       `From: your-email@gmail.com`,
@@ -444,7 +444,7 @@
       ``,
       emailBody
     ].join('\r\n');
-    
+
     return {
       json: {
         to_email: email,
@@ -452,7 +452,7 @@
       }
     };
   });
-  
+
   return emailMessages;
   ```
 - **エラーハンドリング**: continueOnFail
@@ -471,7 +471,7 @@
   ```javascript
   const message = $input.first().json.message_content;
   const match = message.match(/[1-5]/);
-  
+
   if (!match) {
     return [{
       json: {
@@ -481,11 +481,11 @@
       }
     }];
   }
-  
+
   const selectionNumber = parseInt(match[0]);
   const alternatives = $input.first().json.proposed_alternatives;
   const selectedSlot = alternatives[selectionNumber - 1];
-  
+
   return [{
     json: {
       ...($input.first().json),
@@ -550,10 +550,10 @@
   const newStart = $input.first().json.start_timestamp;
   const newEnd = $input.first().json.end_timestamp;
   const existingEvents = $input.first().json.existing_events || [];
-  
+
   let hasConflict = false;
   let conflictEvent = null;
-  
+
   for (const event of existingEvents) {
     if (
       (newStart >= event.start_ts && newStart < event.end_ts) ||
@@ -565,7 +565,7 @@
       break;
     }
   }
-  
+
   return [{
     json: {
       ...($input.first().json),
@@ -698,14 +698,14 @@
     }
   }
   ```
-- **エラーハンドリング**: 
+- **エラーハンドリング**:
   - 戦略: retry (2回)
   - フォールバック: Error Workflow + Discord返信
 
 #### NODE-024: AI Email Generation (Claude)
 - **ID**: node_024_ai_claude
 - **名前**: 【AI Agent 3】通知メール生成（Claude）
-- **説明**: OpenRouter経由でClaude 3.5 Sonnetを呼び出し、メール本文を生成
+- **説明**: OpenRouter経由でClaude 4.5 Sonnetを呼び出し、メール本文を生成
 - **レイヤー**: 実行
 - **ノードタイプ**: n8n-nodes-base.httpRequest
 - **実行モード**: Run once for all items
@@ -731,7 +731,7 @@
       "parameters": [
         {
           "name": "model",
-          "value": "anthropic/claude-3.5-sonnet:beta"
+          "value": "anthropic/claude-4.5-sonnet:beta"
         },
         {
           "name": "messages",
@@ -758,7 +758,7 @@
     }
   }
   ```
-- **エラーハンドリング**: 
+- **エラーハンドリング**:
   - 戦略: retry (2回)
   - フォールバック: デフォルトメール本文を使用
 
@@ -796,14 +796,14 @@
     }
   }
   ```
-- **エラーハンドリング**: 
+- **エラーハンドリング**:
   - 戦略: continueOnFail
   - フォールバック: エラーは記録するが処理続行
 
 #### NODE-027: AI Alternative Generation (Gemini)
 - **ID**: node_027_ai_gemini
 - **名前**: 【AI Agent 2】空き時間候補生成（Gemini）
-- **説明**: OpenRouter経由でGemini 2.0 Flashを呼び出し、代替候補を提案
+- **説明**: OpenRouter経由でGemini 2.5 Flashを呼び出し、代替候補を提案
 - **レイヤー**: 実行
 - **ノードタイプ**: n8n-nodes-base.httpRequest
 - **実行モード**: Run once for all items
@@ -829,7 +829,7 @@
       "parameters": [
         {
           "name": "model",
-          "value": "google/gemini-2.0-flash-exp:free"
+          "value": "google/gemini-2.5-flash-exp:free"
         },
         {
           "name": "messages",
@@ -856,7 +856,7 @@
     }
   }
   ```
-- **エラーハンドリング**: 
+- **エラーハンドリング**:
   - 戦略: retry (2回)
   - フォールバック: Error Workflow
 
@@ -887,7 +887,7 @@
   ```javascript
   const staticData = this.getWorkflowStaticData('global');
   const userId = $input.first().json.user_id;
-  
+
   staticData[userId] = {
     original_request: {
       event_title: $input.first().json.event_title,
@@ -899,7 +899,7 @@
     status: 'awaiting_selection',
     timestamp: Date.now()
   };
-  
+
   return [{
     json: {
       ...($input.first().json),
@@ -924,7 +924,7 @@
   const staticData = this.getWorkflowStaticData('global');
   const userId = $input.first().json.user_id;
   delete staticData[userId];
-  
+
   return [{
     json: {
       ...($input.first().json),
@@ -974,7 +974,7 @@
     }
   }
   ```
-- **エラーハンドリング**: 
+- **エラーハンドリング**:
   - 戦略: retry (2回)
   - フォールバック: Error Workflow
 
@@ -998,7 +998,7 @@
     }
   }
   ```
-- **エラーハンドリング**: 
+- **エラーハンドリング**:
   - 戦略: retry (2回)
   - フォールバック: Error Workflow
 
@@ -1022,7 +1022,7 @@
     }
   }
   ```
-- **エラーハンドリング**: 
+- **エラーハンドリング**:
   - 戦略: continueOnFail
   - フォールバック: ログ記録のみ
 
@@ -1045,7 +1045,7 @@
 ### 統計情報
 - **総ノード数**: 42個（適正範囲: 10-50 ✅）
 - **AI使用ノード数**: 3個（Grok、Gemini、Claude）
-- **推定実行時間**: 
+- **推定実行時間**:
   - 重複なし: 20-30秒
   - 重複あり（候補提案まで）: 25-35秒
   - 選択後登録: 15-25秒

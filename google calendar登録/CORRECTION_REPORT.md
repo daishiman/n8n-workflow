@@ -114,7 +114,7 @@
 ```
 
 **追加されたサブノード**:
-- `Gemini Chat Model` (chatmodel_029): google/gemini-2.0-flash-exp:free、temperature=0.7
+- `Gemini Chat Model` (chatmodel_029): google/gemini-2.5-flash-exp:free、temperature=0.7
 - `候補生成 Memory` (memory_030): 過去3件の会話履歴を保持
 - `候補データParser` (parser_031): 5要素の配列を厳密に検証
 
@@ -157,7 +157,7 @@
 ```
 
 **追加されたサブノード**:
-- `Claude Chat Model` (chatmodel_025): anthropic/claude-3.5-sonnet:beta、temperature=0.8
+- `Claude Chat Model` (chatmodel_025): anthropic/claude-4.5-sonnet:beta、temperature=0.8
 - `メール生成 Memory` (memory_026): 過去3件の会話履歴を保持
 - `メールデータParser` (parser_027): メールJSON（件名60文字制限）を検証
 

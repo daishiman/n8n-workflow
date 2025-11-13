@@ -138,14 +138,14 @@ Step060の詳細設計書に基づき、Group [N]のノード群をn8nにイン�
 
      Step020のAI設定書に基づいて、以下のいずれかを生成：
 
-     **Gemini 2.0 Flash用**:
+     **Gemini 2.5 Flash用**:
      ```json
      {
        "id": "lm_gemini_[group_id]",
        "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
-       "name": "Gemini 2.0 Flash",
+       "name": "Gemini 2.5 Flash",
        "parameters": {
-         "modelName": "gemini-2.0-flash-exp",
+         "modelName": "gemini-2.5-flash-exp",
          "options": {
            "temperature": 0.4,
            "maxOutputTokens": 4000
@@ -153,7 +153,7 @@ Step060の詳細設計書に基づき、Group [N]のノード群をn8nにイン�
        },
        "typeVersion": 1,
        "position": [X-200, Y-100],
-       "_comment": "Gemini 2.0 Flash言語モデル",
+       "_comment": "Gemini 2.5 Flash言語モデル",
        "notes": "temperature: 0.4（精度重視）、maxOutputTokens: 4000"
      }
      ```
@@ -285,7 +285,7 @@ Step060の詳細設計書に基づき、Group [N]のノード群をn8nにイン�
      ```json
      {
        "connections": {
-         "Gemini 2.0 Flash": {
+         "Gemini 2.5 Flash": {
            "ai_languageModel": [
              [
                {
@@ -526,7 +526,7 @@ Step060の詳細設計書に基づき、Group [N]のノード群をn8nにイン�
      - **notes**: 設定の補足情報、技術的詳細（開発者向け）
        - 例: 「POST /receive-minutes エンドポイント。認証ヘッダー: X-API-Key。」
   2. AI Agent Nodeの場合、責務を明記:
-     - _comment: 「AI Agentが議事録を200-300文字で要約する。Gemini 2.0 Flash (Thinking Mode)を使用。」
+     - _comment: 「AI Agentが議事録を200-300文字で要約する。Gemini 2.5 Flash (Thinking Mode)を使用。」
      - notes: 「System Prompt: ...（Step050参照）」
   3. すべてのノードに追加
 - 評価・判断基準:
@@ -538,7 +538,7 @@ Step060の詳細設計書に基づき、Group [N]のノード群をn8nにイン�
   "id": "ai_agent_1",
   "type": "@n8n/n8n-nodes-langchain.agent",
   "name": "AI Agent: 議事録要約",
-  "_comment": "AI Agentが議事録を200-300文字で要約する。Gemini 2.0 Flash (Thinking Mode)を使用し、重要ポイントを3-5個抽出。",
+  "_comment": "AI Agentが議事録を200-300文字で要約する。Gemini 2.5 Flash (Thinking Mode)を使用し、重要ポイントを3-5個抽出。",
   "notes": "System Prompt: Step050で定義したプロンプトを使用。トークン超過時は入力を分割して再実行。リトライ戦略: 最大3回（指数バックオフ）。"
 }
 ```

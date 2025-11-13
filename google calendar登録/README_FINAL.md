@@ -170,8 +170,8 @@ Execute Workflow → Test Webhook
 
 1. **3つのAI Agentによる役割分担**:
    - Grok 2: 自然言語理解（temperature 0.3）
-   - Gemini 2.0: データ分析・候補生成（temperature 0.7）
-   - Claude 3.5: ビジネス文章生成（temperature 0.8）
+   - Gemini 2.5: データ分析・候補生成（temperature 0.7）
+   - Claude 4.5: ビジネス文章生成（temperature 0.8）
 
 2. **専用ノードの活用**:
    - Discord専用ノード: メッセージ送信
@@ -302,8 +302,8 @@ Execute Workflow → Test Webhook
 - **n8n**: v1.0以降
 - **LLM**:
   - Grok 2 (X.AI)
-  - Claude 3.5 Sonnet (Anthropic)
-  - Gemini 2.0 Flash (Google)
+  - Claude 4.5 Sonnet (Anthropic)
+  - Gemini 2.5 Flash (Google)
 - **外部サービス**:
   - OpenRouter API（LLMアクセス）
   - Google Calendar API
@@ -328,8 +328,8 @@ Execute Workflow → Test Webhook
 **重複ありの予定登録（参加者あり）**:
 - OpenRouter API: 約5,000トークン（$0.005程度）
   - Grok 2: 1,000トークン
-  - Gemini 2.0: 2,000トークン
-  - Claude 3.5: 1,500トークン（メール生成）
+  - Gemini 2.5: 2,000トークン
+  - Claude 4.5: 1,500トークン（メール生成）
 - Google Calendar API: 2リクエスト
 - Gmail API: 1リクエスト（参加者数に関わらず）
 - Discord API: 2リクエスト（重複返信、成功返信）
@@ -395,7 +395,7 @@ Execute Workflow → Test Webhook
 
 #### 1. Chat Modelの変更
 
-現在: Grok 2、Claude 3.5、Gemini 2.0
+現在: Grok 2、Claude 4.5、Gemini 2.5
 
 変更方法:
 1. 各Chat Modelノードを開く

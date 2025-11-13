@@ -147,7 +147,7 @@ v4.0では、データフロー層（7層）と横断的関心事層（5層）�
 | L2: Input | Set | 初期化 | meetingDataオブジェクト作成 | L1 |
 | L3: Validation | IF | 必須チェック | title, transcript存在確認 | L2 |
 | L4: Transformation | Code | テキスト前処理 | transcript整形 | L3 |
-| L5: Core Logic | AI Agent | 議事録要約 | Gemini 2.0 Flash実行 | L4 |
+| L5: Core Logic | AI Agent | 議事録要約 | Gemini 2.5 Flash実行 | L4 |
 | L6: Integration | Slack | Slack投稿 | #meeting-summariesに投稿 | L5 |
 | L7: Output | Respond to Webhook | 完了レスポンス | 200 OK返却 | L6 |
 ```
@@ -357,7 +357,7 @@ graph TB
         L6[L6: Integration]
         L7[L7: Output]
     end
-    
+
     subgraph "Cross-Cutting Concerns"
         L8[L8: Error Handling]
         L9[L9: Security]
@@ -365,7 +365,7 @@ graph TB
         L11[L11: Performance]
         L12[L12: Orchestration]
     end
-    
+
     L1 --> L2 --> L3 --> L4 --> L5 --> L6 --> L7
     L8 -.-> L1 & L2 & L3 & L4 & L5 & L6 & L7
     L9 -.-> L1 & L2 & L6

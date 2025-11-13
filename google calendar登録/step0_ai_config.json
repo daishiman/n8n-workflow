@@ -41,8 +41,8 @@
         "goal": "重複時は5つの代替候補を提案（今日・明日の2日分）",
         "chat_model": {
           "node_type": "HTTP Request Node (OpenRouter互換)",
-          "model": "google/gemini-2.0-flash-exp:free",
-          "display_name": "Gemini 2.0 Flash (via OpenRouter)",
+          "model": "google/gemini-2.5-flash-exp:free",
+          "display_name": "Gemini 2.5 Flash (via OpenRouter)",
           "parameters": {
             "temperature": 0.7,
             "max_tokens": 2000,
@@ -73,8 +73,8 @@
         "goal": "件名、本文、参加者への配慮を含む完全なメール文章を作成",
         "chat_model": {
           "node_type": "HTTP Request Node (OpenRouter互換)",
-          "model": "anthropic/claude-3.5-sonnet:beta",
-          "display_name": "Claude 3.5 Sonnet (via OpenRouter)",
+          "model": "anthropic/claude-4.5-sonnet:beta",
+          "display_name": "Claude 4.5 Sonnet (via OpenRouter)",
           "parameters": {
             "temperature": 0.8,
             "max_tokens": 1500,
@@ -115,8 +115,8 @@
         "header_format": "Authorization: Bearer YOUR_API_KEY",
         "models_access": [
           "x-ai/grok-2-1212",
-          "google/gemini-2.0-flash-exp:free",
-          "anthropic/claude-3.5-sonnet:beta"
+          "google/gemini-2.5-flash-exp:free",
+          "anthropic/claude-4.5-sonnet:beta"
         ]
       },
       "google_calendar": {

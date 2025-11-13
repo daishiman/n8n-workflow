@@ -19,8 +19,8 @@
 各AI Agentは明確に1つの責務のみを持ちます：
 
 ✅ **AI Agent 1（Grok 2）**: Discord自然言語メッセージ → 構造化JSON変換
-✅ **AI Agent 2（Gemini 2.0 Flash）**: カレンダー分析 → 空き時間候補5つ提案
-✅ **AI Agent 3（Claude 3.5 Sonnet）**: 予定情報 → 通知メール文章生成
+✅ **AI Agent 2（Gemini 2.5 Flash）**: カレンダー分析 → 空き時間候補5つ提案
+✅ **AI Agent 3（Claude 4.5 Sonnet）**: 予定情報 → 通知メール文章生成
 
 ---
 
@@ -268,7 +268,7 @@ NODE-008 (AI抽出結果検証)
       "parameters": [
         {
           "name": "model",
-          "value": "google/gemini-2.0-flash-exp:free"
+          "value": "google/gemini-2.5-flash-exp:free"
         },
         {
           "name": "messages",
@@ -436,7 +436,7 @@ NODE-037 (Discord重複返信)
       "parameters": [
         {
           "name": "model",
-          "value": "anthropic/claude-3.5-sonnet:beta"
+          "value": "anthropic/claude-4.5-sonnet:beta"
         },
         {
           "name": "messages",
@@ -602,7 +602,7 @@ return [{
         "expected_output": "alternative_slots配列（5要素）",
         "connected_model": {
           "provider": "OpenRouter",
-          "model": "google/gemini-2.0-flash-exp:free",
+          "model": "google/gemini-2.5-flash-exp:free",
           "temperature": 0.7,
           "max_tokens": 2000
         },
@@ -619,7 +619,7 @@ return [{
         "expected_output": "email_subject, email_body_html, email_body_plain",
         "connected_model": {
           "provider": "OpenRouter",
-          "model": "anthropic/claude-3.5-sonnet:beta",
+          "model": "anthropic/claude-4.5-sonnet:beta",
           "temperature": 0.8,
           "max_tokens": 1500
         },

@@ -26,7 +26,7 @@
 
 1. **メインワークフロー JSON**: `step7_complete_n8n_workflow_NATIVE_NODES_v3.json`
    - ✅ n8n AI Agent Node 活用（3つのAI Agent）
-   - ✅ 複数Chat Model対応（Grok 2、Claude 3.5、Gemini 2.0）
+   - ✅ 複数Chat Model対応（Grok 2、Claude 4.5、Gemini 2.5）
    - ✅ Discord、Google Calendar、Gmail専用ノード使用
    - ✅ AI Agent 接続検証済み（Chat Model/Memory/Output Parser）
    - ✅ 全パラメータ明示的設定
@@ -59,8 +59,8 @@
 - **ノード数**: 44個（Sticky Note 8個 + 実行ノード 36個）
 - **AI Agent 数**: 3個
   - AI Agent 1: Discord予定抽出（Grok 2）
-  - AI Agent 2: 空き時間候補生成（Gemini 2.0）
-  - AI Agent 3: 通知メール生成（Claude 3.5）
+  - AI Agent 2: 空き時間候補生成（Gemini 2.5）
+  - AI Agent 3: 通知メール生成（Claude 4.5）
 - **接続数**: 42個
 - **予想実行時間**: 5-15秒（AI処理含む）
 - **データ処理能力**: リアルタイム（Webhook駆動）
@@ -85,7 +85,7 @@
 - **認証**: OpenRouter API
 
 ### AI Agent 2: 空き時間候補生成
-- **Chat Model**: Gemini 2.0 Flash (google/gemini-2.0-flash-exp:free)
+- **Chat Model**: Gemini 2.5 Flash (google/gemini-2.5-flash-exp:free)
 - **Temperature**: 0.7（バランス型）
 - **Max Tokens**: 2,000
 - **責務**: 既存予定分析 → 空き時間候補5つ提案
@@ -93,7 +93,7 @@
 - **認証**: OpenRouter API
 
 ### AI Agent 3: 通知メール生成
-- **Chat Model**: Claude 3.5 Sonnet (anthropic/claude-3.5-sonnet:beta)
+- **Chat Model**: Claude 4.5 Sonnet (anthropic/claude-4.5-sonnet:beta)
 - **Temperature**: 0.8（創造性重視、自然な文章）
 - **Max Tokens**: 1,500
 - **責務**: 予定情報 → ビジネスメール（HTML + Plain Text）
